@@ -8,6 +8,26 @@ import SubfragiumDBAPI
 import SubfragiumController
 from app import db
 
+target = '1.1.1.1'
+targetData = {
+  'snmpString': 'eur'
+}
+
+poller = 'poller1'
+pollerData = {
+  'name': 'poller1',
+  'minProcesses': 1,
+  'maxProcesses': 50,
+  'numProcesses': 1,
+  'holdDown': 20
+}
+
+oid = '1.3.6.1.2.1'
+oidData = {
+  'poller': 'poller1',
+  'name': 'network.interface.ifInHcOctets.GigabitEthernet0/0'
+}
+
 class TestTargetApi(unittest.TestCase):
 
   def setUp(self):
@@ -60,7 +80,7 @@ class TestTargetApi(unittest.TestCase):
     self.assertEquals(resJson, resRequired)
 
   def testGetTargetNoSuchTarget(self):
-    res = self.app.get('/target/1.1.1.1')
+    res = self.app.get('/target/' + target)
     resJson = json.loads(res.data)
 
     self.assertEquals(res.status_code, 404)
@@ -68,7 +88,7 @@ class TestTargetApi(unittest.TestCase):
     resRequired = {
       'response': {
         'success': False,
-        'err': 'No target 1.1.1.1 found in DB'
+        'err': 'No target ' + target + ' found in DB'
       }
     }
 
@@ -81,7 +101,7 @@ class TestTargetApi(unittest.TestCase):
       'code': 503,
       'err': 'DBAPI getTargetByName() Failed: Generic Error'
     }
-    res = self.app.get('/target/1.1.1.1')
+    res = self.app.get('/target/' + target)
     resJson = json.loads(res.data)
 
     self.assertEquals(res.status_code, 503)
@@ -96,8 +116,8 @@ class TestTargetApi(unittest.TestCase):
     self.assertEquals(resJson, resRequired)
 
   def testGetTargetSuccess(self):
-    res = self.app.put('/target/1.1.1.1',
-                       data=json.dumps({'snmpString': 'eur'}),
+    res = self.app.put('/target/' + target,
+                       data=json.dumps(targetData),
                        content_type = 'application/json')
     res = self.app.get('/target/1.1.1.1')
     resJson = json.loads(res.data)
@@ -108,8 +128,8 @@ class TestTargetApi(unittest.TestCase):
       'response': {
         'success': True,
         'obj': {
-          'name': '1.1.1.1',
-          'snmpString': 'eur'
+          'name': target,
+          'snmpString': targetData['snmpString']
         }
       }
     }
@@ -117,7 +137,7 @@ class TestTargetApi(unittest.TestCase):
     self.assertEquals(resJson, resRequired)
 
   def testPutTargetNoJson(self):
-    res = self.app.put('/target/1.1.1.1')
+    res = self.app.put('/target/' + target)
     resJson = json.loads(res.data)
 
     self.assertEquals(res.status_code, 404)
@@ -132,8 +152,13 @@ class TestTargetApi(unittest.TestCase):
     self.assertEquals(resJson, resRequired)
 
   def testPutTargetBadJson(self):
-    res = self.app.put('/target/1.1.1.1',
-                       data=json.dumps({'snmp': 'eur'}),
+
+    newTargetData = targetData.copy()
+    del(newTargetData['snmpString'])
+    newTargetData['snmp'] =  'eur'
+
+    res = self.app.put('/target/' + target,
+                       data=json.dumps(newTargetData),
                        content_type='application/json')
     resJson = json.loads(res.data)
 
@@ -148,8 +173,8 @@ class TestTargetApi(unittest.TestCase):
       'code': 503,
       'err': 'DBAPI getTargetByName() Failed: Generic Error'
     }
-    res = self.app.put('/target/1.1.1.1',
-                       data=json.dumps({'snmpString': 'eur'}),
+    res = self.app.put('/target/' + target,
+                       data=json.dumps(targetData),
                        content_type='application/json')
     resJson = json.loads(res.data)
 
@@ -159,8 +184,8 @@ class TestTargetApi(unittest.TestCase):
   # Need to mock the SubfragiumDBAPI call
   @mock.patch('SubfragiumDBAPI.updateTargetByName')
   def testPutTargetDbFailureInUpdateTarget(self, mockUpdate):
-    res = self.app.put('/target/1.1.1.1',
-                       data=json.dumps({'snmpString': 'eur'}),
+    res = self.app.put('/target/' + target,
+                       data=json.dumps(targetData),
                        content_type='application/json')
 
     mockUpdate.return_value = {
@@ -168,8 +193,8 @@ class TestTargetApi(unittest.TestCase):
       'code': 503,
       'err': 'DBAPI updateTargetByName() DB put operation failed: Generic Error'
     }
-    res = self.app.put('/target/1.1.1.1',
-                       data=json.dumps({'snmpString': 'eur'}),
+    res = self.app.put('/target/' + target,
+                       data=json.dumps(targetData),
                        content_type='application/json')
     resJson = json.loads(res.data)
 
@@ -177,8 +202,8 @@ class TestTargetApi(unittest.TestCase):
     self.assertEquals(resJson['response']['success'], False)
 
   def testPutTargetSuccessfully(self):
-    res = self.app.put('/target/1.1.1.1',
-                       data=json.dumps({'snmpString': 'eur'}),
+    res = self.app.put('/target/' + target,
+                       data=json.dumps(targetData),
                        content_type='application/json')
     self.assertEquals(res.status_code, 200)
 
@@ -193,17 +218,17 @@ class TestTargetApi(unittest.TestCase):
     self.assertEquals(resJson, resRequired)
 
   def testPutTargetSuccessfulModification(self):
-    res = self.app.put('/target/1.1.1.1',
-                       data=json.dumps({'snmpString': 'eur'}),
+    res = self.app.put('/target/' + target,
+                       data=json.dumps(targetData),
                        content_type='application/json')
     self.assertEquals(res.status_code, 200)
 
-    res = self.app.put('/target/1.1.1.1',
-                       data=json.dumps({'snmpString': 'usa'}),
+    res = self.app.put('/target/' + target,
+                       data=json.dumps(targetData),
                        content_type='application/json')
     self.assertEquals(res.status_code, 200)
 
-    res = self.app.get('/target/1.1.1.1')
+    res = self.app.get('/target/' + target)
     resJson = json.loads(res.data)
 
     self.assertEquals(res.status_code, 200)
@@ -212,8 +237,8 @@ class TestTargetApi(unittest.TestCase):
       'response': {
         'success': True,
         'obj': {
-          'name': '1.1.1.1',
-          'snmpString': 'usa'
+          'name': target,
+          'snmpString': targetData['snmpString']
         }
       }
     }
@@ -223,8 +248,8 @@ class TestTargetApi(unittest.TestCase):
   # Need to mock the SubfragiumDBAPI call
   @mock.patch('SubfragiumDBAPI.updateTargetByName')
   def testPutTargetDbFailureModifyingExistingTarget(self, mockUpdate):
-    res = self.app.put('/target/1.1.1.1',
-                       data=json.dumps({'snmpString': 'eur'}),
+    res = self.app.put('/target/' + target,
+                       data=json.dumps(targetData),
                        content_type='application/json')
     self.assertEquals(res.status_code, 200)
 
@@ -234,8 +259,8 @@ class TestTargetApi(unittest.TestCase):
       'err': 'putTarget() - Failed: DBAPI updateTargetByName() DB put operation failed Generic Error'
     }
 
-    res = self.app.put('/target/1.1.1.1',
-                       data=json.dumps({'snmpString': 'usa'}),
+    res = self.app.put('/target/' + target,
+                       data=json.dumps(targetData),
                        content_type='application/json')
     self.assertEquals(res.status_code, 503)
 
@@ -247,15 +272,15 @@ class TestTargetApi(unittest.TestCase):
       'code': 503,
       'err': 'putTarget() Failed: DBAPI putTarget() DB put operation failed Generic Error'
     }
-    res = self.app.put('/target/1.1.1.1',
-                       data=json.dumps({'snmpString': 'eur'}),
+    res = self.app.put('/target/' + target,
+                       data=json.dumps(targetData),
                        content_type='application/json')
 
     self.assertEquals(res.status_code, 503)
 
   def testPutTargetSuccess(self):
-    res = self.app.put('/target/1.1.1.1',
-                       data=json.dumps({'snmpString': 'eur'}),
+    res = self.app.put('/target/' + target,
+                       data=json.dumps(targetData),
                        content_type='application/json')
 
     self.assertEquals(res.status_code, 200)
@@ -277,7 +302,7 @@ class TestTargetApi(unittest.TestCase):
       'err': 'DBAPI getTargetByName() Failed: Generic Error'
     }
 
-    res = self.app.delete('/target/1.1.1.1')
+    res = self.app.delete('/target/' + target)
     resJson = json.loads(res.data)
 
     self.assertEquals(res.status_code, 503)
@@ -298,7 +323,7 @@ class TestTargetApi(unittest.TestCase):
       'obj': []
     }
 
-    res = self.app.delete('/target/1.1.1.1')
+    res = self.app.delete('/target/' + target)
     resJson = json.loads(res.data)
 
     self.assertEquals(res.status_code, 404)
@@ -306,7 +331,7 @@ class TestTargetApi(unittest.TestCase):
     resRequired = {
       'response': {
         'success': False,
-        'err': 'Target 1.1.1.1 not found'
+        'err': 'Target ' + target + ' not found'
       }
     }
 
@@ -315,8 +340,8 @@ class TestTargetApi(unittest.TestCase):
   @mock.patch('SubfragiumDBAPI.getOidsByTarget')
   def testDeleteTargetDbFailureGettingOids(self, mockGetOids):
 
-    res = self.app.put('/target/1.1.1.1',
-                       data=json.dumps({'snmpString': 'eur'}),
+    res = self.app.put('/target/' + target,
+                       data=json.dumps(targetData),
                        content_type='application/json')
     self.assertEquals(res.status_code, 200)
 
@@ -325,7 +350,7 @@ class TestTargetApi(unittest.TestCase):
       'err': 'DBAPI getOidsByTarget() Failed: Generic Error'
     }
 
-    res = self.app.delete('/target/1.1.1.1')
+    res = self.app.delete('/target/' + target)
     resJson = json.loads(res.data)
 
     self.assertEquals(res.status_code, 503)
@@ -339,37 +364,75 @@ class TestTargetApi(unittest.TestCase):
 
     self.assertEquals(resJson, resRequired)
 
-  @mock.patch('SubfragiumDBAPI.getOidsByTarget')
-  def testDeleteTargetOidsExistOnTarget(self, mockGetOids):
+  def testDeleteTargetOidsExistOnTarget(self):
 
-    res = self.app.put('/poller/poller1',
-                       data=json.dumps({'name': 'poller1', 'minProcesses': 1, 'maxProcesses': 50, 'numProcesses': 1, 'holdDown': 20}),
+    res = self.app.put('/poller/' + poller,
+                       data=json.dumps(pollerData),
                        content_type='application/json')
     self.assertEquals(res.status_code, 200)
 
-    res = self.app.put('/target/1.1.1.1',
-                       data=json.dumps({'snmpString': 'eur'}),
+    res = self.app.put('/target/' + target,
+                       data=json.dumps(targetData),
                        content_type='application/json')
     self.assertEquals(res.status_code, 200)
 
-    res = self.app.put('/oid/1.1.1.1/1.3.2.6.1',
-                       data=json.dumps({'name': 'test', 'poller': 'poller1'}),
+    res = self.app.put('/oid/' + target + '/' + oid,
+                       data=json.dumps(oidData),
                        content_type='application/json')
     self.assertEquals(res.status_code, 200)
 
-    mockGetOids.return_value = {
-      'success': True,
-      'obj': {
-        ''
+    res = self.app.delete('/target/' + target)
+    self.assertEquals(res.status_code, 404)
+    resJson = json.loads(res.data)
+
+    resRequired = {
+      'response': {
+        'success': False,
+        'err': 'deleteTarget() Failed: Target %s in use for oids'
       }
     }
 
+  @mock.patch('SubfragiumDBAPI.deleteTargetByName')
+  def testDeleteTargetDbFailureInDelete(self, mockDelete):
+    res = self.app.put('/target/' + target,
+                       data=json.dumps(targetData),
+                       content_type='application/json')
+    self.assertEquals(res.status_code, 200)
 
-    # Delete Target : Failure - OIDs using target
-  # Delete Target : Failure - DB Porblem Deleting Target
-  # Delete Target : Success
+    mockDelete.return_value = {
+      'success': False,
+      'err': 'DBAPI deleteTargetByName() Failed: Generic Error'
+    }
 
+    res = self.app.delete('/target/' + target)
+    self.assertEquals(res.status_code, 503)
+    resJson = json.loads(res.data)
 
+    resRequired = {
+      'response': {
+        'success': False,
+        'err': 'deleteTarget() Failed: DBAPI deleteTargetByName() Failed: Generic Error'
+      }
+    }
+    self.assertEquals(resJson, resRequired)
+
+  def testDeleteTargetSuccess(self):
+    res = self.app.put('/target/' + target,
+                       data=json.dumps(targetData),
+                       content_type='application/json')
+    self.assertEquals(res.status_code, 200)
+
+    res = self.app.delete('/target/' + target)
+    self.assertEquals(res.status_code, 200)
+    resJson = json.loads(res.data)
+
+    resRequired = {
+      'response': {
+        'success': True
+      }
+    }
+
+    self.assertEquals(resJson, resRequired)
 
 if __name__ == '__main__':
   unittest.main()

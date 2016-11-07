@@ -119,7 +119,7 @@ def deleteTarget(name):
 
     if len(existingOids['obj']) > 0:
         app.logger.info('deleteTarget() - Target %s in use for oids' % name)
-        return {'success': False, 'code': 404, 'err': 'Target %s in use for oids' % name}
+        return {'success': False, 'code': 404, 'err': 'deleteTarget() Failed: Target %s in use for oids' % name}
 
     result = SubfragiumDBAPI.deleteTargetByName(name)
     if not result['success']:
