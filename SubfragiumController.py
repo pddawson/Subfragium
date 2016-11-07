@@ -179,7 +179,7 @@ def targets():
     if not targetList['success']:
         error = 'getTargetsAll() - Failed: %s' % targetList['err']
         app.logger.error('getTargetsAll() - Failed %s' % targetList['err'])
-        return error404(targetList['err'])
+        return error503(error)
 
     return jsonify(response={ 'success': True, 'obj': targetList['obj']})
 

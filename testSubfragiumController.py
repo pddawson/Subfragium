@@ -434,5 +434,68 @@ class TestTargetApi(unittest.TestCase):
 
     self.assertEquals(resJson, resRequired)
 
+  @mock.patch('SubfragiumDBAPI.getTargetsAll')
+  def testGetTargetsDbFailure(self, mockGet):
+
+    mockGet.return_value = {
+      'success': False,
+      'err': 'DBAPI getTargetsAll() Failed: Generic Error'
+    }
+
+    res = self.app.get('/targets')
+    self.assertEquals(res.status_code, 503)
+    resJson = json.loads(res.data)
+
+    resRequired = {
+      'response': {
+        'success': False,
+        'err': 'getTargetsAll() - Failed: DBAPI getTargetsAll() Failed: Generic Error'
+      }
+    }
+    self.assertEquals(resJson, resRequired)
+
+  def testGetTargetsNoTargets(self):
+
+    res = self.app.get('/targets')
+    self.assertEquals(res.status_code, 200)
+
+    resJson = json.loads(res.data)
+
+    resRequired = {
+      'response': {
+        'success': True,
+        'obj': []
+      }
+    }
+    self.assertEquals(resJson, resRequired)
+
+  def testGetTargetsSuccess(self):
+
+    res = self.app.put('/target/' + target,
+                       data=json.dumps(targetData),
+                       content_type='application/json')
+    self.assertEquals(res.status_code, 200)
+
+    res = self.app.get('/targets')
+    self.assertEquals(res.status_code, 200)
+
+    resJson = json.loads(res.data)
+
+    resRequired = {
+      'response': {
+        'success': True,
+        'obj': [
+          {
+            'name': target,
+            'snmpString': targetData['snmpString']
+          }
+        ]
+      }
+    }
+    self.assertEquals(resJson, resRequired)
+
+  ############################################################################
+  ############################################################################
+
 if __name__ == '__main__':
   unittest.main()
