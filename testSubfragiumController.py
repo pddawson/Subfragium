@@ -4,9 +4,7 @@ import os
 import json
 import mock
 
-import SubfragiumDBAPI
 import SubfragiumController
-from app import db
 
 target = '1.1.1.1'
 targetData = {
