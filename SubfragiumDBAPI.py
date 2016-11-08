@@ -186,7 +186,7 @@ def putOidByOid(target, oid, data):
         db.session.commit()
         return {'success': True}
     except Exception, e:
-        return {'success': False, 'err': 'DBAPI putOidByOid() DB put operation failed %s' % e}
+        return {'success': False, 'err': 'DBAPI putOidByOid() DB put operation failed: %s' % e}
 
 def deleteOidByOid(target, oid):
 

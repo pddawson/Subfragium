@@ -312,55 +312,51 @@ def putOid(target, oid, data):
 
     app.logger.info('putOid() %s:%s request from %s' % (target, oid, request.remote_addr))
 
-    if data == None:
-      app.logger.info('putOid() - No data provided')
-      return {'success': False, 'err': 'No oid target or oid provided to add'}
-
     results = SubfragiumUtils.validateJson(SubfragiumAPISchema.Oid, data)
     if not results['success']:
         app.logger.error('putOid() Failed: %s' % results['err'])
-        return {'success': False, 'err': results['err']}
+        return {'success': False, 'code': 404, 'err': results['err']}
 
     # Check for existence of poller
     resPoller = SubfragiumDBAPI.getPollerByName(data['poller'])
     if not resPoller['success']:
         app.logger.error('putOid() Failure: %s ' % resPoller['err'])
-        return {'success': False, 'err': 'putOid() Failure: %s ' % resPoller['err']}
+        return {'success': False, 'code': 503, 'err': 'putOid() Failure: %s' % resPoller['err']}
 
     if resPoller['obj'] == []:
         app.logger.info('putOid() - Poller %s does not exist' % data['poller'])
-        return {'success': False, 'err': 'Poller %s does not exist' % data['poller']}
+        return {'success': False, 'code': 404, 'err': 'Poller %s does not exist' % data['poller']}
 
     # Check for existence of target
     resTarget = SubfragiumDBAPI.getTargetByName(target)
     if not resTarget['success']:
         app.logger.error('putOid() Failure: %s ' % resTarget['err'])
-        return {'success': False, 'err': 'putOid() Failure: %s ' % resTarget['err']}
+        return {'success': False, 'code': 503, 'err': 'putOid() Failure: %s' % resTarget['err']}
 
     if resTarget['obj'] == []:
         app.logger.info('putOid() - Target %s does not exist' % target )
-        return {'success': False, 'err': 'Target %s does not exist' % target}
+        return {'success': False, 'code': 404, 'err': 'Target %s does not exist' % target}
 
     # Check for existence of oid
     existingOid = SubfragiumDBAPI.getOidByOid(target, oid)
     if not existingOid['success']:
         app.logger.error('putOid() Failure: %s ' % existingOid['err'])
-        return {'success': False, 'err': 'putOid() Failure: %s ' % existingOid['err']}
+        return {'success': False, 'code': 503, 'err': 'putOid() Failure: %s' % existingOid['err']}
 
     if not existingOid['obj'] == []:
         app.logger.info('putOid() %s:%s update' % (target,oid))
         result = SubfragiumDBAPI.modifyOidByOid(target, oid, data)
         if not result['success']:
-          return {'success': False, 'err': 'putOid() - Failed: %s' % result['err']}
+          return {'success': False, 'code': 503, 'err': 'putOid() - Failed: %s' % result['err']}
         else:
-          return {'success': True}
+          return {'success': True, 'code': 200}
 
     results = SubfragiumDBAPI.putOidByOid(target, oid, data)
     if not results['success']:
-        app.logger.error('addOid() Failure: %s ' % existingOid['err'])
-        return {'success': False, 'err': 'putPoller() Failed: %s' % results['err']}
+        app.logger.error('addOid() Failure: %s ' % results['err'])
+        return {'success': False, 'code': 503, 'err': 'putPoller() Failed: %s' % results['err']}
 
-    return {'success': True}
+    return {'success': True, 'code': 200}
 
 
 def deleteOid(target, oid):
@@ -375,10 +371,6 @@ def deleteOid(target, oid):
     if len(existingOid['obj']) == 0:
         app.logger.info('deleteOid() - No such OID %s:%s' % (target,oid))
         return {'success': False, 'err': 'deleteOid() - No such OID %s:%s' % (target,oid)}
-
-    if len(existingOid['obj']) > 1:
-        app.logger.error('deleteOid() - Data consistency issue - duplicate oid entries for %s,%s' % (target, oid))
-        return {'success': False, 'err': 'Data consistency issue - duplicate oid entries for %s,%s' % (target,oid)}
 
     results = SubfragiumDBAPI.deleteOidByOid(target, oid)
     if not results['success']:
@@ -401,10 +393,6 @@ def getOid(target, oid):
         app.logger.info('deleteOid() - No such OID %s:%s' % (target,oid))
         return {'success': False, 'err': 'deleteOid() - No such OID %s:%s' % (target,oid)}
 
-    if len(existingOid['obj']) > 1:
-        app.logger.error('deleteOid() - Data consistency issue - duplicate oid entries for %s,%s' % (target, oid))
-        return {'success': False, 'err': 'Data consistency issue - duplicate oid entries for %s,%s' % (target,oid)}
-
     return { 'success': True, 'obj': existingOid['obj'][0]}
 
 @app.route('/oid/<string:target>/<string:oid>', methods=['GET','PUT','DELETE'])
@@ -415,21 +403,30 @@ def oid(target, oid):
         if result['success']:
             return jsonify(response={'success': True, 'obj': result['obj']})
         else:
-            return error404(result['err'])
+            if result['code'] == 404:
+                return error404(result['err'])
+            else:
+                return error503(result['err'])
 
     elif request.method == 'PUT':
         result = putOid(target, oid, request.json)
         if result['success']:
             return jsonify(response={'success': True})
         else:
-            return error404(result['err'])
+            if result['code'] == 404:
+                return error404(result['err'])
+            else:
+                return error503(result['err'])
 
     elif request.method == 'DELETE':
         result = deleteOid(target, oid)
         if result['success']:
             return jsonify(response={'success': True})
         else:
-            return error404(result['err'])
+            if result['code'] == 404:
+                return error404(result['err'])
+            else:
+                return error503(result['err'])
 
     else:
         app.logger.info('Unsupported HTTP method in request')

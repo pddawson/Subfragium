@@ -822,7 +822,6 @@ class TestTargetApi(unittest.TestCase):
     print resJson
     self.assertEquals(resJson, resRequired)
 
-  # DELETE /poller : DB Failure in deletePollerByName()
   def testDeletePollerSuccess(self):
     res = self.app.put('/poller/' + poller,
                        data=json.dumps(pollerData),
@@ -919,6 +918,250 @@ class TestTargetApi(unittest.TestCase):
     }
 
     self.assertEquals(resJson, resRequired)
+
+  def testOidInvalidMethod(self):
+    res = self.app.post('/oid/' + target + '/' + oid)
+    self.assertEquals(res.status_code, 405)
+
+    resJson = json.loads(res.data)
+
+    resRequired = {
+      'response': {
+        'success': False,
+        'err': 'Unsupported Method'
+      }
+    }
+    self.assertEquals(resJson, resRequired)
+
+  def testOidMissingTarget(self):
+    res = self.app.get('/oid/')
+    self.assertEquals(res.status_code, 404)
+
+    resJson = json.loads(res.data)
+
+    resRequired = {
+      'response': {
+        'success': False,
+        'err': '404: Not Found'
+      }
+    }
+
+    self.assertEquals(resJson, resRequired)
+
+  def testOidMissingOid(self):
+    res = self.app.get('/oid/' + target + '/')
+    self.assertEquals(res.status_code, 404)
+
+    resJson = json.loads(res.data)
+
+    resRequired = {
+      'response': {
+        'success': False,
+        'err': '404: Not Found'
+      }
+    }
+
+    self.assertEquals(resJson, resRequired)
+
+  def testPutOidMissingJson(self):
+    res = self.app.put('/oid/' + target + '/' + oid)
+    self.assertEquals(res.status_code, 404)
+
+  def testPutOidInvalidJson(self):
+
+    newOidData = oidData.copy()
+    del(newOidData['poller'])
+
+    res = self.app.put('/oid/' + target + '/' + oid,
+                       data=json.dumps(newOidData),
+                       content_type='application/json')
+    self.assertEquals(res.status_code, 404)
+
+  @mock.patch('SubfragiumDBAPI.getPollerByName')
+  def testPutOidDBFailureGetPoller(self, mockGet):
+    mockGet.return_value = {
+      'success': False,
+      'err': 'DBAPI getPollerByName() Failed: Generic Error'
+    }
+
+    res = self.app.put('/oid/' + target + '/' + oid,
+                       data=json.dumps(oidData),
+                       content_type='application/json')
+    self.assertEquals(res.status_code, 503)
+
+    resJson = json.loads(res.data)
+
+    resRequired = {
+      'response': {
+        'success': False,
+        'err': 'putOid() Failure: DBAPI getPollerByName() Failed: Generic Error'
+      }
+    }
+
+    self.assertEquals(resJson, resRequired)
+
+  def testPutOidNoSuchPoller(self):
+    res = self.app.put('/oid/' + target + '/' + oid,
+                       data=json.dumps(oidData),
+                       content_type='application/json')
+    self.assertEquals(res.status_code, 404)
+
+    resJson = json.loads(res.data)
+
+    resRequired = {
+      'response': {
+        'success': False,
+        'err': 'Poller poller1 does not exist'
+      }
+    }
+
+    self.assertEquals(resJson, resRequired)
+
+  @mock.patch('SubfragiumDBAPI.getTargetByName')
+  def testPutOidDBFailureGetTarget(self, mockGet):
+    mockGet.return_value = {
+      'success': False,
+      'err': 'DBAPI getTargetByName() Failed: Generic Error'
+    }
+
+    res = self.app.put('/poller/' + poller,
+                       data=json.dumps(pollerData),
+                       content_type='application/json')
+    self.assertEquals(res.status_code, 200)
+
+    res = self.app.put('/oid/' + target + '/' + oid,
+                       data=json.dumps(oidData),
+                       content_type='application/json')
+    self.assertEquals(res.status_code, 503)
+
+    resJson = json.loads(res.data)
+
+    resRequired = {
+      'response': {
+        'success': False,
+        'err': 'putOid() Failure: DBAPI getTargetByName() Failed: Generic Error'
+      }
+    }
+
+    self.assertEquals(resJson, resRequired)
+
+  def testPutOidNoSuchTarget(self):
+    res = self.app.put('/poller/' + poller,
+                       data=json.dumps(pollerData),
+                       content_type='application/json')
+    self.assertEquals(res.status_code, 200)
+
+    res = self.app.put('/oid/' + target + '/' + oid,
+                       data=json.dumps(oidData),
+                       content_type='application/json')
+    self.assertEquals(res.status_code, 404)
+
+    resJson = json.loads(res.data)
+
+    resRequired = {
+      'response': {
+        'success': False,
+        'err': 'Target 1.1.1.1 does not exist'
+      }
+    }
+    self.assertEquals(resJson, resRequired)
+
+  @mock.patch('SubfragiumDBAPI.getOidByOid')
+  def testPutOidDbFailureInGetOid(self, mockGet):
+    mockGet.return_value = {
+      'success': False,
+      'err': 'DBAPI getOidByOid() Failed: Generic Error'
+    }
+
+    res = self.app.put('/poller/' + poller,
+                       data=json.dumps(pollerData),
+                       content_type='application/json')
+    self.assertEquals(res.status_code, 200)
+
+    res = self.app.put('/target/' + target,
+                       data=json.dumps(targetData),
+                       content_type='application/json')
+    self.assertEquals(res.status_code, 200)
+
+    res = self.app.put('/oid/' + target + '/' + oid,
+                       data=json.dumps(oidData),
+                       content_type='application/json')
+    self.assertEquals(res.status_code, 503)
+
+    resJson = json.loads(res.data)
+
+    resRequired = {
+      'response': {
+        'success': False,
+        'err': 'putOid() Failure: DBAPI getOidByOid() Failed: Generic Error'
+      }
+    }
+    self.assertEquals(resJson, resRequired)
+
+  @mock.patch('SubfragiumDBAPI.putOidByOid')
+  def testPutOidDbFailireInPutOid(self, mockPut):
+    mockPut.return_value = {
+      'success': False,
+      'err': 'DBAPI putOidByOid() DB put operation failed: Generic Error'
+    }
+
+    res = self.app.put('/poller/' + poller,
+                       data=json.dumps(pollerData),
+                       content_type='application/json')
+    self.assertEquals(res.status_code, 200)
+
+    res = self.app.put('/target/' + target,
+                       data=json.dumps(targetData),
+                       content_type='application/json')
+    self.assertEquals(res.status_code, 200)
+
+    res = self.app.put('/oid/' + target + '/' + oid,
+                       data=json.dumps(oidData),
+                       content_type='application/json')
+    self.assertEquals(res.status_code, 503)
+
+    resJson = json.loads(res.data)
+
+    resRequired = {
+      'response': {
+        'success': False,
+        'err': 'putPoller() Failed: DBAPI putOidByOid() DB put operation failed: Generic Error'
+      }
+    }
+    self.assertEquals(resJson, resRequired)
+
+  def testPutOidSuccess(self):
+    res = self.app.put('/poller/' + poller,
+                       data=json.dumps(pollerData),
+                       content_type='application/json')
+    self.assertEquals(res.status_code, 200)
+
+    res = self.app.put('/target/' + target,
+                       data=json.dumps(targetData),
+                       content_type='application/json')
+    self.assertEquals(res.status_code, 200)
+
+    res = self.app.put('/oid/' + target + '/' + oid,
+                       data=json.dumps(oidData),
+                       content_type='application/json')
+    self.assertEquals(res.status_code, 200)
+
+    resJson = json.loads(res.data)
+
+    resRequired = {
+      'response': {
+        'success': True
+      }
+    }
+    self.assertEquals(resJson, resRequired)
+  # PUT /oid : Success
+  # GET /oid : DB Failure Get OID
+  # GET /oid : No Such OID
+  # GET /oid : Success
+  # GET /oid : DB Failure Get Oid
+  # GET /oid : No Such OID
+  # Get /oid : DB Failure Delete OID
+  # Get /oid : Success
 
 if __name__ == '__main__':
   unittest.main()
