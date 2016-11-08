@@ -217,7 +217,7 @@ def getPoller(name):
     poller = SubfragiumDBAPI.getPollerByName(name)
     if not poller['success']:
         app.logger.error('getPoller() - Failed %s' % poller['err'])
-        return {'success': False, 'code': 503, 'err': 'getPoller() - Failed: %s' % target['err']}
+        return {'success': False, 'code': 503, 'err': 'getPoller() - Failed: %s' % poller['err']}
 
     if poller['obj'] == []:
       app.logger.info('getPoller() - No poller %s found in DB' % name)
@@ -303,7 +303,7 @@ def pollers():
     if not pollerList['success']:
         app.logger.error('getPollersAll() Failed: %s' % pollerList['err'])
         error = 'getPollersAll() Failed: %s' % pollerList['err']
-        return error404(error)
+        return error503(error)
 
     return jsonify(response={'success': True, 'obj': pollerList['obj']})
 

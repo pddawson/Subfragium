@@ -136,7 +136,7 @@ def getPollerByName(name):
                 'numProcesses': poller.numProcesses,
                 'holdDown': poller.holdDown}]}
     except Exception, e:
-        return {'success': False, 'err': 'DBAPI getPollerByNae() Failed: %s' % e}
+        return {'success': False, 'err': 'DBAPI getPollerByName() Failed: %s' % e}
 
 
 def modifyPollerByName(name, data):
