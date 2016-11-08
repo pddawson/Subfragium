@@ -153,7 +153,7 @@ def modifyPollerByName(name, data):
         db.session.commit()
         return {'success': True}
     except Exception, e:
-        return {'success': False, 'err': 'DBAPI modifyPollerByName() DB put operation failed %s' % e}
+        return {'success': False, 'err': 'DBAPI modifyPollerByName() DB put operation failed: %s' % e}
 
 def getPollersAll():
 

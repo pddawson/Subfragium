@@ -160,8 +160,6 @@ def target(name):
         if result['success']:
             return jsonify(response={'success': True})
         else:
-            print 'Result'
-            print result
             if result['code'] == 404:
                 return error404(result['err'])
             else:
@@ -189,28 +187,28 @@ def putPoller(name, data):
 
     results = SubfragiumUtils.validateJson(SubfragiumAPISchema.Poller, data)
     if not results['success']:
-        app.logger.info('putPoller() - Failure %s' % results['err'])
-        return {'success': False, 'err': results['err']}
+        app.logger.info('putPoller() - Failure: %s' % results['err'])
+        return {'success': False, 'code': 404, 'err': r'putPoller() - Failure: %s' % results['err']}
 
     existingPoller = SubfragiumDBAPI.getPollerByName(name)
     if not existingPoller['success']:
-        app.logger.error('putPoller() - Failed %s' % existingPoller['err'])
-        return {'success': False, 'err': 'putPoller() Failure: %s' % existingPoller['err']}
+        app.logger.error('putPoller() - Failure:  %s' % existingPoller['err'])
+        return {'success': False, 'code': 503, 'err': 'putPoller() - Failure: %s' % existingPoller['err']}
 
     if existingPoller['obj'] != []:
         app.logger.info('putPoller() %s update' % name)
         result = SubfragiumDBAPI.modifyPollerByName(name, data)
         if not result['success']:
-          return {'success': False, 'err': 'putPoller() - Failed: %s' % result['err']}
+          return {'success': False, 'code': 503, 'err': 'putPoller() - Failed: %s' % result['err']}
         else:
-          return {'success': True}
+          return {'success': True, 'code': 200}
 
     results = SubfragiumDBAPI.putPollerByName(name, data)
     if not results['success']:
         app.logger.error('putPoller() - Failed %s' % results['err'])
-        return {'success': False, 'err': 'putPoller() Failed: %s' % results['err']}
+        return {'success': False, 'code': 503, 'err': 'putPoller() Failed: %s' % results['err']}
 
-    return {'success': True}
+    return {'success': True, 'code': 200}
 
 def getPoller(name):
 
@@ -219,17 +217,13 @@ def getPoller(name):
     poller = SubfragiumDBAPI.getPollerByName(name)
     if not poller['success']:
         app.logger.error('getPoller() - Failed %s' % poller['err'])
-        return {'success': False, 'err': 'getPoller() - Failed: %s' % target['err']}
+        return {'success': False, 'code': 503, 'err': 'getPoller() - Failed: %s' % target['err']}
 
     if poller['obj'] == []:
       app.logger.info('getPoller() - No poller %s found in DB' % name)
-      return {'success': False, 'err': 'No poller %s found in DB' % name}
+      return {'success': False, 'code': 404, 'err': 'No poller %s found in DB' % name}
 
-    if len(poller['obj']) > 1:
-      app.logger.error('getPoller() - Data consistency issue - duplicate poller entries for %s' % name)
-      return {'success': False, 'err': 'Data consistency issue - duplicate poller entries for %s' % name}
-
-    return {'success': True, 'obj': poller['obj'][0]}
+    return {'success': True, 'code': 200, 'obj': poller['obj'][0]}
 
 
 def deletePoller(name):
@@ -239,34 +233,30 @@ def deletePoller(name):
     existingPoller = SubfragiumDBAPI.getPollerByName(name)
     if not existingPoller['success']:
         app.logger.error('deletePoller() - Failed %s' % existingPoller['err'])
-        return {'success': False, 'err': 'deletePoller() Failed: %s' % existingPoller['err']}
+        return {'success': False, 'code': 503, 'err': 'deletePoller() Failed: %s' % existingPoller['err']}
 
     if existingPoller['obj'] == []:
         app.logger.info('deletePoller() - Poller %s not found' % name)
-        return {'success': False, 'err': 'Poller %s not found' % name}
-
-    if len(existingPoller['obj']) > 1:
-        app.logger.error('deletePoller() - Data consistency issue - multiple identical targets')
-        return {'success': False, 'err': 'Data consistency issue - multiple identical targets'}
+        return {'success': False, 'code': 404, 'err': 'Poller %s not found' % name}
 
     existingOids = SubfragiumDBAPI.getOidsByPoller(name)
     if not existingOids['success']:
         app.logger.error('deletePoller() - Failed %s' % existingOids['err'])
-        return {'success': False, 'err': 'deletePoller() Failed: %s' % existingOids['err']}
+        return {'success': False, 'code': 503, 'err': 'deletePoller() Failed: %s' % existingOids['err']}
 
     if len(existingOids['obj']) > 0:
         app.logger.info('deletePoller() - Poller %s in use for oids' % name)
-        return {'success': False, 'err': 'Poller %s in use for oids' % name}
+        return {'success': False, 'code': 404, 'err': 'Poller %s in use for oids' % name}
 
     result = SubfragiumDBAPI.deletePollerByName(name)
     if not result['success']:
         app.logger.error('deletePoller() Failed: %s' % result['err'])
-        return {'success': False, 'err': 'deletePoller() Failed: %s' % result['err']}
+        return {'success': False, 'code': 503, 'err': 'deletePoller() Failed: %s' % result['err']}
 
     return {'success': True}
 
 
-@app.route('/poller/<string:name>', methods=['GET','PUT','DELETE'])
+@app.route('/poller/<string:name>', methods=['GET', 'PUT', 'DELETE'])
 def poller(name):
 
     if request.method == 'GET':
@@ -274,21 +264,30 @@ def poller(name):
         if result['success']:
             return jsonify(response={'success': True, 'obj': result['obj']})
         else:
-          return error404(result['err'])
+            if result['code'] == 404:
+                return error404(result['err'])
+            else:
+                return error503(result['err'])
 
     elif request.method == 'PUT':
         result = putPoller(name, request.json)
         if result['success']:
             return jsonify(response={'success': True})
         else:
-            return error404(result['err'])
+            if result['code'] == 404:
+                return error404(result['err'])
+            else:
+                return error503(result['err'])
 
     elif request.method == 'DELETE':
         result = deletePoller(name)
         if result['success']:
             return jsonify(response={'success': True})
         else:
-            return error404(result['err'])
+            if result['code'] == 404:
+                return error404(result['err'])
+            else:
+                return error503(result['err'])
 
     else:
         app.logger.info('Unsupported HTTP method in request')

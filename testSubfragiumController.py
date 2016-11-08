@@ -42,7 +42,7 @@ class TestTargetApi(unittest.TestCase):
   def tearDown(self):
     os.unlink(SubfragiumController.app.config['SQLALCHEMY_DATABASE_PATH'])
 
-  def testTargetMethod(self):
+  def testTargetInvalidMethod(self):
     res = self.app.post('/target/1.1.1.1')
     resJson = json.loads(res.data)
 
@@ -434,6 +434,21 @@ class TestTargetApi(unittest.TestCase):
 
     self.assertEquals(resJson, resRequired)
 
+  def testGetTargetsInvalidMethod(self):
+    res = self.app.put('/targets')
+    self.assertEquals(res.status_code, 405)
+
+    resJson = json.loads(res.data)
+
+    resRequired = {
+      'response': {
+        'success': False,
+        'err': 'Unsupported Method'
+      }
+    }
+
+    self.assertEquals(resJson, resRequired)
+
   @mock.patch('SubfragiumDBAPI.getTargetsAll')
   def testGetTargetsDbFailure(self, mockGet):
 
@@ -496,6 +511,169 @@ class TestTargetApi(unittest.TestCase):
 
   ############################################################################
   ############################################################################
+
+  def testPollerInvalidMethod(self):
+    res = self.app.post('/poller/' + poller)
+    self.assertEquals(res.status_code, 405)
+
+    resJson = json.loads(res.data)
+
+    resRequired = {
+      'response': {
+        'success': False,
+        'err': 'Unsupported Method'
+      }
+    }
+
+    self.assertEquals(resJson, resRequired)
+
+  def testPollerMissingName(self):
+    res = self.app.get('/poller')
+    self.assertEquals(res.status_code, 404)
+
+    resJson = json.loads(res.data)
+
+    resRequired = {
+      'response': {
+        'success': False,
+        'err': '404: Not Found'
+      }
+    }
+
+    self.assertEquals(resJson, resRequired)
+
+  def testPutPollerNoJson(self):
+    res = self.app.put('/poller/' + poller)
+    self.assertEquals(res.status_code, 404)
+
+  def testPutPollerInvalidJson(self):
+    res = self.app.put('/poller/' + poller)
+    self.assertEquals(res.status_code, 404)
+
+  @mock.patch('SubfragiumDBAPI.getPollerByName')
+  def testPutPollerDBFailureGetPoller(self, mockGet):
+    mockGet.return_value = {
+      'success': False,
+      'err': 'DBAPI putPollerByName() DB put operation failed: Generic Error'
+    }
+
+    res = self.app.put('/poller/' + poller,
+                       data=json.dumps(pollerData),
+                       content_type='application/json')
+
+    self.assertEquals(res.status_code, 503)
+
+    resJson = json.loads(res.data)
+
+    reqRequired = {
+      'response': {
+        'success': False,
+        'err': 'putPoller() - Failure: DBAPI putPollerByName() DB put operation failed: Generic Error'
+      }
+    }
+
+    self.assertEquals(resJson, reqRequired)
+
+  @mock.patch('SubfragiumDBAPI.modifyPollerByName')
+  def testPutPollerDbFailureInUpdatePoller(self, mockModify):
+    res = self.app.put('/poller/' + poller,
+                       data=json.dumps(pollerData),
+                       content_type='application/json')
+
+    mockModify.return_value = {
+      'success': False,
+      'err': 'DBAPI modifyPollerByName() DB put operation failed: Generic Error'
+    }
+
+    res = self.app.put('/poller/' + poller,
+                       data=json.dumps(pollerData),
+                       content_type='application/json')
+    self.assertEquals(res.status_code, 503)
+
+    resJson = json.loads(res.data)
+
+    resRequired = {
+      'response': {
+        'success': False,
+        'err': 'putPoller() - Failed: DBAPI modifyPollerByName() DB put operation failed: Generic Error'
+      }
+    }
+
+    self.assertEquals(resJson, resRequired)
+
+  @mock.patch('SubfragiumDBAPI.putPollerByName')
+  def testPutPollerDbFailurePut(self, mockPut):
+    mockPut.return_value = {
+      'success': False,
+      'err': 'DBAPI deletePollerByName() Failed: Generic Error'
+    }
+    res = self.app.put('/poller/' + poller,
+                       data=json.dumps(pollerData),
+                       content_type='application/json')
+    self.assertEquals(res.status_code, 503)
+
+    resJson = json.loads(res.data)
+
+    resRequired = {
+      'response': {
+        'success': False,
+        'err': 'putPoller() Failed: DBAPI deletePollerByName() Failed: Generic Error'
+      }
+    }
+    self.assertEquals(resJson, resRequired)
+
+  def testPutPollerSuccess(self):
+
+    res = self.app.put('/poller/' + poller,
+                       data=json.dumps(pollerData),
+                       content_type='application/json')
+    self.assertEquals(res.status_code, 200)
+
+    resJson = json.loads(res.data)
+
+    resRequired = {
+      'response': {
+        'success': True
+      }
+    }
+    self.assertEquals(resJson, resRequired)
+
+    res = self.app.get('/poller/' + poller,
+                       data=json.dumps(pollerData),
+                       content_type='application/json')
+    self.assertEquals(res.status_code, 200)
+
+    resJson = json.loads(res.data)
+
+    resRequired = {
+      'response': {
+        'success': True,
+        'obj': {
+          'name': 'poller1',
+          'minProcesses': 1,
+          'maxProcesses': 50,
+          'numProcesses': 1,
+          'holdDown': 20
+        }
+      }
+    }
+    self.assertEquals(resJson, resRequired)
+
+  # PUT /poller : Success
+  # GET /poller : DB Failure getPollerByName()
+  # GET /poller : No such poller
+  # GET /poller : Success
+  # DELETE /poller : DB Failure in getPollerByName()
+  # DELETE /poller : No such poller
+  # DELETE /poller : DB Failure getOidsByPoller()
+  # DELETE /poller : OIDS in by by poller()
+  # DELETE /poller : DB Failure in deletePollerByName()
+  # DELETE /poller : Success
+  # GET /pollers : Invalid method
+  # GET /pollers : DB Failure in getPollersAll()
+  # GET /pollers : No pollers
+  # GET /pollers : Success
+
 
 if __name__ == '__main__':
   unittest.main()
