@@ -330,7 +330,7 @@ def modifyOidByOid(target, oid, data):
         existingOid.name = data['name']
         existingOid.oid = oid
         existingOid.target = target
-        existingOid.poler = data['poller']
+        existingOid.poller = data['poller']
         db.session.commit()
         return {'success': True}
     except Exception, e:

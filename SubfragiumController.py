@@ -86,7 +86,6 @@ def putTarget(name, data):
     if existingTarget['obj'] != []:
         app.logger.info('putTarget() %s update' % name)
         result = SubfragiumDBAPI.updateTargetByName(name, data)
-        print result
         if not result['success']:
             return {'success': False, 'code': 503, 'err': 'putTarget() - Failed: %s' % result['err']}
         else:
@@ -344,7 +343,7 @@ def putOid(target, oid, data):
         return {'success': False, 'code': 503, 'err': 'putOid() Failure: %s' % existingOid['err']}
 
     if not existingOid['obj'] == []:
-        app.logger.info('putOid() %s:%s update' % (target,oid))
+        app.logger.info('putOid() %s:%s update' % (target, oid))
         result = SubfragiumDBAPI.modifyOidByOid(target, oid, data)
         if not result['success']:
           return {'success': False, 'code': 503, 'err': 'putOid() - Failed: %s' % result['err']}
@@ -366,18 +365,18 @@ def deleteOid(target, oid):
     existingOid = SubfragiumDBAPI.getOidByOid(target, oid)
     if not existingOid['success']:
         app.logger.error('deleteOid() Failure: %s ' % existingOid['err'])
-        return {'success': False, 'err': 'deleteOid() Failure: %s ' % existingOid['err']}
+        return {'success': False, 'code': 503, 'err': 'deleteOid() Failure: %s' % existingOid['err']}
 
     if len(existingOid['obj']) == 0:
         app.logger.info('deleteOid() - No such OID %s:%s' % (target,oid))
-        return {'success': False, 'err': 'deleteOid() - No such OID %s:%s' % (target,oid)}
+        return {'success': False, 'code': 404, 'err': 'deleteOid() - No such OID %s:%s' % (target,oid)}
 
     results = SubfragiumDBAPI.deleteOidByOid(target, oid)
     if not results['success']:
         app.logger.error('deleteOid() Failure: %s ' % results['err'])
-        return {'success': False, 'err': 'deleteOid() Failed: %s' % results['err']}
+        return {'success': False, 'code': 503, 'err': 'deleteOid() Failed: %s' % results['err']}
 
-    return {'success': True}
+    return {'success': True, 'code': 200}
 
 
 def getOid(target, oid):
@@ -386,14 +385,14 @@ def getOid(target, oid):
 
     existingOid = SubfragiumDBAPI.getOidByOid(target, oid)
     if not existingOid['success']:
-        app.logger.error('deleteOid() Failure: %s ' % existingOid['err'])
-        return {'success': False, 'err': 'deleteOid() Failure: %s ' % existingOid['err']}
+        app.logger.error('getOid() Failure: %s ' % existingOid['err'])
+        return {'success': False, 'code': 503, 'err': 'getOid() Failure: %s' % existingOid['err']}
 
     if len(existingOid['obj']) == 0:
         app.logger.info('deleteOid() - No such OID %s:%s' % (target,oid))
-        return {'success': False, 'err': 'deleteOid() - No such OID %s:%s' % (target,oid)}
+        return {'success': False, 'code': 404, 'err': 'getOid() - No such OID %s:%s' % (target,oid)}
 
-    return { 'success': True, 'obj': existingOid['obj'][0]}
+    return { 'success': True, 'code': 200, 'obj': existingOid['obj'][0]}
 
 @app.route('/oid/<string:target>/<string:oid>', methods=['GET','PUT','DELETE'])
 def oid(target, oid):
@@ -451,7 +450,7 @@ def oids():
         queryParameters['oid'] = request.args['oid']
 
     if queryParameters == {}:
-        app.lsqlalchemyogger.info('getOidsAll() request from %s' % request.remote_addr)
+        app.logger.info('getOidsAll() request from %s' % request.remote_addr)
         oidList = SubfragiumDBAPI.getOidsAll()
     else:
         app.logger.info('getOidsQuery() request from %s' % request.remote_addr)

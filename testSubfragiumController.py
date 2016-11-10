@@ -3,8 +3,10 @@ import tempfile
 import os
 import json
 import mock
+from mock import Mock
 
 import SubfragiumController
+import SubfragiumDBAPI
 
 target = '1.1.1.1'
 targetData = {
@@ -661,7 +663,6 @@ class TestTargetApi(unittest.TestCase):
     res = self.app.put('/poller/' + poller,
                        data=json.dumps(pollerData),
                        content_type='application/json')
-    print res.data
     self.assertEquals(res.status_code, 200)
 
     resJson = json.loads(res.data)
@@ -819,7 +820,6 @@ class TestTargetApi(unittest.TestCase):
         'err': 'deletePoller() Failed: DBAPI getOidsByPoller() Failed: Generic Failure'
       }
     }
-    print resJson
     self.assertEquals(resJson, resRequired)
 
   def testDeletePollerSuccess(self):
@@ -1154,14 +1154,219 @@ class TestTargetApi(unittest.TestCase):
       }
     }
     self.assertEquals(resJson, resRequired)
-  # PUT /oid : Success
-  # GET /oid : DB Failure Get OID
-  # GET /oid : No Such OID
-  # GET /oid : Success
-  # GET /oid : DB Failure Get Oid
-  # GET /oid : No Such OID
-  # Get /oid : DB Failure Delete OID
-  # Get /oid : Success
+
+  @mock.patch('SubfragiumDBAPI.getOidByOid')
+  def testGetOidDbFailureInGetOid(self, mockGet):
+    mockGet.return_value = {
+      'success': False,
+      'err': 'DBAPI getOidsByTarget() Failed: Generic Error'
+    }
+
+    res = self.app.get('/oid/' + target + '/' + oid)
+    self.assertEquals(res.status_code, 503)
+
+    resJson = json.loads(res.data)
+
+    resRequired = {
+      'response': {
+        'success': False,
+        'err': 'getOid() Failure: DBAPI getOidsByTarget() Failed: Generic Error'
+      }
+    }
+    self.assertEquals(resJson, resRequired)
+
+  def testGetOidNoSuchOid(self):
+    res = self.app.get('/oid/' + target + '/' + oid)
+    self.assertEquals(res.status_code, 404)
+
+    resJson = json.loads(res.data)
+
+    resRequired = {
+      'response': {
+        'success': False,
+        'err': 'getOid() - No such OID ' + target + ':' + oid
+      }
+    }
+    self.assertEquals(resJson, resRequired)
+
+  def testGetOidSuccess(self):
+    res = self.app.put('/poller/' + poller,
+                       data=json.dumps(pollerData),
+                       content_type='application/json')
+    self.assertEquals(res.status_code, 200)
+
+    res = self.app.put('/target/' + target,
+                       data=json.dumps(targetData),
+                       content_type='application/json')
+    self.assertEquals(res.status_code, 200)
+
+    res = self.app.put('/oid/' + target + '/' + oid,
+                       data=json.dumps(oidData),
+                       content_type='application/json')
+    self.assertEquals(res.status_code, 200)
+
+    res = self.app.get('/oid/' + target + '/' + oid)
+    self.assertEquals(res.status_code, 200)
+
+    resJson = json.loads(res.data)
+
+    resRequired = {
+      'response': {
+        'success': True,
+        'obj': {
+          'id': target + ':' + oid,
+          'name': oidData['name'],
+          'oid': oid,
+          'target': target,
+          'poller': poller
+        }
+      }
+    }
+
+    self.assertEquals(resJson, resRequired)
+
+  def testDeleteOidDbFailureInGetOid(self):
+    savedDbCall = SubfragiumDBAPI.getOidByOid
+    SubfragiumDBAPI.getOidByOid = Mock(wraps=SubfragiumDBAPI.getOidByOid)
+    res = self.app.put('/poller/' + poller,
+                       data=json.dumps(pollerData),
+                       content_type='application/json')
+    self.assertEquals(res.status_code, 200)
+
+    res = self.app.put('/target/' + target,
+                       data=json.dumps(targetData),
+                       content_type='application/json')
+    self.assertEquals(res.status_code, 200)
+
+    res = self.app.put('/oid/' + target + '/' + oid,
+                       data=json.dumps(oidData),
+                       content_type='application/json')
+    self.assertEquals(res.status_code, 200)
+
+    SubfragiumDBAPI.getOidByOid.return_value = {
+      'success': False,
+      'err': 'DBAPI getOidByOid() Failed: Generic Error'
+    }
+
+    res = self.app.delete('/oid/' + target + '/' + oid)
+    self.assertEquals(res.status_code, 503)
+
+    resJson = json.loads(res.data)
+
+    resRequired = {
+      'response': {
+        'success': False,
+        'err': 'deleteOid() Failure: DBAPI getOidByOid() Failed: Generic Error'
+      }
+    }
+
+    self.assertEquals(resJson, resRequired)
+
+    SubfragiumDBAPI.getOidByOid = savedDbCall
+
+  def testDeleteOidNoSuchOid(self):
+    res = self.app.put('/poller/' + poller,
+                       data=json.dumps(pollerData),
+                       content_type='application/json')
+    self.assertEquals(res.status_code, 200)
+
+    res = self.app.put('/target/' + target,
+                       data=json.dumps(targetData),
+                       content_type='application/json')
+    self.assertEquals(res.status_code, 200)
+
+    res = self.app.put('/oid/' + target + '/' + oid,
+                       data=json.dumps(oidData),
+                       content_type='application/json')
+    self.assertEquals(res.status_code, 200)
+
+    res = self.app.delete('/oid/' + target + '/' + '1.2.3.6.1.1.1.1')
+    self.assertEquals(res.status_code, 404)
+
+    resJson = json.loads(res.data)
+
+    resRequired = {
+      'response': {
+        'success': False,
+        'err': 'deleteOid() - No such OID ' + target + ':' + '1.2.3.6.1.1.1.1'
+      }
+    }
+
+    self.assertEquals(resJson, resRequired)
+
+  @mock.patch('SubfragiumDBAPI.deleteOidByOid')
+  def testDeleteOidDbFailureInDeleteOid(self, mockDelete):
+    mockDelete.return_value = {
+      'success': False,
+      'err': 'DBAPI deleteOidByOid() Failed: Generic Error'
+    }
+    res = self.app.put('/poller/' + poller,
+                       data=json.dumps(pollerData),
+                       content_type='application/json')
+    self.assertEquals(res.status_code, 200)
+
+    res = self.app.put('/target/' + target,
+                       data=json.dumps(targetData),
+                       content_type='application/json')
+    self.assertEquals(res.status_code, 200)
+
+    res = self.app.put('/oid/' + target + '/' + oid,
+                       data=json.dumps(oidData),
+                       content_type='application/json')
+    self.assertEquals(res.status_code, 200)
+
+    res = self.app.delete('/oid/' + target + '/' + oid)
+    self.assertEquals(res.status_code, 503)
+
+    resJson = json.loads(res.data)
+
+    resRequired = {
+      'response': {
+        'success': False,
+        'err': 'deleteOid() Failed: DBAPI deleteOidByOid() Failed: Generic Error'
+      }
+    }
+    self.assertEquals(resJson, resRequired)
+
+  def testDeleteOidSuccess(self):
+
+  # DELETE /oid : Success
+    res = self.app.put('/poller/' + poller,
+                       data=json.dumps(pollerData),
+                       content_type='application/json')
+    self.assertEquals(res.status_code, 200)
+
+    res = self.app.put('/target/' + target,
+                       data=json.dumps(targetData),
+                       content_type='application/json')
+    self.assertEquals(res.status_code, 200)
+
+    res = self.app.put('/oid/' + target + '/' + oid,
+                       data=json.dumps(oidData),
+                       content_type='application/json')
+    self.assertEquals(res.status_code, 200)
+
+    res = self.app.delete('/oid/' + target + '/' + oid)
+    self.assertEquals(res.status_code, 200)
+
+    resJson = json.loads(res.data)
+
+    resRequired = {
+      'response': {
+        'success': True
+      }
+    }
+
+    self.assertEquals(resJson, resRequired)
+
+  # GET /oids : Invalid method
+  # GET /oids : DB Failure in GetAllOids
+  # GET /oids : DB Failure in getspecific oid
+  # GET /oids : Successfully no parameters
+  # GET /oids : Successfully by target
+  # GET /oids : Successfully by poller
+  # GET /oids : Successfully by name
+  # GET /oids : Successfully by OID
 
 if __name__ == '__main__':
   unittest.main()
