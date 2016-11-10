@@ -13,6 +13,11 @@ targetData = {
   'snmpString': 'eur'
 }
 
+target2 = '2.2.2.2'
+target2Data = {
+  'snmpString': 'usa'
+}
+
 poller = 'poller1'
 pollerData = {
   'name': 'poller1',
@@ -22,13 +27,28 @@ pollerData = {
   'holdDown': 20
 }
 
+poller2 = 'poller2'
+poller2Data = {
+  'name': 'poller2',
+  'minProcesses': 1,
+  'maxProcesses': 25,
+  'numProcesses': 2,
+  'holdDown': 40
+}
+
 oid = '1.3.6.1.2.1'
 oidData = {
   'poller': 'poller1',
   'name': 'network.interface.ifInHcOctets.GigabitEthernet0/0'
 }
 
-class TestTargetApi(unittest.TestCase):
+oid2 = '1.3.6.1.2.2'
+oid2Data = {
+  'poller': 'poller2',
+  'name': 'network.interface.ifOutHcOctets.GigabitEthernet0/0'
+}
+
+class TestControllerApi(unittest.TestCase):
 
   def setUp(self):
 
@@ -41,6 +61,37 @@ class TestTargetApi(unittest.TestCase):
 
   def tearDown(self):
     os.unlink(SubfragiumController.app.config['SQLALCHEMY_DATABASE_PATH'])
+
+  def addTestData(self):
+    res = self.app.put('/target/' + target,
+                       data=json.dumps(targetData),
+                       content_type='application/json')
+    self.assertEquals(res.status_code, 200)
+
+    res = self.app.put('/target/' + target2,
+                       data=json.dumps(target2Data),
+                       content_type='application/json')
+    self.assertEquals(res.status_code, 200)
+
+    res = self.app.put('/poller/' + poller,
+                       data=json.dumps(pollerData),
+                       content_type='application/json')
+    self.assertEquals(res.status_code, 200)
+
+    res = self.app.put('/poller/' + poller2,
+                       data=json.dumps(poller2Data),
+                       content_type='application/json')
+    self.assertEquals(res.status_code, 200)
+
+    res = self.app.put('/oid/' + target + '/' + oid,
+                       data=json.dumps(oidData),
+                       content_type='application/json')
+    self.assertEquals(res.status_code, 200)
+
+    res = self.app.put('/oid/' + target2 + '/' + oid2,
+                       data=json.dumps(oid2Data),
+                       content_type='application/json')
+    self.assertEquals(res.status_code, 200)
 
   def testTargetInvalidMethod(self):
     res = self.app.post('/target/1.1.1.1')
@@ -1359,14 +1410,93 @@ class TestTargetApi(unittest.TestCase):
 
     self.assertEquals(resJson, resRequired)
 
-  # GET /oids : Invalid method
-  # GET /oids : DB Failure in GetAllOids
-  # GET /oids : DB Failure in getspecific oid
-  # GET /oids : Successfully no parameters
-  # GET /oids : Successfully by target
-  # GET /oids : Successfully by poller
-  # GET /oids : Successfully by name
-  # GET /oids : Successfully by OID
+  @mock.patch('SubfragiumDBAPI.getOidsAll')
+  def testGetOidsDbFailureGetAllOids(self, mockGet):
+    mockGet.return_value = {
+      'success': False,
+      'err': 'DBAPI getOidsAll() Failed: Generic Error'
+    }
+
+    TestControllerApi.addTestData(self)
+
+    res = self.app.get('/oids')
+    self.assertEquals(res.status_code, 503)
+
+    resJson = json.loads(res.data)
+
+  @mock.patch('SubfragiumDBAPI.getOidsQuery')
+  def testGetOidsDbFailreGetOidQuery(self, mockGet):
+    mockGet.return_value = {
+      'success': False,
+      'err': 'DBAPI getOidsQuery() Failed: Generic Error'
+    }
+
+    res = self.app.get('/oids?target=' + target)
+    self.assertEquals(res.status_code, 503)
+
+    resJson = json.loads(res.data)
+
+    resRequired = {
+      'response': {
+        'success': False,
+        'err': 'getOids..() Failed: DBAPI getOidsQuery() Failed: Generic Error'
+      }
+    }
+    self.assertEquals(resJson, resRequired)
+
+  def testGetOidsSuccessNoParameters(self):
+    TestControllerApi.addTestData(self)
+
+    res = self.app.get('/oids')
+    self.assertEquals(res.status_code, 200)
+
+    resJson = json.loads(res.data)
+
+    self.assertEquals(len(resJson['response']['obj']), 2)
+
+  def testGetOidsSuccessByTarget(self):
+    TestControllerApi.addTestData(self)
+
+    res = self.app.get('/oids?target=' + target)
+    self.assertEquals(res.status_code, 200)
+
+    resJson = json.loads(res.data)
+
+    self.assertEquals(len(resJson['response']['obj']), 1)
+    self.assertEquals(resJson['response']['obj'][0]['target'], target)
+
+  def testGetOidsSuccessByPoller(self):
+    TestControllerApi.addTestData(self)
+
+    res = self.app.get('/oids?poller=' + poller)
+    self.assertEquals(res.status_code, 200)
+
+    resJson = json.loads(res.data)
+
+    self.assertEquals(len(resJson['response']['obj']), 1)
+    self.assertEquals(resJson['response']['obj'][0]['poller'], poller)
+
+  def testGetOidsSuccessByName(self):
+    TestControllerApi.addTestData(self)
+
+    res = self.app.get('/oids?name=' + oidData['name'])
+    self.assertEquals(res.status_code, 200)
+
+    resJson = json.loads(res.data)
+
+    self.assertEquals(len(resJson['response']['obj']), 1)
+    self.assertEquals(resJson['response']['obj'][0]['name'], oidData['name'])
+
+  def testGetOidsSuccessByOid(self):
+    TestControllerApi.addTestData(self)
+
+    res = self.app.get('/oids?oid=' + oid)
+    self.assertEquals(res.status_code, 200)
+
+    resJson = json.loads(res.data)
+
+    self.assertEquals(len(resJson['response']['obj']), 1)
+    self.assertEquals(resJson['response']['obj'][0]['oid'], oid)
 
 if __name__ == '__main__':
   unittest.main()

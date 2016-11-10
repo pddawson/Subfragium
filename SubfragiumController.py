@@ -456,9 +456,9 @@ def oids():
         app.logger.info('getOidsQuery() request from %s' % request.remote_addr)
         oidList = SubfragiumDBAPI.getOidsQuery(queryParameters)
     if not oidList['success']:
-        error = 'getOidsAll() Failed: %s' % oidList['err']
-        app.logger.error('getOidsAll() Failure: %s ' % error)
-        return error404(oidList['err'])
+        error = 'getOids..() Failed: %s' % oidList['err']
+        app.logger.error(error)
+        return error503(error)
 
     return jsonify(response={'success': True, 'obj': oidList['obj']})
 
