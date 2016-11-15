@@ -50,20 +50,6 @@ def getTarget(name):
 
     return {'success': True, 'code': 200, 'obj': target['obj'][0]}
 
-
-# Used when target already exists
-def updateExistingTarget(existingTarget, data):
-
-    app.logger.info('updateExistingTarget() %s request from %s', (existingTarget['name'], request.remote_addr))
-    existingTarget.snmpString = data['snmpString']
-
-    result = SubfragiumDBAPI.updateExistingTargetByName(existingTarget.name, data)
-    if not result['success']:
-        app.logger.error('updateExistingTarget() - Failed : %s ' % result['err'])
-        return {'success': False, 'code': 503, 'err': result['err']}
-
-    return {'success': True, 'code': 200}
-
 def putTarget(name, data):
 
     app.logger.info('putTarget() %s request from %s' % (name, request.remote_addr))
@@ -252,7 +238,7 @@ def deletePoller(name):
         app.logger.error('deletePoller() Failed: %s' % result['err'])
         return {'success': False, 'code': 503, 'err': 'deletePoller() Failed: %s' % result['err']}
 
-    return {'success': True}
+    return {'success': True, 'code': 200}
 
 
 @app.route('/poller/<string:name>', methods=['GET', 'PUT', 'DELETE'])

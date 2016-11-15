@@ -29,7 +29,7 @@ def updateTargetByName(name, data):
         db.session.commit()
         return {'success': True}
     except Exception, e:
-        return {'success': False, 'err': 'DBAPI updateTargetByName() DB put operation failed %s' % e}
+        return {'success': False, 'err': 'DBAPI updateTargetByName() DB put operation failed: %s' % e}
 
 
 def deleteTargetByName(name):
@@ -334,7 +334,7 @@ def modifyOidByOid(target, oid, data):
         db.session.commit()
         return {'success': True}
     except Exception, e:
-        return {'success': False, 'err': 'DBAPI modifyOidByName() DB put operation failed %s' % e}
+        return {'success': False, 'err': 'DBAPI modifyOidByName() DB put operation failed: %s' % e}
 
 
 def getOidsAll():

@@ -206,7 +206,7 @@ class TestControllerApi(unittest.TestCase):
 
     newTargetData = targetData.copy()
     del(newTargetData['snmpString'])
-    newTargetData['snmp'] =  'eur'
+    newTargetData['snmp'] = 'eur'
 
     res = self.app.put('/target/' + target,
                        data=json.dumps(newTargetData),
@@ -216,7 +216,6 @@ class TestControllerApi(unittest.TestCase):
     self.assertEquals(res.status_code, 404)
     self.assertEquals(resJson['response']['success'], False)
 
-  # Need to mock the SubfragiumDBAPI call
   @mock.patch('SubfragiumDBAPI.getTargetByName')
   def testPutTargetDbFailureInGetTarget(self, mockDB):
     mockDB.return_value = {
@@ -232,7 +231,6 @@ class TestControllerApi(unittest.TestCase):
     self.assertEquals(res.status_code, 503)
     self.assertEquals(resJson['response']['success'], False)
 
-  # Need to mock the SubfragiumDBAPI call
   @mock.patch('SubfragiumDBAPI.updateTargetByName')
   def testPutTargetDbFailureInUpdateTarget(self, mockUpdate):
     res = self.app.put('/target/' + target,
@@ -256,6 +254,7 @@ class TestControllerApi(unittest.TestCase):
     res = self.app.put('/target/' + target,
                        data=json.dumps(targetData),
                        content_type='application/json')
+    print res.data
     self.assertEquals(res.status_code, 200)
 
     resJson = json.loads(res.data)
@@ -268,11 +267,36 @@ class TestControllerApi(unittest.TestCase):
 
     self.assertEquals(resJson, resRequired)
 
+  @mock.patch('SubfragiumDBAPI.updateTargetByName')
+  def testPutTargetDbFailureInUpdateTarget(self, mockUpdate):
+    mockUpdate.return_value = {
+      'success': False,
+      'err': 'DBAPI updateTargetByName() DB put operation failed: Generic Error'
+    }
+
+    newTargetData = targetData.copy()
+    del(newTargetData['snmpString'])
+    newTargetData['snmpString'] = 'usa'
+
+    res = self.app.put('/target/' + target,
+                       data=json.dumps(targetData),
+                       content_type='application/json')
+    self.assertEquals(res.status_code, 200)
+
+    res = self.app.put('/target/' + target,
+                       data=json.dumps(newTargetData),
+                       content_type='application/json')
+    self.assertEquals(res.status_code, 503)
+
+
   def testPutTargetSuccessfulModification(self):
     res = self.app.put('/target/' + target,
                        data=json.dumps(targetData),
                        content_type='application/json')
     self.assertEquals(res.status_code, 200)
+
+    newTargetData = targetData.copy()
+    newTargetData['snmpString'] = 'usa'
 
     res = self.app.put('/target/' + target,
                        data=json.dumps(targetData),
@@ -673,7 +697,7 @@ class TestControllerApi(unittest.TestCase):
     }
     self.assertEquals(resJson, resRequired)
 
-  def testPutPollerSuccess(self):
+  def testPutPollerModifyExistingSuccess(self):
 
     res = self.app.put('/poller/' + poller,
                        data=json.dumps(pollerData),
@@ -689,7 +713,7 @@ class TestControllerApi(unittest.TestCase):
     }
     self.assertEquals(resJson, resRequired)
 
-    res = self.app.get('/poller/' + poller,
+    res = self.app.put('/poller/' + poller,
                        data=json.dumps(pollerData),
                        content_type='application/json')
     self.assertEquals(res.status_code, 200)
@@ -698,14 +722,7 @@ class TestControllerApi(unittest.TestCase):
 
     resRequired = {
       'response': {
-        'success': True,
-        'obj': {
-          'name': 'poller1',
-          'minProcesses': 1,
-          'maxProcesses': 50,
-          'numProcesses': 1,
-          'holdDown': 20
-        }
+        'success': True
       }
     }
     self.assertEquals(resJson, resRequired)
@@ -871,6 +888,33 @@ class TestControllerApi(unittest.TestCase):
         'err': 'deletePoller() Failed: DBAPI getOidsByPoller() Failed: Generic Failure'
       }
     }
+    self.assertEquals(resJson, resRequired)
+
+  # No test for deletePoller() DB failure in deletePoller
+  @mock.patch('SubfragiumDBAPI.deletePollerByName')
+  def testDeletePollerDbFailureInDelete(self, mockDelete):
+    mockDelete.return_value = {
+      'success': False,
+      'err': 'DBAPI deletePollerByName() Failed: Generic Error'
+    }
+
+    res = self.app.put('/poller/' + poller,
+                       data=json.dumps(pollerData),
+                       content_type='application/json')
+    self.assertEquals(res.status_code, 200)
+
+    res = self.app.delete('/poller/' + poller)
+    self.assertEquals(res.status_code, 503)
+
+    resJson = json.loads(res.data)
+
+    resRequired = {
+      'response': {
+        'success': False,
+        'err': 'deletePoller() Failed: DBAPI deletePollerByName() Failed: Generic Error'
+      }
+    }
+
     self.assertEquals(resJson, resRequired)
 
   def testDeletePollerSuccess(self):
@@ -1179,6 +1223,81 @@ class TestControllerApi(unittest.TestCase):
         'err': 'putPoller() Failed: DBAPI putOidByOid() DB put operation failed: Generic Error'
       }
     }
+    self.assertEquals(resJson, resRequired)
+
+  @mock.patch('SubfragiumDBAPI.modifyOidByOid')
+  def testPutOidDbFailureUpdatingExistingOid(self, mockModify):
+    mockModify.return_value = {
+      'success': False,
+      'err': 'DBAPI modifyOidByName() DB put operation failed: Generic Error'
+    }
+
+    res = self.app.put('/poller/' + poller,
+                       data=json.dumps(pollerData),
+                       content_type='application/json')
+    self.assertEquals(res.status_code, 200)
+
+    res = self.app.put('/target/' + target,
+                       data=json.dumps(targetData),
+                       content_type='application/json')
+    self.assertEquals(res.status_code, 200)
+
+    res = self.app.put('/oid/' + target + '/' + oid,
+                       data=json.dumps(oidData),
+                       content_type='application/json')
+    self.assertEquals(res.status_code, 200)
+
+    newOid = oidData.copy()
+    newOid['name'] = 'Test String'
+
+    res = self.app.put('/oid/' + target + '/' + oid,
+                       data=json.dumps(newOid),
+                       content_type='application/json')
+    self.assertEquals(res.status_code, 503)
+
+    resJson = json.loads(res.data)
+
+    resRequired = {
+      'response': {
+        'success': False,
+        'err': 'putOid() - Failed: DBAPI modifyOidByName() DB put operation failed: Generic Error'
+      }
+    }
+
+    self.assertEquals(resJson, resRequired)
+
+  def testPutOidUpdateingExistingSuccess(self):
+    res = self.app.put('/poller/' + poller,
+                       data=json.dumps(pollerData),
+                       content_type='application/json')
+    self.assertEquals(res.status_code, 200)
+
+    res = self.app.put('/target/' + target,
+                       data=json.dumps(targetData),
+                       content_type='application/json')
+    self.assertEquals(res.status_code, 200)
+
+    res = self.app.put('/oid/' + target + '/' + oid,
+                       data=json.dumps(oidData),
+                       content_type='application/json')
+    self.assertEquals(res.status_code, 200)
+
+    newOid = oidData.copy()
+    newOid['name'] = 'Test String'
+
+    res = self.app.put('/oid/' + target + '/' + oid,
+                       data=json.dumps(newOid),
+                       content_type='application/json')
+    self.assertEquals(res.status_code, 200)
+
+    resJson = json.loads(res.data)
+
+    resRequired = {
+      'response': {
+        'success': True
+      }
+    }
+
     self.assertEquals(resJson, resRequired)
 
   def testPutOidSuccess(self):
@@ -1497,6 +1616,52 @@ class TestControllerApi(unittest.TestCase):
 
     self.assertEquals(len(resJson['response']['obj']), 1)
     self.assertEquals(resJson['response']['obj'][0]['oid'], oid)
+
+
+  ############################################################
+  ############################################################
+
+  def testGetIndexInvalidMethod(self):
+    res = self.app.put('/')
+    self.assertEquals(res.status_code, 405)
+
+    resJson = json.loads(res.data)
+
+    resRequired = {
+      'response': {
+        'success': False,
+        'err': 'Unsupported Method'
+      }
+    }
+
+    self.assertEquals(resJson, resRequired)
+
+  # Get /index: Success
+  def testGetIndexSuccess(self):
+    res = self.app.get('/')
+    self.assertEquals(res.status_code, 200)
+
+    resJson = json.loads(res.data)
+
+    print resJson
+
+    resRequired = {
+      'response': {
+        'success': True,
+        'obj': {
+          'index': '/',
+          'target': '/target/<string:name>',
+          'targets': '/targets',
+          'poller': '/poller/<string:name>',
+          'pollers': '/pollers',
+          'oid': '/oid/<string:target>/<string:oid>',
+          'oids': '/oids',
+          'static': '/static/<path:filename>'
+        }
+      }
+    }
+
+    self.assertEquals(resJson, resRequired)
 
 if __name__ == '__main__':
   unittest.main()
