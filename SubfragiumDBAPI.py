@@ -1,14 +1,16 @@
 from app import models
 from app import db
-
+import SubfragiumUtils
+import SubfragiumDBSchema
 
 # Targets
-def putTargetByName(name, snmpString):
+def putTargetByName(data):
 
-    if name == '' or snmpString == '':
-        return {'success': False, 'err': 'DBAPI putTargetByName() incorrect arguments'}
+    result = SubfragiumUtils.validateObj(SubfragiumDBSchema.putTargetByName, data)
+    if not result['success']:
+        return {'success': False, 'err': 'DBAPI putTargetByName() invalid data'}
 
-    newTarget = models.Target(name, snmpString)
+    newTarget = models.Target(data['name'], data['snmpString'])
 
     try:
         db.session.add(newTarget)
@@ -18,13 +20,14 @@ def putTargetByName(name, snmpString):
         return {'success': False, 'err': 'DBAPI putTarget() DB put operation failed %s' % e}
 
 
-def updateTargetByName(name, data):
+def updateTargetByName(data):
 
-    if name == '' or data['snmpString'] == '':
-        return {'success': False, 'err': 'DBAPI updateTargetByName() incorrect arguments'}
+    result = SubfragiumUtils.validateObj(SubfragiumDBSchema.putTargetByName, data)
+    if not result['success']:
+        return {'success': False, 'err': 'DBAPI updateTargetByName() invalid data: %s' % result['err']}
 
     try:
-        existingTarget = models.Target.query.filter(models.Target.name == name).first()
+        existingTarget = models.Target.query.filter(models.Target.name == data['name']).first()
         existingTarget.snmpString = data['snmpString']
         db.session.commit()
         return {'success': True}
@@ -32,13 +35,14 @@ def updateTargetByName(name, data):
         return {'success': False, 'err': 'DBAPI updateTargetByName() DB put operation failed: %s' % e}
 
 
-def deleteTargetByName(name):
+def deleteTargetByName(data):
 
-    if name == '':
-        return {'success': False, 'err': 'DBAPI deleteTargetByName() no target provided'}
+    result = SubfragiumUtils.validateObj(SubfragiumDBSchema.deleteTargetByName, data)
+    if not result['success']:
+        return {'success': False, 'err': 'DBAPI deleteTargetByName() invalid data: %s' % result['err']}
 
     try:
-        existingTarget = models.Target.query.filter(models.Target.name == name).first()
+        existingTarget = models.Target.query.filter(models.Target.name == data['name']).first()
         db.session.delete(existingTarget)
         db.session.commit()
         return { 'success': True}
@@ -46,13 +50,14 @@ def deleteTargetByName(name):
         return {'success': False, 'err': 'DBAPI deleteTargetByName() Failed: %s' % e}
 
 
-def getTargetByName(name):
+def getTargetByName(data):
 
-    if name == '':
-        return {'success': False, 'err': 'DBAPI getTargetByName() no target provided'}
+    result = SubfragiumUtils.validateObj(SubfragiumDBSchema.getTargetByName, data)
+    if not result['success']:
+        return {'success': False, 'err': 'DBAPI getTargetByName() invalid data: %s' % result['err']}
 
     try:
-        target = models.Target.query.filter(models.Target.name == name).first()
+        target = models.Target.query.filter(models.Target.name == data['name']).first()
         if target == None:
             return {'success': True, 'obj': []}
         else:
@@ -61,13 +66,14 @@ def getTargetByName(name):
         return {'success': False, 'err': 'DBAPI getTargetByName() Failed: %s' % e}
 
 
-def modifyTargetByName(name, data):
+def modifyTargetByName(data):
 
-    if name == '' or data['snmpString']:
-      return {'success': False, 'err': 'DBAPI modifyTargetByName() incorrect arguments'}
+    result = SubfragiumUtils.validateObj(SubfragiumDBSchema.modifyTargetByName, data)
+    if not result['success']:
+      return {'success': False, 'err': 'DBAPI modifyTargetByName() invalid data: %s' % result['err']}
 
     try:
-      existingTarget = models.Target.query.filter(models.Target.name == name).first()
+      existingTarget = models.Target.query.filter(models.Target.name == data['name']).first()
       existingTarget.snmpString = data['snmpString']
       db.session.commit()
       return {'success': True}
@@ -88,12 +94,13 @@ def getTargetsAll():
         return {'success': False, 'err': 'DBAPI getTargetsAll() Failed: %s' % e}
 
 # Pollers
-def putPollerByName(name, data):
+def putPollerByName(data):
 
-    if name == '' or data == '':
-        return {'success': False, 'err': 'DBAPI putPollerByName() incorrect arguments'}
+    result = SubfragiumUtils.validateObj(SubfragiumDBSchema.putPollerByName, data)
+    if not result['success']:
+        return {'success': False, 'err': 'DBAPI putPollerByName() invalid data: %s' % result['err']}
 
-    newPoller = models.Poller(name,
+    newPoller = models.Poller(data['name'],
                               data['minProcesses'],
                               data['maxProcesses'],
                               data['numProcesses'],
@@ -105,13 +112,14 @@ def putPollerByName(name, data):
     except Exception, e:
         return {'success': False, 'err': 'DBAPI putPollerByName() DB put operation failed %s' % e}
 
-def deletePollerByName(name):
+def deletePollerByName(data):
 
-    if name == '':
-        return {'success': False, 'err': 'DBAPI deletePollerByName() incorrect arguments'}
+    result = SubfragiumUtils.validateObj(SubfragiumDBSchema.deletePollerByName, data)
+    if not result['success']:
+        return {'success': False, 'err': 'DBAPI deletePollerByName() invalid data: %s' % result['err']}
 
     try:
-        poller = models.Poller.query.filter(models.Poller.name == name).first()
+        poller = models.Poller.query.filter(models.Poller.name == data['name']).first()
         db.session.delete(poller)
         db.session.commit()
         return {'success': True}
@@ -119,13 +127,14 @@ def deletePollerByName(name):
         return {'success': False, 'err': 'DBAPI deletePollerByName() Failed: %s' % e}
 
 
-def getPollerByName(name):
+def getPollerByName(data):
 
-    if name == '':
-        return {'success': False, 'err': 'DBAPI getPollerByName() no poller name provided'}
+    result = SubfragiumUtils.validateObj(SubfragiumDBSchema.getPollerByName, data)
+    if not result['success']:
+        return {'success': False, 'err': 'DBAPI getPollerByName() invalid data: %s' % result['err']}
 
     try:
-        poller = models.Poller.query.filter(models.Poller.name == name).first()
+        poller = models.Poller.query.filter(models.Poller.name == data['name']).first()
         if poller == None:
             return {'success': True, 'obj':[]}
         else:
@@ -139,13 +148,14 @@ def getPollerByName(name):
         return {'success': False, 'err': 'DBAPI getPollerByName() Failed: %s' % e}
 
 
-def modifyPollerByName(name, data):
+def modifyPollerByName(data):
 
-    if name == '' or data['minProcesses'] == '' or data['maxProcesses'] == '' or data['numProcesses'] == '' or data['holdDown'] == '':
-        return {'success': False, 'err': 'DBAPI modifyPollerByName() incorrect arguments'}
+    result = SubfragiumUtils.validateObj(SubfragiumDBSchema.modifyPollerByName, data)
+    if not result['success']:
+        return {'success': False, 'err': 'DBAPI modifyPollerByName() invalid data: %s' % result['err']}
 
     try:
-        existingPoller = models.Poller.query.filter(models.Poller.name == name).first()
+        existingPoller = models.Poller.query.filter(models.Poller.name == data['name']).first()
         existingPoller.minProcesses = data['minProcesses']
         existingPoller.maxProcesses = data['maxProcesses']
         existingPoller.numProcesses = data['numProcesses']
@@ -172,14 +182,15 @@ def getPollersAll():
         return {'success': False, 'err': 'DBAPI getTargetsAll() Failed: %s' % e}
 
 # Oids
-def putOidByOid(target, oid, data):
+def putOidByOid(data):
 
-    if target == '' or oid == '' or data['name'] == '' or data['poller'] == '':
-        return {'success': False, 'err': 'DBAPI putOidByOid() incorrect arguments'}
+    result = SubfragiumUtils.validateObj(SubfragiumDBSchema.putOidByOid, data)
+    if not result['success']:
+        return {'success': False, 'err': 'DBAPI putOidByOid() invalid data: %s' % result['err']}
 
-    newOid = models.Oid(target,
+    newOid = models.Oid(data['target'],
                         data['name'],
-                        oid,
+                        data['oid'],
                         data['poller'])
     try:
         db.session.add(newOid)
@@ -188,12 +199,13 @@ def putOidByOid(target, oid, data):
     except Exception, e:
         return {'success': False, 'err': 'DBAPI putOidByOid() DB put operation failed: %s' % e}
 
-def deleteOidByOid(target, oid):
+def deleteOidByOid(data):
 
-    if target == '' or oid == '':
-        return {'success': False, 'err': 'DBAPI deleteOidByOid() incorrect arguments'}
+    result = SubfragiumUtils.validateObj(SubfragiumDBSchema.deleteOidByOid, data)
+    if not result['success']:
+        return {'success': False, 'err': 'DBAPI deleteOidByOid() invalid data: %s' % result['err']}
 
-    oidId = target + ':' + oid
+    oidId = data['target'] + ':' + data['oid']
 
     try:
         existingOid = models.Oid.query.filter(models.Oid.id == oidId).first()
@@ -204,13 +216,14 @@ def deleteOidByOid(target, oid):
         return {'success': False, 'err': 'DBAPI deleteOidByOid() Failed: %s' % e}
 
 
-def getOidsByTarget(target):
+def getOidsByTarget(data):
 
-    if target == '':
-        return {'success': False, 'err': 'DBAPI getOidByTarget() no target provided'}
+    result = SubfragiumUtils.validateObj(SubfragiumDBSchema.getOidsByTarget, data)
+    if not result['success']:
+        return {'success': False, 'err': 'DBAPI getOidByTarget() invalid data: %s' % result['err']}
 
     try:
-        existingOids = models.Oid.query.filter(models.Oid.target == target).all()
+        existingOids = models.Oid.query.filter(models.Oid.target == data['target']).all()
         if existingOids == []:
             return {'success': True, 'obj': []}
 
@@ -229,13 +242,14 @@ def getOidsByTarget(target):
         return {'success': False, 'err': 'DBAPI getOidsByTarget() Failed: %s' % e}
 
 
-def getOidsByPoller(poller):
+def getOidsByPoller(data):
 
-    if poller == '':
-        return {'success': False, 'err': 'DBAPI getOidByPoller() no poller provided'}
+    result = SubfragiumUtils.validateObj(SubfragiumDBSchema.getOidsByPoller, data)
+    if not result['success']:
+        return {'success': False, 'err': 'DBAPI getOidByPoller() invalid data: %s' % result['err']}
 
     try:
-        existingOids = models.Oid.query.filter(models.Oid.poller == poller).all()
+        existingOids = models.Oid.query.filter(models.Oid.poller == data['poller']).all()
         if existingOids == []:
             return {'success': True, 'obj': []}
 
@@ -254,12 +268,13 @@ def getOidsByPoller(poller):
         return {'success': False, 'err': 'DBAPI getOidsByPoller() Failed: %s' % e}
 
 
-def getOidByOid(target, oid):
+def getOidByOid(data):
 
-    if target == '' or oid == '':
-        return {'success': False, 'err': 'DBAPI getOidByOid() incorrect arguments'}
+    result = SubfragiumUtils.validateObj(SubfragiumDBSchema.getOidByOid, data)
+    if not result['success']:
+        return {'success': False, 'err': 'DBAPI getOidByOid() invalid data: %s' % result['err']}
 
-    oidId = target + ':' + oid
+    oidId = data['target'] + ':' + data['oid']
     try:
         existingOid = models.Oid.query.filter(models.Oid.id == oidId).first()
         if existingOid == None:
@@ -318,18 +333,19 @@ def getOidsQuery(queryParameters):
     except Exception, e:
         return {'success': False, 'err': 'DBAPI getOidsQuery() Failed: %s' % e}
 
-def modifyOidByOid(target, oid, data):
+def modifyOidByOid(data):
 
-    if target == '' or oid == '' or data['name'] == '' or data['poller'] == '':
-        return {'success': False, 'err': 'DBAPI modifyOidByName() incorrect arguments'}
+    result = SubfragiumUtils.validateObj(SubfragiumDBSchema.modifyOidByOid, data)
+    if not result['success']:
+        return {'success': False, 'err': 'DBAPI modifyOidByName() invalid data: %s' % result['err']}
 
-    oidId = target + ':' + oid
+    oidId = data['target'] + ':' + data['oid']
 
     try:
         existingOid = models.Oid.query.filter(models.Oid.id == oidId).first()
         existingOid.name = data['name']
-        existingOid.oid = oid
-        existingOid.target = target
+        existingOid.oid = data['oid']
+        existingOid.target = data['target']
         existingOid.poller = data['poller']
         db.session.commit()
         return {'success': True}

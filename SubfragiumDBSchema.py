@@ -1,23 +1,90 @@
-putTargetByNameInput = {
-  'type': 'object',
-    'properties': {
-      'name': {
-        'type': 'string'
-        # 'rquired': True
-      },
-      'snmpString': {
-        'type': 'string',
-        # 'required': True
-      }
-    },
-    'additionalProperties': False
+##
+## Target Schema
+##
+
+putTargetByName = {
+  'name': basestring,
+  'snmpString': basestring
 }
 
-getTargetByNameInput = {
-  'type': 'object',
-    'properties': {
-      'name': {
-        'type': 'string'
-      }
-    }
+updateTargetByName = {
+  'name': basestring,
+  'snmpString': basestring
+}
+
+deleteTargetByName = {
+  'name': basestring
+}
+
+getTargetByName = {
+  'name': basestring
+}
+
+modifyTargetByName = {
+  'name': basestring,
+  'snmpString': basestring
+}
+
+##
+## Poller Schema
+##
+
+putPollerByName = {
+  'name': basestring,
+  'minProcesses': int,
+  'maxProcesses': int,
+  'numProcesses': int,
+  'holdDown': int
+}
+
+deletePollerByName = {
+  'name': basestring
+}
+
+getPollerByName = {
+  'name': basestring
+}
+
+modifyPollerByName = {
+  'name': basestring,
+  'minProcesses': int,
+  'maxProcesses': int,
+  'numProcesses': int,
+  'holdDown': int
+}
+
+##
+## Oid Schema
+##
+
+putOidByOid = {
+  'name': basestring,
+  'oid': basestring,
+  'target': basestring,
+  'poller': basestring
+}
+
+deleteOidByOid = {
+  'target': basestring,
+  'oid': basestring
+}
+
+getOidsByTarget = {
+  'target': basestring
+}
+
+getOidsByPoller = {
+  'poller': basestring
+}
+
+getOidByOid = {
+  'target': basestring,
+  'oid': basestring
+}
+
+modifyOidByOid = {
+  'name': basestring,
+  'oid': basestring,
+  'target': basestring,
+  'poller': basestring
 }

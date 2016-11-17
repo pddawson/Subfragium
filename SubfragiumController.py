@@ -39,7 +39,7 @@ def getTarget(name):
 
     app.logger.info('getTarget() %s request from %s' % (name, request.remote_addr))
 
-    target = SubfragiumDBAPI.getTargetByName(name)
+    target = SubfragiumDBAPI.getTargetByName({'name': name})
     if not target['success']:
         app.logger.error('getTarget() - Failed: %s' % target['err'])
         return {'success': False, 'code': 503, 'err': 'getTarget() - Failed: %s' % target['err']}
@@ -64,20 +64,20 @@ def putTarget(name, data):
         return {'success': False, 'code': 404, 'err': results['err']}
 
     # Check if the target is already defined
-    existingTarget = SubfragiumDBAPI.getTargetByName(name)
+    existingTarget = SubfragiumDBAPI.getTargetByName({'name': name})
     if not existingTarget['success']:
         app.logger.error('putTarget() - Failed : %s'  % existingTarget['err'])
         return {'success': False, 'code': 503, 'err': 'putTarget() Failure: %s' % existingTarget['err']}
 
     if existingTarget['obj'] != []:
         app.logger.info('putTarget() %s update' % name)
-        result = SubfragiumDBAPI.updateTargetByName(name, data)
+        result = SubfragiumDBAPI.updateTargetByName({'name': name, 'snmpString': data['snmpString']})
         if not result['success']:
             return {'success': False, 'code': 503, 'err': 'putTarget() - Failed: %s' % result['err']}
         else:
             return {'success': True, 'code': 200}
 
-    results = SubfragiumDBAPI.putTargetByName(name, data['snmpString'])
+    results = SubfragiumDBAPI.putTargetByName({'name': name, 'snmpString': data['snmpString']})
     if not results['success']:
         app.logger.error('putTarget() - Failed : %s'  % results['err'])
         return {'success': False, 'code': 503, 'err': 'putTarget() Failed: %s ' % results['err']}
@@ -88,7 +88,7 @@ def deleteTarget(name):
 
     app.logger.info('deleteTarget() %s request from %s' % (name, request.remote_addr))
 
-    existingTarget = SubfragiumDBAPI.getTargetByName(name)
+    existingTarget = SubfragiumDBAPI.getTargetByName({'name': name})
     if not existingTarget['success']:
         app.logger.error('deleteTarget() - Failed : %s' % existingTarget['err'])
         return {'success': False, 'code': 503, 'err': 'deleteTarget() Failed: %s' % existingTarget['err']}
@@ -97,7 +97,7 @@ def deleteTarget(name):
         app.logger.info('deleteTarget() - Target %s not found' % name)
         return {'success': False, 'code': 404,'err': 'Target %s not found' % name}
 
-    existingOids = SubfragiumDBAPI.getOidsByTarget(name)
+    existingOids = SubfragiumDBAPI.getOidsByTarget({'target': name})
     if not existingOids['success']:
         app.logger.error('deleteTarget() - Failed : %s' % existingOids['err'])
         return {'success': False, 'code': 503, 'err': 'deleteTarget() Failed: %s' % existingOids['err']}
@@ -106,7 +106,7 @@ def deleteTarget(name):
         app.logger.info('deleteTarget() - Target %s in use for oids' % name)
         return {'success': False, 'code': 404, 'err': 'deleteTarget() Failed: Target %s in use for oids' % name}
 
-    result = SubfragiumDBAPI.deleteTargetByName(name)
+    result = SubfragiumDBAPI.deleteTargetByName({'name': name})
     if not result['success']:
         app.logger.error('deleteTarget() Failed: %s' % result['err'])
         return{'success': False, 'code': 503, 'err': 'deleteTarget() Failed: %s' % result['err']}
@@ -175,20 +175,22 @@ def putPoller(name, data):
         app.logger.info('putPoller() - Failure: %s' % results['err'])
         return {'success': False, 'code': 404, 'err': r'putPoller() - Failure: %s' % results['err']}
 
-    existingPoller = SubfragiumDBAPI.getPollerByName(name)
+    existingPoller = SubfragiumDBAPI.getPollerByName({'name': name})
     if not existingPoller['success']:
         app.logger.error('putPoller() - Failure:  %s' % existingPoller['err'])
         return {'success': False, 'code': 503, 'err': 'putPoller() - Failure: %s' % existingPoller['err']}
 
     if existingPoller['obj'] != []:
         app.logger.info('putPoller() %s update' % name)
-        result = SubfragiumDBAPI.modifyPollerByName(name, data)
+        data['name'] = name
+        result = SubfragiumDBAPI.modifyPollerByName(data)
         if not result['success']:
           return {'success': False, 'code': 503, 'err': 'putPoller() - Failed: %s' % result['err']}
         else:
           return {'success': True, 'code': 200}
 
-    results = SubfragiumDBAPI.putPollerByName(name, data)
+    data['name'] = name
+    results = SubfragiumDBAPI.putPollerByName(data)
     if not results['success']:
         app.logger.error('putPoller() - Failed %s' % results['err'])
         return {'success': False, 'code': 503, 'err': 'putPoller() Failed: %s' % results['err']}
@@ -199,7 +201,7 @@ def getPoller(name):
 
     app.logger.info('getPoller() %s request from %s' % (name, request.remote_addr))
 
-    poller = SubfragiumDBAPI.getPollerByName(name)
+    poller = SubfragiumDBAPI.getPollerByName({'name': name})
     if not poller['success']:
         app.logger.error('getPoller() - Failed %s' % poller['err'])
         return {'success': False, 'code': 503, 'err': 'getPoller() - Failed: %s' % poller['err']}
@@ -215,7 +217,7 @@ def deletePoller(name):
 
     app.logger.info('deletePoller() %s request from %s' % (name, request.remote_addr))
 
-    existingPoller = SubfragiumDBAPI.getPollerByName(name)
+    existingPoller = SubfragiumDBAPI.getPollerByName({'name': name})
     if not existingPoller['success']:
         app.logger.error('deletePoller() - Failed %s' % existingPoller['err'])
         return {'success': False, 'code': 503, 'err': 'deletePoller() Failed: %s' % existingPoller['err']}
@@ -224,7 +226,7 @@ def deletePoller(name):
         app.logger.info('deletePoller() - Poller %s not found' % name)
         return {'success': False, 'code': 404, 'err': 'Poller %s not found' % name}
 
-    existingOids = SubfragiumDBAPI.getOidsByPoller(name)
+    existingOids = SubfragiumDBAPI.getOidsByPoller({'poller': name})
     if not existingOids['success']:
         app.logger.error('deletePoller() - Failed %s' % existingOids['err'])
         return {'success': False, 'code': 503, 'err': 'deletePoller() Failed: %s' % existingOids['err']}
@@ -233,7 +235,7 @@ def deletePoller(name):
         app.logger.info('deletePoller() - Poller %s in use for oids' % name)
         return {'success': False, 'code': 404, 'err': 'Poller %s in use for oids' % name}
 
-    result = SubfragiumDBAPI.deletePollerByName(name)
+    result = SubfragiumDBAPI.deletePollerByName({'name': name})
     if not result['success']:
         app.logger.error('deletePoller() Failed: %s' % result['err'])
         return {'success': False, 'code': 503, 'err': 'deletePoller() Failed: %s' % result['err']}
@@ -303,7 +305,7 @@ def putOid(target, oid, data):
         return {'success': False, 'code': 404, 'err': results['err']}
 
     # Check for existence of poller
-    resPoller = SubfragiumDBAPI.getPollerByName(data['poller'])
+    resPoller = SubfragiumDBAPI.getPollerByName({'name': data['poller']})
     if not resPoller['success']:
         app.logger.error('putOid() Failure: %s ' % resPoller['err'])
         return {'success': False, 'code': 503, 'err': 'putOid() Failure: %s' % resPoller['err']}
@@ -313,7 +315,7 @@ def putOid(target, oid, data):
         return {'success': False, 'code': 404, 'err': 'Poller %s does not exist' % data['poller']}
 
     # Check for existence of target
-    resTarget = SubfragiumDBAPI.getTargetByName(target)
+    resTarget = SubfragiumDBAPI.getTargetByName({'name': target})
     if not resTarget['success']:
         app.logger.error('putOid() Failure: %s ' % resTarget['err'])
         return {'success': False, 'code': 503, 'err': 'putOid() Failure: %s' % resTarget['err']}
@@ -322,21 +324,24 @@ def putOid(target, oid, data):
         app.logger.info('putOid() - Target %s does not exist' % target )
         return {'success': False, 'code': 404, 'err': 'Target %s does not exist' % target}
 
+    data['target'] = target
+    data['oid'] = oid
+
     # Check for existence of oid
-    existingOid = SubfragiumDBAPI.getOidByOid(target, oid)
+    existingOid = SubfragiumDBAPI.getOidByOid({'target': target, 'oid': oid})
     if not existingOid['success']:
         app.logger.error('putOid() Failure: %s ' % existingOid['err'])
         return {'success': False, 'code': 503, 'err': 'putOid() Failure: %s' % existingOid['err']}
 
     if not existingOid['obj'] == []:
         app.logger.info('putOid() %s:%s update' % (target, oid))
-        result = SubfragiumDBAPI.modifyOidByOid(target, oid, data)
+        result = SubfragiumDBAPI.modifyOidByOid(data)
         if not result['success']:
           return {'success': False, 'code': 503, 'err': 'putOid() - Failed: %s' % result['err']}
         else:
           return {'success': True, 'code': 200}
 
-    results = SubfragiumDBAPI.putOidByOid(target, oid, data)
+    results = SubfragiumDBAPI.putOidByOid(data)
     if not results['success']:
         app.logger.error('addOid() Failure: %s ' % results['err'])
         return {'success': False, 'code': 503, 'err': 'putPoller() Failed: %s' % results['err']}
@@ -348,7 +353,7 @@ def deleteOid(target, oid):
 
     app.logger.info('deleteOid() %s:%s request from %s' % (target, oid, request.remote_addr))
 
-    existingOid = SubfragiumDBAPI.getOidByOid(target, oid)
+    existingOid = SubfragiumDBAPI.getOidByOid({'target': target, 'oid': oid})
     if not existingOid['success']:
         app.logger.error('deleteOid() Failure: %s ' % existingOid['err'])
         return {'success': False, 'code': 503, 'err': 'deleteOid() Failure: %s' % existingOid['err']}
@@ -357,7 +362,7 @@ def deleteOid(target, oid):
         app.logger.info('deleteOid() - No such OID %s:%s' % (target,oid))
         return {'success': False, 'code': 404, 'err': 'deleteOid() - No such OID %s:%s' % (target,oid)}
 
-    results = SubfragiumDBAPI.deleteOidByOid(target, oid)
+    results = SubfragiumDBAPI.deleteOidByOid({'target': target, 'oid': oid})
     if not results['success']:
         app.logger.error('deleteOid() Failure: %s ' % results['err'])
         return {'success': False, 'code': 503, 'err': 'deleteOid() Failed: %s' % results['err']}
@@ -369,7 +374,7 @@ def getOid(target, oid):
 
     app.logger.info('getOid() %s:%s request from %s' % (target, oid, request.remote_addr))
 
-    existingOid = SubfragiumDBAPI.getOidByOid(target, oid)
+    existingOid = SubfragiumDBAPI.getOidByOid({'target': target, 'oid': oid})
     if not existingOid['success']:
         app.logger.error('getOid() Failure: %s ' % existingOid['err'])
         return {'success': False, 'code': 503, 'err': 'getOid() Failure: %s' % existingOid['err']}

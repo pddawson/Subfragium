@@ -3,7 +3,17 @@ import json
 import jsonschema
 import sys
 import re
+from schema import Schema, SchemaError
 
+def validateObj(objSchema, obj):
+
+  objSchema = Schema(objSchema)
+
+  try:
+    objSchema.validate(obj)
+    return {'success': True}
+  except SchemaError, e:
+    return {'success': False, 'err': 'Invalid Object: %s' % e}
 
 def validateJson(jsonSchema, jsonInput):
 
