@@ -1,1 +1,10 @@
 1) SubfragiumDBAPI.modifyTargetByName doesn't appear to be used
+2) Add Schema for SubfragiumDBAPI.getOidsQuery
+3) Rename files as
+    SubfragiumDBAPI.py -> SubfragiumDBLib.py
+    SubfragiumAPISchema.py -> SubfragiumControllerSchema.py
+    SubfragiumUtils.py -> SubfragiumServerUtils.py
+4) Separate SubfragiumCli into a CLI tool and a SubfragiumClientLib.py
+5) Add target -> oid reference in DataModel
+6) Add poller -> oid reference in DataModel
+7) Change return of oid to use reference
