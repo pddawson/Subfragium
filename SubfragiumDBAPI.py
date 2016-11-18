@@ -66,21 +66,6 @@ def getTargetByName(data):
         return {'success': False, 'err': 'DBAPI getTargetByName() Failed: %s' % e}
 
 
-def modifyTargetByName(data):
-
-    result = SubfragiumUtils.validateObj(SubfragiumDBSchema.modifyTargetByName, data)
-    if not result['success']:
-      return {'success': False, 'err': 'DBAPI modifyTargetByName() invalid data: %s' % result['err']}
-
-    try:
-      existingTarget = models.Target.query.filter(models.Target.name == data['name']).first()
-      existingTarget.snmpString = data['snmpString']
-      db.session.commit()
-      return {'success': True}
-    except Exception, e:
-      return {'success': False, 'err': 'DBAPI modifyTargetByName() DB put operation failed %s' % e}
-
-
 def getTargetsAll():
 
     try:
@@ -285,7 +270,8 @@ def getOidByOid(data):
                 'name': existingOid.name,
                 'oid': existingOid.oid,
                 'target': existingOid.target,
-                'poller': existingOid.poller}]}
+                'poller': existingOid.poller,
+                'snmpString': existingOid.targetInfo.snmpString}]}
     except Exception, e:
         return {'success': False, 'err': 'DBAPI getOidByOid() Failed: %s' % e}
 
@@ -363,7 +349,8 @@ def getOidsAll():
                     'oid': oid.oid,
                     'name': oid.name,
                     'target': oid.target,
-                    'poller': oid.poller
+                    'poller': oid.poller,
+                    'snmpString': oid.targetInfo.snmpString
                     }
             oidList.append(item)
         return {'success': True, 'obj': oidList}

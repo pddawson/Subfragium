@@ -1,5 +1,7 @@
 from app import db
 
+from sqlalchemy import ForeignKey
+from sqlalchemy.orm import relationship, backref
 
 class Target(db.Model):
   __tablename__ = 'Targets'
@@ -44,8 +46,10 @@ class Oid(db.Model):
   id = db.Column(db.String, primary_key=True)
   name = db.Column(db.String)
   oid = db.Column(db.String)
-  target = db.Column(db.String)
-  poller = db.Column(db.String)
+  target = db.Column(db.String, ForeignKey('Targets.name'))
+  poller = db.Column(db.String, ForeignKey('Pollers.name')) # Do we need this?
+
+  targetInfo = relationship('Target', backref=backref('Targets', order_by=target))
 
   def __init__(self, target, name, oid, poller):
     self.id = str(target) + ':' + str(oid)

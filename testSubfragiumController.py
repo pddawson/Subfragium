@@ -1380,6 +1380,8 @@ class TestControllerApi(unittest.TestCase):
 
     resJson = json.loads(res.data)
 
+    print resJson
+
     resRequired = {
       'response': {
         'success': True,
@@ -1388,7 +1390,8 @@ class TestControllerApi(unittest.TestCase):
           'name': oidData['name'],
           'oid': oid,
           'target': target,
-          'poller': poller
+          'poller': poller,
+          'snmpString': targetData['snmpString']
         }
       }
     }
