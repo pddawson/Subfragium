@@ -7,6 +7,8 @@ import time
 import logging
 import SubfragiumUtils
 
+import pysnmp.hlapi
+
 # API Base
 apiServer = 'localhost:5000'
 
@@ -62,8 +64,32 @@ def getTargets(url):
   except:
     return { 'success': False, 'err': 'Target List Server Down' }
 
+
+def snmpQuery(target, snmpString, oid, name):
+
+  snmpEng = pysnmp.hlapi.SnmpEngine()
+  commDat = pysnmp.hlapi.CommunityData(snmpString)
+  udpTran = pysnmp.hlapi.UdpTransportTarget((target, 161))
+  ctxData = pysnmp.hlapi.ContextData()
+  objType = pysnmp.hlapi.ObjectType(pysnmp.hlapi.ObjectIdentity(oid))
+
+  snmpReq = pysnmp.hlapi.getCmd(snmpEng, commDat, udpTran, ctxData, objType)
+
+  eI, eS, eIdx, vBs = next(snmpReq)
+
+  if eI:
+    print eI
+  elif eS:
+    print '%s at %s' %( eS, eI )
+  else:
+    if len(vBs) != 1:
+      logging.error('SNMP %s:%s %s Query returned more than one row'
+                    % (target, oid, name))
+
+    print name, vBs[0][1]
+
 # Ping function
-def ping(q, sQ):
+def poller(q, sQ):
   targets = []
   procName = multiprocessing.current_process().name
   while(1):
@@ -74,12 +100,11 @@ def ping(q, sQ):
     except:
       None
     for target in targets:
-      #if len(target.keys()) > 0:
-      time.sleep(0.2)
+      snmpQuery(target['target'], target['snmpString'], target['oid'], target['name'])
 
     stopTime = time.time()
     totalTime = stopTime - startTime
-    timeLeft = 1 - totalTime
+    timeLeft = 5 - totalTime
     #logging.info( 'Looptime: %s' % timeLeft )
     # Aim for loopTime to be between 20% and 80%
     # Greater than 100% - send a exceeded message
@@ -136,7 +161,7 @@ def createProcess(id):
   process['queue'] = multiprocessing.Queue()
   process['sysQueue'] = multiprocessing.Queue()
   process['processName'] = processName
-  process['handle'] = multiprocessing.Process(name=processName, target=ping,
+  process['handle'] = multiprocessing.Process(name=processName, target=poller,
                                               args=(process['queue'], process['sysQueue'],))
   process['handle'].start()
   return process
@@ -220,7 +245,7 @@ if __name__ == '__main__':
     else:
 
       # Get the list of targets
-      result = getTargets(apiEndpoint['urls']['targets'])
+      result = getTargets(apiEndpoint['urls']['oids'])
       if result['success']:
         newPingList = result['data']
 

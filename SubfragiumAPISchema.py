@@ -13,9 +13,6 @@ PingTarget = {
 Poller = {
   'type': 'object',
   'properties': {
-    'name': {
-      'type': 'string'
-    },
     'minProcesses': {
       'type': 'number',
       'minimum': 1
@@ -33,7 +30,7 @@ Poller = {
       'minimum': 1
     }
   },
-  'required': ['name', 'minProcesses', 'maxProcesses', 'numProcesses', 'holdDown'],
+  'required': ['minProcesses', 'maxProcesses', 'numProcesses', 'holdDown'],
   'additionalProperties': False
 }
 

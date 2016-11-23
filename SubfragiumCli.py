@@ -161,10 +161,10 @@ def addTypePoller(data, apiEndPoint):
         exit(1)
 
     payload = {
-        'minProcesses': validatedInput.group(2),
-        'maxProcesses': validatedInput.group(3),
-        'numProcesses': validatedInput.group(4),
-        'holdDown': validatedInput.group(5)
+        'minProcesses': int(validatedInput.group(2)),
+        'maxProcesses': int(validatedInput.group(3)),
+        'numProcesses': int(validatedInput.group(4)),
+        'holdDown': int(validatedInput.group(5))
     }
     jsonStr = json.dumps(payload)
 
@@ -322,7 +322,7 @@ def modifyTypePoller(data, apiEndPoint):
 
 def addTypeOid(data, apiEndPoint):
 
-    validInput = 'target=([\w\.]+)\,oid=([\d\.]+)\,poller=(\w+)\,name=(\w+)'
+    validInput = 'target=([\w\.]+)\,oid=([\d\.]+)\,poller=(\w+)\,name=([\w\.\/\-]+)'
     reValidator = re.compile(validInput)
     validatedInput = reValidator.match(data)
     if validatedInput == None:
@@ -353,7 +353,7 @@ def addTypeOid(data, apiEndPoint):
 
 def modifyTypeOid(data, apiEndPoint):
 
-    validInput = 'target=([\w\.]+)(\,oid=([\d\.]+))(\,poller=(\w+))*(\,name=(\w+))*'
+    validInput = 'target=([\w\.]+)(\,oid=([\d\.]+))(\,poller=(\w+))*(\,name=([\w\.]+))*'
     reValidator = re.compile(validInput)
     validatedInput = reValidator.match(data)
     if validatedInput == None:
@@ -377,12 +377,17 @@ def modifyTypeOid(data, apiEndPoint):
         print 'Error: Failed %s' % rJson['response']['err']
         exit(1)
 
-    modifiedOid = rJson['response']['obj']
+    existingOid = rJson['response']['obj']
+    modifiedOid = {}
+    modifiedOid['poller'] = existingOid['poller']
+    modifiedOid['name'] = existingOid['name']
+
+    print modifiedOid
 
     if validatedInput.group(5) != None:
         modifiedOid['poller'] = validatedInput.group(5)
     if validatedInput.group(7) != None:
-        modifiedOid['name#'] = validatedInput.group(7)
+        modifiedOid['name'] = validatedInput.group(7)
 
     jsonStr = json.dumps(modifiedOid)
 
@@ -412,13 +417,14 @@ def listTypeOids(apiEndPoint):
     rJson = json.loads(r.text)
     if 'response' in rJson:
         if 'success' in rJson['response'] and rJson['response']['success']:
-            print 'id,name,oid,target,poller'
+            print 'id,name,oid,target,poller,snmpString'
             for oid in rJson['response']['obj']:
-                print '%s,%s,%s,%s,%s' % (oid['id'],
+                print '%s,%s,%s,%s,%s,%s' % (oid['id'],
                                           oid['name'],
                                           oid['oid'],
                                           oid['target'],
-                                          oid['poller'])
+                                          oid['poller'],
+                                          oid['snmpString'])
 
         else:
             print 'Error: %s' % rJson['response']['err']

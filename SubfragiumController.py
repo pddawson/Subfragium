@@ -2,6 +2,7 @@ from app import db
 import app
 import SubfragiumDBAPI
 import SubfragiumUtils
+import flask.json
 
 from flask import jsonify
 from flask import request
@@ -257,6 +258,7 @@ def poller(name):
                 return error503(result['err'])
 
     elif request.method == 'PUT':
+
         result = putPoller(name, request.json)
         if result['success']:
             return jsonify(response={'success': True})
