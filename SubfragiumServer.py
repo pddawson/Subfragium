@@ -15,24 +15,10 @@ apiServer = 'localhost:5000'
 # Poller name
 pollerName = 'poller1'
 
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s=%(levelname)s,%(message)s')
+# Cycle time between polls
+cycleTime = 5
 
-# This function gets the API end points
-# def getApiEndPoint():
-#
-#   baseUrl = 'http://' + apiServer
-#
-#   try:
-#     response = urllib2.urlopen(baseUrl)
-#     data = response.read()
-#     apiEndpoints = json.loads(data)
-#     if 'targets' in apiEndpoints['response']['obj']:
-#       url = baseUrl + apiEndpoints['response']['obj']['targets']
-#       return {'success': True, 'url': url}
-#     else:
-#       return {'success': False, 'err': 'API endpoint for targets missing'}
-#   except:
-#     return {'success': False, 'err': 'Could not get API End Points'}
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s=%(levelname)s,%(message)s')
 
 
 # This function gets the poller information
@@ -78,9 +64,9 @@ def snmpQuery(target, snmpString, oid, name):
   eI, eS, eIdx, vBs = next(snmpReq)
 
   if eI:
-    print eI
+    print logging.warn('SNMP Error for %s:%s %s: %s' % (target, oid, name, eI))
   elif eS:
-    print '%s at %s' %( eS, eI )
+    logging.warn('SNMP Error: %s at %s' %( eS, eI ))
   else:
     if len(vBs) != 1:
       logging.error('SNMP %s:%s %s Query returned more than one row'
@@ -88,7 +74,6 @@ def snmpQuery(target, snmpString, oid, name):
 
     print name, vBs[0][1]
 
-# Ping function
 def poller(q, sQ):
   targets = []
   procName = multiprocessing.current_process().name
@@ -104,22 +89,18 @@ def poller(q, sQ):
 
     stopTime = time.time()
     totalTime = stopTime - startTime
-    timeLeft = 5 - totalTime
-    #logging.info( 'Looptime: %s' % timeLeft )
+    timeLeft = cycleTime - totalTime
     # Aim for loopTime to be between 20% and 80%
     # Greater than 100% - send a exceeded message
     # Greater than 80% but less than 100% - send a looptime warning message
     # Less than 20% - send a looptime under warning message
     if timeLeft < 0:
       sQ.put( { 'message': 'Looptime-exceeded', 'details': 'Looptime: %s' % (timeLeft ) })
-      #logging.info( 'Looptime-exceeded: %s', timeLeft )
     elif timeLeft < 0.2:
       sQ.put({ 'message': 'Looptime-warning', 'details': 'Looptime: %s' % (timeLeft) } )
-      #logging.info('Looptime-warning: %s', timeLeft)
       time.sleep(timeLeft)
     elif timeLeft > 0.7:
       sQ.put({ 'message': 'Looptime-under', 'details': 'Looptime: %s' % (timeLeft) } )
-      #logging.info('Looptime-under: %s', timeLeft)
       time.sleep(timeLeft)
     else:
       time.sleep(timeLeft)
