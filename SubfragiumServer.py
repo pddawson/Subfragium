@@ -6,8 +6,12 @@ import multiprocessing
 import time
 import logging
 import SubfragiumUtils
-
 import pysnmp.hlapi
+import pickle
+import struct
+import socket
+import re
+
 
 # API Base
 apiServer = 'localhost:5000'
@@ -61,23 +65,30 @@ def snmpQuery(target, snmpString, oid, name):
 
   snmpReq = pysnmp.hlapi.getCmd(snmpEng, commDat, udpTran, ctxData, objType)
 
-  eI, eS, eIdx, vBs = next(snmpReq)
+  try:
+      eI, eS, eIdx, vBs = next(snmpReq)
+  except:
+      logging.warn('SNMP Exception for %s:%s (%s)' %(target, oid, name))
+      return {'success': False, 'err': 'SNMP Error' }
 
   if eI:
     print logging.warn('SNMP Error for %s:%s %s: %s' % (target, oid, name, eI))
+    return {'success': False, 'err': 'SNMP Error for %s:%s %s: %s' % (target, oid, name, eI)}
   elif eS:
     logging.warn('SNMP Error: %s at %s' %( eS, eI ))
+    return {'success': False, 'err': 'SNMP Error: %s at %s' % (eS, eI)}
   else:
     if len(vBs) != 1:
       logging.error('SNMP %s:%s %s Query returned more than one row'
                     % (target, oid, name))
 
-    print name, vBs[0][1]
+    return {'success': True, 'data':  { 'name': name, 'value': '%d' % vBs[0][1] } }
 
 def poller(q, sQ):
   targets = []
   procName = multiprocessing.current_process().name
   while(1):
+    data = []
     startTime = time.time()
     try:
       targets = q.get(False)
@@ -85,7 +96,14 @@ def poller(q, sQ):
     except:
       None
     for target in targets:
-      snmpQuery(target['target'], target['snmpString'], target['oid'], target['name'])
+      d = snmpQuery(target['target'], target['snmpString'], target['oid'], target['name'])
+      if d['success']:
+        t = time.time()
+        intTime = re.search('(\d+)\.(\d)', str(t))
+        dataItem = [(target['name'], (int(intTime.group(1)), int(d['data']['value'])))]
+        data.append(dataItem)
+
+    sendToGraphite(data)
 
     stopTime = time.time()
     totalTime = stopTime - startTime
@@ -104,6 +122,24 @@ def poller(q, sQ):
       time.sleep(timeLeft)
     else:
       time.sleep(timeLeft)
+
+
+def sendToGraphite(dataPoints):
+
+  s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+  s.connect(('graphite', 2004))
+
+  for data in dataPoints:
+    payload = pickle.dumps(data, protocol=2)
+    header = struct.pack('!L', len(payload))
+    message = header + payload
+
+    try:
+        s.sendall(message)
+    except:
+        logging.warn('Send to Graphite for %s' % data['name'])
+
+  s.close()
 
 
 # Distributes the list of targets to ping to a number of pollers
