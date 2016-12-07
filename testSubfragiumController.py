@@ -6,7 +6,7 @@ import mock
 from mock import Mock
 
 import SubfragiumController
-import SubfragiumDBAPI
+import SubfragiumDBLib
 
 target = '1.1.1.1'
 targetData = {
@@ -1399,8 +1399,8 @@ class TestControllerApi(unittest.TestCase):
     self.assertEquals(resJson, resRequired)
 
   def testDeleteOidDbFailureInGetOid(self):
-    savedDbCall = SubfragiumDBAPI.getOidByOid
-    SubfragiumDBAPI.getOidByOid = Mock(wraps=SubfragiumDBAPI.getOidByOid)
+    savedDbCall = SubfragiumDBLib.getOidByOid
+    SubfragiumDBLib.getOidByOid = Mock(wraps=SubfragiumDBLib.getOidByOid)
     res = self.app.put('/poller/' + poller,
                        data=json.dumps(pollerData),
                        content_type='application/json')
@@ -1416,7 +1416,7 @@ class TestControllerApi(unittest.TestCase):
                        content_type='application/json')
     self.assertEquals(res.status_code, 200)
 
-    SubfragiumDBAPI.getOidByOid.return_value = {
+    SubfragiumDBLib.getOidByOid.return_value = {
       'success': False,
       'err': 'DBAPI getOidByOid() Failed: Generic Error'
     }
@@ -1435,7 +1435,7 @@ class TestControllerApi(unittest.TestCase):
 
     self.assertEquals(resJson, resRequired)
 
-    SubfragiumDBAPI.getOidByOid = savedDbCall
+    SubfragiumDBLib.getOidByOid = savedDbCall
 
   def testDeleteOidNoSuchOid(self):
     res = self.app.put('/poller/' + poller,

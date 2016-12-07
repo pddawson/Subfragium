@@ -1,9 +1,18 @@
+TODO
+----
 - Add Schema for SubfragiumDBAPI.getOidsQuery
 - Rename files as
-    SubfragiumDBAPI.py -> SubfragiumDBLib.py
-    SubfragiumAPISchema.py -> SubfragiumControllerSchema.py
     SubfragiumUtils.py -> SubfragiumServerUtils.py
+    (Would provide Server / Client Separation but require duplication of code)
 - Separate SubfragiumCli into a CLI tool and a SubfragiumClientLib.py
 - Add target -> oid reference in DataModel
 - Add poller -> oid reference in DataModel
 - Change return of oid to use reference
+- Add graphite details to poller API
+- Use name instead of OID as unique index in API
+
+COMPLETE
+--------
+- Rename files as
+    SubfragiumDBAPI.py -> SubfragiumDBLib.py
+    SubfragiumAPISchema.py -> SubfragiumControllerSchema.py
