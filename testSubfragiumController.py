@@ -20,7 +20,6 @@ target2Data = {
 
 poller = 'poller1'
 pollerData = {
-  'name': 'poller1',
   'minProcesses': 1,
   'maxProcesses': 50,
   'numProcesses': 1,
@@ -29,7 +28,6 @@ pollerData = {
 
 poller2 = 'poller2'
 poller2Data = {
-  'name': 'poller2',
   'minProcesses': 1,
   'maxProcesses': 25,
   'numProcesses': 2,
@@ -145,7 +143,7 @@ class TestControllerApi(unittest.TestCase):
 
     self.assertEquals(resJson, resRequired)
 
-  @mock.patch('SubfragiumDBAPI.getTargetByName')
+  @mock.patch('SubfragiumDBLib.getTargetByName')
   def testGetTargetDbFailure(self, mockGet):
     mockGet.return_value = {
       'success': False,
@@ -216,7 +214,7 @@ class TestControllerApi(unittest.TestCase):
     self.assertEquals(res.status_code, 404)
     self.assertEquals(resJson['response']['success'], False)
 
-  @mock.patch('SubfragiumDBAPI.getTargetByName')
+  @mock.patch('SubfragiumDBLib.getTargetByName')
   def testPutTargetDbFailureInGetTarget(self, mockDB):
     mockDB.return_value = {
       'success': False,
@@ -231,7 +229,7 @@ class TestControllerApi(unittest.TestCase):
     self.assertEquals(res.status_code, 503)
     self.assertEquals(resJson['response']['success'], False)
 
-  @mock.patch('SubfragiumDBAPI.updateTargetByName')
+  @mock.patch('SubfragiumDBLib.updateTargetByName')
   def testPutTargetDbFailureInUpdateTarget(self, mockUpdate):
     res = self.app.put('/target/' + target,
                        data=json.dumps(targetData),
@@ -267,7 +265,7 @@ class TestControllerApi(unittest.TestCase):
 
     self.assertEquals(resJson, resRequired)
 
-  @mock.patch('SubfragiumDBAPI.updateTargetByName')
+  @mock.patch('SubfragiumDBLib.updateTargetByName')
   def testPutTargetDbFailureInUpdateTarget(self, mockUpdate):
     mockUpdate.return_value = {
       'success': False,
@@ -320,8 +318,8 @@ class TestControllerApi(unittest.TestCase):
 
     self.assertEquals(resJson, resRequired)
 
-  # Need to mock the SubfragiumDBAPI call
-  @mock.patch('SubfragiumDBAPI.updateTargetByName')
+  # Need to mock the SubfragiumDBLib call
+  @mock.patch('SubfragiumDBLib.updateTargetByName')
   def testPutTargetDbFailureModifyingExistingTarget(self, mockUpdate):
     res = self.app.put('/target/' + target,
                        data=json.dumps(targetData),
@@ -339,8 +337,8 @@ class TestControllerApi(unittest.TestCase):
                        content_type='application/json')
     self.assertEquals(res.status_code, 503)
 
-  # Need to mock the SubfragiumDBAPI call
-  @mock.patch('SubfragiumDBAPI.putTargetByName')
+  # Need to mock the SubfragiumDBLib call
+  @mock.patch('SubfragiumDBLib.putTargetByName')
   def testPutTargetDbFailureAddingTarget(self, mockAdd):
     mockAdd.return_value = {
       'success': False,
@@ -369,7 +367,7 @@ class TestControllerApi(unittest.TestCase):
     }
     self.assertEquals(resJson, resRequired)
 
-  @mock.patch('SubfragiumDBAPI.getTargetByName')
+  @mock.patch('SubfragiumDBLib.getTargetByName')
   def testDeleteTargetDbFailureGettingTarget(self, mockGetTarget):
     mockGetTarget.return_value = {
       'success': False,
@@ -390,7 +388,7 @@ class TestControllerApi(unittest.TestCase):
     }
     self.assertEquals(resJson, resRequired)
 
-  @mock.patch('SubfragiumDBAPI.getTargetByName')
+  @mock.patch('SubfragiumDBLib.getTargetByName')
   def testDeleteTargetNoSuchTarget(self, mockGetTarget):
     mockGetTarget.return_value = {
       'success': True,
@@ -412,7 +410,7 @@ class TestControllerApi(unittest.TestCase):
 
     self.assertEquals(resJson, resRequired)
 
-  @mock.patch('SubfragiumDBAPI.getOidsByTarget')
+  @mock.patch('SubfragiumDBLib.getOidsByTarget')
   def testDeleteTargetDbFailureGettingOids(self, mockGetOids):
 
     res = self.app.put('/target/' + target,
@@ -467,7 +465,7 @@ class TestControllerApi(unittest.TestCase):
       }
     }
 
-  @mock.patch('SubfragiumDBAPI.deleteTargetByName')
+  @mock.patch('SubfragiumDBLib.deleteTargetByName')
   def testDeleteTargetDbFailureInDelete(self, mockDelete):
     res = self.app.put('/target/' + target,
                        data=json.dumps(targetData),
@@ -524,7 +522,7 @@ class TestControllerApi(unittest.TestCase):
 
     self.assertEquals(resJson, resRequired)
 
-  @mock.patch('SubfragiumDBAPI.getTargetsAll')
+  @mock.patch('SubfragiumDBLib.getTargetsAll')
   def testGetTargetsDbFailure(self, mockGet):
 
     mockGet.return_value = {
@@ -625,7 +623,7 @@ class TestControllerApi(unittest.TestCase):
     res = self.app.put('/poller/' + poller)
     self.assertEquals(res.status_code, 404)
 
-  @mock.patch('SubfragiumDBAPI.getPollerByName')
+  @mock.patch('SubfragiumDBLib.getPollerByName')
   def testPutPollerDBFailureGetPoller(self, mockGet):
     mockGet.return_value = {
       'success': False,
@@ -649,7 +647,7 @@ class TestControllerApi(unittest.TestCase):
 
     self.assertEquals(resJson, reqRequired)
 
-  @mock.patch('SubfragiumDBAPI.modifyPollerByName')
+  @mock.patch('SubfragiumDBLib.modifyPollerByName')
   def testPutPollerDbFailureInUpdatePoller(self, mockModify):
     res = self.app.put('/poller/' + poller,
                        data=json.dumps(pollerData),
@@ -676,7 +674,7 @@ class TestControllerApi(unittest.TestCase):
 
     self.assertEquals(resJson, resRequired)
 
-  @mock.patch('SubfragiumDBAPI.putPollerByName')
+  @mock.patch('SubfragiumDBLib.putPollerByName')
   def testPutPollerDbFailurePut(self, mockPut):
     mockPut.return_value = {
       'success': False,
@@ -742,7 +740,7 @@ class TestControllerApi(unittest.TestCase):
     }
     self.assertEquals(resJson, resRequired)
 
-  @mock.patch('SubfragiumDBAPI.getPollerByName')
+  @mock.patch('SubfragiumDBLib.getPollerByName')
   def testGetPollerDbFailure(self, mockGet):
     mockGet.return_value = {
       'success': False,
@@ -801,7 +799,7 @@ class TestControllerApi(unittest.TestCase):
     }
     self.assertEquals(resJson, resRequired)
 
-  @mock.patch('SubfragiumDBAPI.getPollerByName')
+  @mock.patch('SubfragiumDBLib.getPollerByName')
   def testDeletePollerDbFailureGetPoller(self, mockGet):
     mockGet.return_value = {
       'success': False,
@@ -866,7 +864,7 @@ class TestControllerApi(unittest.TestCase):
     self.assertEquals(resJson, resRequired)
 
   # DELETE /poller : DB Failure in getOids
-  @mock.patch('SubfragiumDBAPI.getOidsByPoller')
+  @mock.patch('SubfragiumDBLib.getOidsByPoller')
   def testDeletePollerDbFailureGetoids(self, mockGet):
     res = self.app.put('/poller/' + poller,
                        data=json.dumps(pollerData),
@@ -891,7 +889,7 @@ class TestControllerApi(unittest.TestCase):
     self.assertEquals(resJson, resRequired)
 
   # No test for deletePoller() DB failure in deletePoller
-  @mock.patch('SubfragiumDBAPI.deletePollerByName')
+  @mock.patch('SubfragiumDBLib.deletePollerByName')
   def testDeletePollerDbFailureInDelete(self, mockDelete):
     mockDelete.return_value = {
       'success': False,
@@ -950,7 +948,7 @@ class TestControllerApi(unittest.TestCase):
 
     self.assertEquals(resJson, resRequired)
 
-  @mock.patch('SubfragiumDBAPI.getPollersAll')
+  @mock.patch('SubfragiumDBLib.getPollersAll')
   def testGetPollersDbFailure(self, mockGet):
     mockGet.return_value = {
       'success': False,
@@ -1072,7 +1070,7 @@ class TestControllerApi(unittest.TestCase):
                        content_type='application/json')
     self.assertEquals(res.status_code, 404)
 
-  @mock.patch('SubfragiumDBAPI.getPollerByName')
+  @mock.patch('SubfragiumDBLib.getPollerByName')
   def testPutOidDBFailureGetPoller(self, mockGet):
     mockGet.return_value = {
       'success': False,
@@ -1112,7 +1110,7 @@ class TestControllerApi(unittest.TestCase):
 
     self.assertEquals(resJson, resRequired)
 
-  @mock.patch('SubfragiumDBAPI.getTargetByName')
+  @mock.patch('SubfragiumDBLib.getTargetByName')
   def testPutOidDBFailureGetTarget(self, mockGet):
     mockGet.return_value = {
       'success': False,
@@ -1161,7 +1159,7 @@ class TestControllerApi(unittest.TestCase):
     }
     self.assertEquals(resJson, resRequired)
 
-  @mock.patch('SubfragiumDBAPI.getOidByOid')
+  @mock.patch('SubfragiumDBLib.getOidByOid')
   def testPutOidDbFailureInGetOid(self, mockGet):
     mockGet.return_value = {
       'success': False,
@@ -1193,7 +1191,7 @@ class TestControllerApi(unittest.TestCase):
     }
     self.assertEquals(resJson, resRequired)
 
-  @mock.patch('SubfragiumDBAPI.putOidByOid')
+  @mock.patch('SubfragiumDBLib.putOidByOid')
   def testPutOidDbFailireInPutOid(self, mockPut):
     mockPut.return_value = {
       'success': False,
@@ -1225,7 +1223,7 @@ class TestControllerApi(unittest.TestCase):
     }
     self.assertEquals(resJson, resRequired)
 
-  @mock.patch('SubfragiumDBAPI.modifyOidByOid')
+  @mock.patch('SubfragiumDBLib.modifyOidByOid')
   def testPutOidDbFailureUpdatingExistingOid(self, mockModify):
     mockModify.return_value = {
       'success': False,
@@ -1325,7 +1323,7 @@ class TestControllerApi(unittest.TestCase):
     }
     self.assertEquals(resJson, resRequired)
 
-  @mock.patch('SubfragiumDBAPI.getOidByOid')
+  @mock.patch('SubfragiumDBLib.getOidByOid')
   def testGetOidDbFailureInGetOid(self, mockGet):
     mockGet.return_value = {
       'success': False,
@@ -1467,7 +1465,7 @@ class TestControllerApi(unittest.TestCase):
 
     self.assertEquals(resJson, resRequired)
 
-  @mock.patch('SubfragiumDBAPI.deleteOidByOid')
+  @mock.patch('SubfragiumDBLib.deleteOidByOid')
   def testDeleteOidDbFailureInDeleteOid(self, mockDelete):
     mockDelete.return_value = {
       'success': False,
@@ -1507,6 +1505,7 @@ class TestControllerApi(unittest.TestCase):
     res = self.app.put('/poller/' + poller,
                        data=json.dumps(pollerData),
                        content_type='application/json')
+    print res.data
     self.assertEquals(res.status_code, 200)
 
     res = self.app.put('/target/' + target,
@@ -1520,6 +1519,7 @@ class TestControllerApi(unittest.TestCase):
     self.assertEquals(res.status_code, 200)
 
     res = self.app.delete('/oid/' + target + '/' + oid)
+    print res.data
     self.assertEquals(res.status_code, 200)
 
     resJson = json.loads(res.data)
@@ -1532,7 +1532,7 @@ class TestControllerApi(unittest.TestCase):
 
     self.assertEquals(resJson, resRequired)
 
-  @mock.patch('SubfragiumDBAPI.getOidsAll')
+  @mock.patch('SubfragiumDBLib.getOidsAll')
   def testGetOidsDbFailureGetAllOids(self, mockGet):
     mockGet.return_value = {
       'success': False,
@@ -1546,7 +1546,7 @@ class TestControllerApi(unittest.TestCase):
 
     resJson = json.loads(res.data)
 
-  @mock.patch('SubfragiumDBAPI.getOidsQuery')
+  @mock.patch('SubfragiumDBLib.getOidsQuery')
   def testGetOidsDbFailreGetOidQuery(self, mockGet):
     mockGet.return_value = {
       'success': False,
