@@ -1,7 +1,25 @@
 import requests
 import json
 import re
-import SubfragiumUtils
+import SubfragiumUtilsLib
+import urllib2
+
+def getApiEndPoint(apiServer):
+
+  baseUrl = 'http://' + apiServer
+
+  api = {}
+
+  try:
+    response = urllib2.urlopen(baseUrl)
+    data = response.read()
+    apiEndpoints = json.loads(data)
+    for apiEndpoint in apiEndpoints['response']['obj']:
+      url = baseUrl + apiEndpoints['response']['obj'][apiEndpoint]
+      api[apiEndpoint] = url
+    return {'success': True, 'urls': api}
+  except:
+    return {'success': False, 'err': 'Could not get API End Points'}
 
 def addTypeTarget(data, apiEndpoint):
   validInput = 'name=([\w\.]+)\,snmpString=(\w+)'
@@ -204,7 +222,7 @@ def listTypePoller(data, apiEndPoint):
     print 'e.g. --data name=poller1'
     exit(1)
 
-  apiCall = SubfragiumUtils.apiEndpoint['urls']['poller'].replace('<string:name>', '')
+  apiCall = SubfragiumUtilsLib.apiEndpoint['urls']['poller'].replace('<string:name>', '')
   apiCall = apiCall + validatedInput.group(1)
   r = requests.get(apiCall)
   rJson = json.loads(r.text)
@@ -255,7 +273,7 @@ def modifyTypePoller(data, apiEndPoint):
     print 'e.g. --data name=poller1,minProcesses=1,maxProcesses=50,numProcesses=2,holdTime=20'
     exit(1)
 
-  apiCall = SubfragiumUtils.apiEndpoint['urls']['poller'].replace('<string:name>', '')
+  apiCall = SubfragiumUtilsLib.apiEndpoint['urls']['poller'].replace('<string:name>', '')
   apiCall = apiCall + validatedInput.group(1)
   r = requests.get(apiCall)
   rJson = json.loads(r.text)

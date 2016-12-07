@@ -1,7 +1,7 @@
 from app import db
 import app
 import SubfragiumDBLib
-import SubfragiumUtils
+import SubfragiumUtilsLib
 import flask.json
 
 from flask import jsonify
@@ -59,7 +59,7 @@ def putTarget(name, data):
         app.logger.info('putTarget() - No JSON provided')
         return {'success': False, 'code': 404, 'err': 'putTarget() - No JSON provided'}
 
-    results = SubfragiumUtils.validateJson(SubfragiumControllerSchema.PingTarget, data)
+    results = SubfragiumUtilsLib.validateJson(SubfragiumControllerSchema.PingTarget, data)
     if not results['success']:
         app.logger.error('putTarget() - Failed : %s' % results['err'])
         return {'success': False, 'code': 404, 'err': results['err']}
@@ -117,7 +117,7 @@ def deleteTarget(name):
 @app.route('/target/<string:name>', methods=['GET','PUT','DELETE'])
 def target(name):
 
-    result = SubfragiumUtils.validateTargetName(name)
+    result = SubfragiumUtilsLib.validateTargetName(name)
     if not result['success']:
         return error404(result['err'])
 
@@ -171,7 +171,7 @@ def putPoller(name, data):
 
     app.logger.info('putPoller() %s request from %s' % (name, request.remote_addr))
 
-    results = SubfragiumUtils.validateJson(SubfragiumControllerSchema.Poller, data)
+    results = SubfragiumUtilsLib.validateJson(SubfragiumControllerSchema.Poller, data)
     if not results['success']:
         app.logger.info('putPoller() - Failure: %s' % results['err'])
         return {'success': False, 'code': 404, 'err': r'putPoller() - Failure: %s' % results['err']}
@@ -301,7 +301,7 @@ def putOid(target, oid, data):
 
     app.logger.info('putOid() %s:%s request from %s' % (target, oid, request.remote_addr))
 
-    results = SubfragiumUtils.validateJson(SubfragiumControllerSchema.Oid, data)
+    results = SubfragiumUtilsLib.validateJson(SubfragiumControllerSchema.Oid, data)
     if not results['success']:
         app.logger.error('putOid() Failed: %s' % results['err'])
         return {'success': False, 'code': 404, 'err': results['err']}

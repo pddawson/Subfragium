@@ -3,7 +3,7 @@ import json
 import requests
 import re
 import SubfragiumClientLib
-import SubfragiumUtils
+import SubfragiumUtilsLib
 
 apiServer = 'localhost:5000'
 
@@ -61,7 +61,7 @@ def actionModify(type, data, apiEndPoint):
 
 if __name__ == '__main__':
 
-    apiEndpoint = SubfragiumUtils.getApiEndPoint(apiServer)
+    apiEndpoint = SubfragiumClientLib.getApiEndPoint(apiServer)
     if not apiEndpoint['success']:
         print 'Error: Can not get API endpoints from server'
         exit(1)

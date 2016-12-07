@@ -5,7 +5,7 @@ import json
 import multiprocessing
 import time
 import logging
-import SubfragiumUtils
+import SubfragiumUtilsLib
 import pysnmp.hlapi
 import pickle
 import struct
@@ -211,7 +211,7 @@ if __name__ == '__main__':
 
   logging.info('SubfragiumPoller starting')
 
-  apiEndpoint = SubfragiumUtils.getApiEndPoint(apiServer)
+  apiEndpoint = SubfragiumUtilsLib.getApiEndPoint(apiServer)
   if not apiEndpoint['success']:
       print 'Could not get Api Endpoints: %s' % apiEndpoint['err']
       exit(1)
@@ -256,7 +256,7 @@ if __name__ == '__main__':
 
     # Get the API base
 
-    apiEndpoint = SubfragiumUtils.getApiEndPoint(apiServer)
+    apiEndpoint = SubfragiumUtilsLib.getApiEndPoint(apiServer)
     if not apiEndpoint['success']:
       logging.error(apiEndpoint['err'])
     else:

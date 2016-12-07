@@ -1,12 +1,12 @@
 from app import models
 from app import db
-import SubfragiumUtils
+import SubfragiumUtilsLib
 import SubfragiumDBSchema
 
 # Targets
 def putTargetByName(data):
 
-    result = SubfragiumUtils.validateObj(SubfragiumDBSchema.putTargetByName, data)
+    result = SubfragiumUtilsLib.validateObj(SubfragiumDBSchema.putTargetByName, data)
     if not result['success']:
         return {'success': False, 'err': 'DBAPI putTargetByName() invalid data'}
 
@@ -22,7 +22,7 @@ def putTargetByName(data):
 
 def updateTargetByName(data):
 
-    result = SubfragiumUtils.validateObj(SubfragiumDBSchema.putTargetByName, data)
+    result = SubfragiumUtilsLib.validateObj(SubfragiumDBSchema.putTargetByName, data)
     if not result['success']:
         return {'success': False, 'err': 'DBAPI updateTargetByName() invalid data: %s' % result['err']}
 
@@ -37,7 +37,7 @@ def updateTargetByName(data):
 
 def deleteTargetByName(data):
 
-    result = SubfragiumUtils.validateObj(SubfragiumDBSchema.deleteTargetByName, data)
+    result = SubfragiumUtilsLib.validateObj(SubfragiumDBSchema.deleteTargetByName, data)
     if not result['success']:
         return {'success': False, 'err': 'DBAPI deleteTargetByName() invalid data: %s' % result['err']}
 
@@ -52,7 +52,7 @@ def deleteTargetByName(data):
 
 def getTargetByName(data):
 
-    result = SubfragiumUtils.validateObj(SubfragiumDBSchema.getTargetByName, data)
+    result = SubfragiumUtilsLib.validateObj(SubfragiumDBSchema.getTargetByName, data)
     if not result['success']:
         return {'success': False, 'err': 'DBAPI getTargetByName() invalid data: %s' % result['err']}
 
@@ -81,7 +81,7 @@ def getTargetsAll():
 # Pollers
 def putPollerByName(data):
 
-    result = SubfragiumUtils.validateObj(SubfragiumDBSchema.putPollerByName, data)
+    result = SubfragiumUtilsLib.validateObj(SubfragiumDBSchema.putPollerByName, data)
     if not result['success']:
         return {'success': False, 'err': 'DBAPI putPollerByName() invalid data: %s' % result['err']}
 
@@ -99,7 +99,7 @@ def putPollerByName(data):
 
 def deletePollerByName(data):
 
-    result = SubfragiumUtils.validateObj(SubfragiumDBSchema.deletePollerByName, data)
+    result = SubfragiumUtilsLib.validateObj(SubfragiumDBSchema.deletePollerByName, data)
     if not result['success']:
         return {'success': False, 'err': 'DBAPI deletePollerByName() invalid data: %s' % result['err']}
 
@@ -114,7 +114,7 @@ def deletePollerByName(data):
 
 def getPollerByName(data):
 
-    result = SubfragiumUtils.validateObj(SubfragiumDBSchema.getPollerByName, data)
+    result = SubfragiumUtilsLib.validateObj(SubfragiumDBSchema.getPollerByName, data)
     if not result['success']:
         return {'success': False, 'err': 'DBAPI getPollerByName() invalid data: %s' % result['err']}
 
@@ -135,7 +135,7 @@ def getPollerByName(data):
 
 def modifyPollerByName(data):
 
-    result = SubfragiumUtils.validateObj(SubfragiumDBSchema.modifyPollerByName, data)
+    result = SubfragiumUtilsLib.validateObj(SubfragiumDBSchema.modifyPollerByName, data)
     if not result['success']:
         return {'success': False, 'err': 'DBAPI modifyPollerByName() invalid data: %s' % result['err']}
 
@@ -169,7 +169,7 @@ def getPollersAll():
 # Oids
 def putOidByOid(data):
 
-    result = SubfragiumUtils.validateObj(SubfragiumDBSchema.putOidByOid, data)
+    result = SubfragiumUtilsLib.validateObj(SubfragiumDBSchema.putOidByOid, data)
     if not result['success']:
         return {'success': False, 'err': 'DBAPI putOidByOid() invalid data: %s' % result['err']}
 
@@ -186,7 +186,7 @@ def putOidByOid(data):
 
 def deleteOidByOid(data):
 
-    result = SubfragiumUtils.validateObj(SubfragiumDBSchema.deleteOidByOid, data)
+    result = SubfragiumUtilsLib.validateObj(SubfragiumDBSchema.deleteOidByOid, data)
     if not result['success']:
         return {'success': False, 'err': 'DBAPI deleteOidByOid() invalid data: %s' % result['err']}
 
@@ -203,7 +203,7 @@ def deleteOidByOid(data):
 
 def getOidsByTarget(data):
 
-    result = SubfragiumUtils.validateObj(SubfragiumDBSchema.getOidsByTarget, data)
+    result = SubfragiumUtilsLib.validateObj(SubfragiumDBSchema.getOidsByTarget, data)
     if not result['success']:
         return {'success': False, 'err': 'DBAPI getOidByTarget() invalid data: %s' % result['err']}
 
@@ -229,7 +229,7 @@ def getOidsByTarget(data):
 
 def getOidsByPoller(data):
 
-    result = SubfragiumUtils.validateObj(SubfragiumDBSchema.getOidsByPoller, data)
+    result = SubfragiumUtilsLib.validateObj(SubfragiumDBSchema.getOidsByPoller, data)
     if not result['success']:
         return {'success': False, 'err': 'DBAPI getOidByPoller() invalid data: %s' % result['err']}
 
@@ -255,7 +255,7 @@ def getOidsByPoller(data):
 
 def getOidByOid(data):
 
-    result = SubfragiumUtils.validateObj(SubfragiumDBSchema.getOidByOid, data)
+    result = SubfragiumUtilsLib.validateObj(SubfragiumDBSchema.getOidByOid, data)
     if not result['success']:
         return {'success': False, 'err': 'DBAPI getOidByOid() invalid data: %s' % result['err']}
 
@@ -321,7 +321,7 @@ def getOidsQuery(queryParameters):
 
 def modifyOidByOid(data):
 
-    result = SubfragiumUtils.validateObj(SubfragiumDBSchema.modifyOidByOid, data)
+    result = SubfragiumUtilsLib.validateObj(SubfragiumDBSchema.modifyOidByOid, data)
     if not result['success']:
         return {'success': False, 'err': 'DBAPI modifyOidByName() invalid data: %s' % result['err']}
 
