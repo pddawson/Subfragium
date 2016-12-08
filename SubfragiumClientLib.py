@@ -13,6 +13,7 @@ def getApiEndPoint(apiServer):
   try:
     response = urllib2.urlopen(baseUrl)
     data = response.read()
+    print 'Response: ' + str(data)
     apiEndpoints = json.loads(data)
     for apiEndpoint in apiEndpoints['response']['obj']:
       url = baseUrl + apiEndpoints['response']['obj'][apiEndpoint]
