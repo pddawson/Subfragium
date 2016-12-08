@@ -100,7 +100,8 @@ def poller(q, sQ):
       if d['success']:
         t = time.time()
         intTime = re.search('(\d+)\.(\d)', str(t))
-        dataItem = [(target['name'], (int(intTime.group(1)), int(d['data']['value'])))]
+        escapedName = re.sub('\/', '-', target['name'])
+        dataItem = [(escapedName, (int(intTime.group(1)), int(d['data']['value'])))]
         data.append(dataItem)
 
     sendToGraphite(data)
