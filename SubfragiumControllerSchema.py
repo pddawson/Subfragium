@@ -32,9 +32,21 @@ Poller = {
     'cycleTime': {
       'type': 'number',
       'minimum': 1
+    },
+    'storageType': {
+      'type': 'string'
+    },
+    'storageLocation': {
+      'type': 'string'
     }
   },
-  'required': ['minProcesses', 'maxProcesses', 'numProcesses', 'holdDown', 'cycleTime'],
+  'required': ['minProcesses',
+               'maxProcesses',
+               'numProcesses',
+               'holdDown',
+               'cycleTime',
+               'storageType',
+               'storageLocation'],
   'additionalProperties': False
 }
 

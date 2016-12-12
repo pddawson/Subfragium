@@ -90,7 +90,9 @@ def putPollerByName(data):
                               data['maxProcesses'],
                               data['numProcesses'],
                               data['holdDown'],
-                              data['cycleTime'])
+                              data['cycleTime'],
+                              data['storageType'],
+                              data['storageLocation'])
     try:
         db.session.add(newPoller)
         db.session.commit()
@@ -130,7 +132,9 @@ def getPollerByName(data):
                 'maxProcesses': poller.maxProcesses,
                 'numProcesses': poller.numProcesses,
                 'holdDown': poller.holdDown,
-                'cycleTime': poller.cycleTime}]}
+                'cycleTime': poller.cycleTime,
+                'storageType': poller.storageType,
+                'storageLocation': poller.storageLocation}]}
     except Exception, e:
         return {'success': False, 'err': 'DBAPI getPollerByName() Failed: %s' % e}
 
@@ -148,6 +152,8 @@ def modifyPollerByName(data):
         existingPoller.numProcesses = data['numProcesses']
         existingPoller.holdDown = data['holdDown']
         existingPoller.cycleTime = data['cycleTime']
+        existingPoller.storageType = data['storageType']
+        existingPoller.storageLocation = data['storageLocation']
         db.session.commit()
         return {'success': True}
     except Exception, e:
@@ -164,7 +170,9 @@ def getPollersAll():
                     'maxProcesses': poller.maxProcesses,
                     'numProcesses': poller.numProcesses,
                     'holdDown': poller.holdDown,
-                    'cycleTime': poller.cycleTime}
+                    'cycleTime': poller.cycleTime,
+                    'storageType': poller.storageType,
+                    'storageLocation': poller.storageLocation}
             pollerList.append(item)
         return {'success': True, 'obj': pollerList}
     except Exception, e:

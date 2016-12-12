@@ -157,13 +157,14 @@ def modifyTypeTarget(data, apiEndpoint):
 
 
 def addTypePoller(data, apiEndPoint):
-  validInput = 'name=([\w\.]+)\,minProcesses=(\d+)\,maxProcesses=(\d+)\,numProcesses=(\d+)\,holdDown=(\d+),cycleTime=(\d+)'
+  validInput = 'name=([\w\.]+)\,minProcesses=(\d+)\,maxProcesses=(\d+)\,numProcesses=(\d+)\,holdDown=(\d+),cycleTime=(\d+),storageType=(\w+),storageLocation=([\w\.\:\/]+)'
   reValidator = re.compile(validInput)
   validatedInput = reValidator.match(data)
   if validatedInput == None:
     print 'Error: Format must be --data name=<name>,minProcesses=<num>,maxProcesses=<num>,numProcesses=<num>,' \
-          'holdDown=<num>,cycleTime=<num>'
-    print 'e.g. --data name=poller1,minProcesses=1,maxProcesses=50,numProcesses=2,holdTime=20,cycleTime=5'
+          'holdDown=<num>,cycleTime=<num>,storageType=graphite,storageLocation=pickle://graphite:5000'
+    print 'e.g. --data name=poller1,minProcesses=1,maxProcesses=50,numProcesses=2,holdTime=20,cycleTime=5' \
+          'storageType=graphite,storageLocation=pickle://graphite:5000'
     exit(1)
 
   payload = {
@@ -171,7 +172,9 @@ def addTypePoller(data, apiEndPoint):
     'maxProcesses': int(validatedInput.group(3)),
     'numProcesses': int(validatedInput.group(4)),
     'holdDown': int(validatedInput.group(5)),
-    'cycleTime': int(validatedInput.group(6))
+    'cycleTime': int(validatedInput.group(6)),
+    'storageType': validatedInput.group(7),
+    'storageLocation': validatedInput.group(8)
   }
   jsonStr = json.dumps(payload)
 
@@ -201,14 +204,16 @@ def listTypePollers(apiEndPoint):
   rJson = json.loads(r.text)
   if 'response' in rJson:
     if 'success' in rJson['response'] and rJson['response']['success']:
-      print 'name,minProcesses,maxProcesses,numProcesses,holdDown,cycleTime'
+      print 'name,minProcesses,maxProcesses,numProcesses,holdDown,cycleTime,storageType,storageLocation'
       for poller in rJson['response']['obj']:
-        print '%s,%s,%s,%s,%s,%s' % (poller['name'],
+        print '%s,%s,%s,%s,%s,%s,%s,%s' % (poller['name'],
                                   poller['minProcesses'],
                                   poller['maxProcesses'],
                                   poller['numProcesses'],
                                   poller['holdDown'],
-                                  poller['cycleTime'])
+                                  poller['cycleTime'],
+                                  poller['storageType'],
+                                  poller['storageLocation'])
 
     else:
       print 'Error: %s' % rJson['response']['err']
@@ -233,12 +238,14 @@ def listTypePoller(data, apiEndPoint):
   if 'response' in rJson:
     if 'success' in rJson['response'] and rJson['response']['success']:
       res = rJson['response']['obj']
-      print '%s,%s,%s,%s,%s,%s' % (res['name'],
+      print '%s,%s,%s,%s,%s,%s,%s,%s' % (res['name'],
                                 res['minProcesses'],
                                 res['maxProcesses'],
                                 res['numProcesses'],
                                 res['holdDown'],
-                                res['cycleTime'])
+                                res['cycleTime'],
+                                res['storageType'],
+                                res['storageLocation'])
     else:
       print 'Error: %s' % rJson['response']['err']
   else:
@@ -269,13 +276,16 @@ def deleteTypePoller(data, apiEndPoint):
 
 
 def modifyTypePoller(data, apiEndPoint):
-  validInput = 'name=([\w\.]+)(\,minProcesses=(\d+))*(\,maxProcesses=(\d+))*(\,numProcesses=(\d+))*(\,holdDown=(\d+))*(\,cycleTime=(\d+))'
+  validInput = 'name=([\w\.]+)(\,minProcesses=(\d+))*(\,maxProcesses=(\d+))*(\,numProcesses=(\d+))*(\,holdDown=(\d+))*(\,cycleTime=(\d+))*(\,storageType=(\w+))*(\,storageLocation=([\w\.\:\/]+))*'
   reValidator = re.compile(validInput)
   validatedInput = reValidator.match(data)
   if validatedInput == None:
     print 'Error: Format must be --data name=<name>,minProcesses=<num>,maxProcesses=<num>,numProcesses=<num>,holdDown=<num>,cycleTime=<num>'
-    print 'e.g. --data name=poller1,minProcesses=1,maxProcesses=50,numProcesses=2,holdTime=20,cycle=20'
+    print 'e.g. --data name=poller1,minProcesses=1,maxProcesses=50,numProcesses=2,holdTime=20,cycle=20' \
+          'storageType=graphite,storageLocation=pickle://graphite:5000'
     exit(1)
+
+  print validatedInput.group(0)
 
   apiCall = apiEndPoint['urls']['poller'].replace('<string:name>', '')
   apiCall = apiCall + validatedInput.group(1)
@@ -306,6 +316,10 @@ def modifyTypePoller(data, apiEndPoint):
     modifiedPoller['holdDown'] = validatedInput.group(9)
   if validatedInput.group(11) != None:
       modifiedPoller['cycleTime'] = validatedInput.group(11)
+  if validatedInput.group(13) != None:
+      modifiedPoller['storageType'] = validatedInput.group(13)
+  if validatedInput.group(15) != None:
+      modifiedPoller['storageLocation'] = validatedInput.group(15)
 
   jsonStr = json.dumps(modifiedPoller)
 
