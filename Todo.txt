@@ -7,6 +7,7 @@ TODO
 - Change Cli to parse out arguments one by one to simplify CLI
   Or maybe just allow the CLI to change a single item at at time?
 - Add testing of the SubfragiumClientLib
+- Add disabling of oid in poller if there are > threshold of failed polls
 
 COMPLETE
 --------

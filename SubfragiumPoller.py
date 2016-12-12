@@ -19,6 +19,11 @@ apiServer = 'localhost:5000'
 # Poller name
 pollerName = 'poller1'
 
+storageType = ''
+storageHost = ''
+storagePort = ''
+storageProtocol = ''
+
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s=%(levelname)s,%(message)s')
 
 
@@ -38,6 +43,32 @@ def getPollerInfo(apiEndpoint):
     except Exception, e:
         return{'success': False, 'err': 'Could not get poller information: %s' % str(e)}
 
+
+def parseStorage(type, location):
+
+  if type != 'graphite':
+      return {'success': False, 'err': 'Unsupported storage type: %s' % type}
+
+  storage = re.match('([\w]+)\:\/\/([\w\.]+)\:(\d+)', location)
+  if storage == None:
+      return {'success': False, 'err': 'Could not parse storage location: %s' % location}
+
+  storageProtocol = storage.group(1)
+  storageHost = storage.group(2)
+  storagePort = int(storage.group(3))
+
+  print 'Storage Protocol: %s' % storageProtocol
+  print 'Storage Host: %s' % storageHost
+  print 'Storage Port: %s' % storagePort
+
+  if storageProtocol != 'pickle':
+    return {'success': False, 'err': 'Unspported storage protocol: %s' % storageProtocol}
+
+  return {'success': True,
+          'storageType': type,
+          'storageProtocol': storageProtocol,
+          'storageHost': storageHost,
+          'storagePort': storagePort}
 
 # This function gets the list of targets from the server
 def getTargets(url):
@@ -101,7 +132,10 @@ def poller(q, sQ):
         dataItem = [(escapedName, (int(intTime.group(1)), int(d['data']['value'])))]
         data.append(dataItem)
 
-    sendToGraphite(data)
+    if storageType == 'graphite':
+        sendToGraphite(data)
+    else:
+        logging.error('Unsupported storage type: %s' + storageType)
 
     stopTime = time.time()
     totalTime = stopTime - startTime
@@ -124,20 +158,25 @@ def poller(q, sQ):
 
 def sendToGraphite(dataPoints):
 
-  s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-  s.connect(('graphite', 2004))
-
-  for data in dataPoints:
-    payload = pickle.dumps(data, protocol=2)
-    header = struct.pack('!L', len(payload))
-    message = header + payload
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.connect((storageHost, storagePort))
+    except socket.error, e:
+        logging.warn('Error opening socket to graphite %s' % e);
 
     try:
-        s.sendall(message)
-    except:
-        logging.warn('Send to Graphite for %s' % data['name'])
 
-  s.close()
+        for data in dataPoints:
+            payload = pickle.dumps(data, protocol=2)
+            header = struct.pack('!L', len(payload))
+            message = header + payload
+
+            s.sendall(message)
+
+    except socket.error, e:
+        logging.warn('Send to Graphite for %s due to %s' % (data['name'], e))
+
+    s.close()
 
 
 # Distributes the list of targets to ping to a number of pollers
@@ -239,6 +278,23 @@ if __name__ == '__main__':
   # Cycle time between polls
   cycleTime = pollerInfo['obj']['cycleTime']
 
+  storage = parseStorage(pollerInfo['obj']['storageType'], pollerInfo['obj']['storageLocation'])
+  if not storage['success']:
+      print 'Error setting up storage back end: %s' % storage['err']
+      exit(1)
+
+  # Setup the storage host
+  storageHost = storage['storageHost']
+
+  # Setup the storage port
+  storagePort = storage['storagePort']
+
+  # Setup the storage type
+  storageType = storage['storageType']
+
+  # Setup the storage protocol
+  storageProtocol = storage['storageProtocol']
+
   # The hold down period (set to the current time i.e. no hold down)
   holdDown = time.time()
 
@@ -246,7 +302,10 @@ if __name__ == '__main__':
   logging.info('SubfragiumPoller configuration - maxProcesses: %s' % maxProcesses)
   logging.info('SubfragiumPoller configuration - numProcesses: %s' % numProcesses)
   logging.info('SubfragiumPoller configuration - cycleTime: %s' % cycleTime)
-
+  logging.info('SubfragiumPoller configuration - Storage Type: %s' % storageType)
+  logging.info('SubfragiumPoller configuration - Storage Protocol: %s' % storageProtocol)
+  logging.info('SubfragiumPoller configuration - Storage Host: %s' % storageHost)
+  logging.info('SubfragiumPoller configuration - Storage Port: %s' % storagePort)
 
   # Initialise a set of processes to start with
   for i in range(0, numProcesses):
