@@ -25,18 +25,24 @@ class Poller(db.Model):
   maxProcesses = db.Column(db.Integer)
   numProcesses = db.Column(db.Integer)
   holdDown = db.Column(db.Integer)
+  cycleTime = db.Column(db.Integer)
 
-  def __init__(self, name, minProcesses, maxProcesses, numProcesses, holdDown):
+  def __init__(self, name, minProcesses, maxProcesses, numProcesses, holdDown, cycleTime):
     self.name = name
     self.minProcesses = minProcesses
     self.maxProcesses = maxProcesses
     self.numProcesses = numProcesses
     self.holdDown = holdDown
+    self.cycleTime = cycleTime
 
   def __str__(self):
-    return 'name: %s, minProc: %s, maxProc: %s, numProc: %s, holdDown: %s' % (self.name, self.minProcesses,
-                                                                              self.maxProcesses, self.numProcesses,
-                                                                              self.holdDown)
+      return 'name: %s, minProc: %s, maxProc: %s, numProc: %s, holdDown: %s, cycleTime: %s' % \
+             (self.name,
+              self.minProcesses,
+              self.maxProcesses,
+              self.numProcesses,
+              self.holdDown,
+              self.cycleTime)
 
 
 class Oid(db.Model):

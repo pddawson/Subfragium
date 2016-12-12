@@ -34,7 +34,8 @@ putPollerByName = {
   'minProcesses': int,
   'maxProcesses': int,
   'numProcesses': int,
-  'holdDown': int
+  'holdDown': int,
+  'cycleTime': int
 }
 
 deletePollerByName = {
@@ -50,7 +51,8 @@ modifyPollerByName = {
   'minProcesses': int,
   'maxProcesses': int,
   'numProcesses': int,
-  'holdDown': int
+  'holdDown': int,
+  'cycleTime': int
 }
 
 ##

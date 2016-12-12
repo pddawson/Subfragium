@@ -19,9 +19,6 @@ apiServer = 'localhost:5000'
 # Poller name
 pollerName = 'poller1'
 
-# Cycle time between polls
-cycleTime = 5
-
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s=%(levelname)s,%(message)s')
 
 
@@ -222,6 +219,8 @@ if __name__ == '__main__':
       print 'Could not get poller info: %s' % pollerInfo['err']
       exit(1)
 
+  print pollerInfo
+
   # List of poller processes
   processes = []
 
@@ -237,12 +236,16 @@ if __name__ == '__main__':
   # Min number of poller processes
   minProcesses = pollerInfo['obj']['minProcesses']
 
+  # Cycle time between polls
+  cycleTime = pollerInfo['obj']['cycleTime']
+
   # The hold down period (set to the current time i.e. no hold down)
   holdDown = time.time()
 
   logging.info('SubfragiumPoller configuration - minProcesses: %s' % minProcesses)
   logging.info('SubfragiumPoller configuration - maxProcesses: %s' % maxProcesses)
   logging.info('SubfragiumPoller configuration - numProcesses: %s' % numProcesses)
+  logging.info('SubfragiumPoller configuration - cycleTime: %s' % cycleTime)
 
 
   # Initialise a set of processes to start with

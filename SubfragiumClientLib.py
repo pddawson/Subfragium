@@ -1,7 +1,7 @@
 import requests
 import json
 import re
-import SubfragiumUtilsLib
+import SubfragiumClientLib
 import urllib2
 
 def getApiEndPoint(apiServer):
@@ -13,7 +13,6 @@ def getApiEndPoint(apiServer):
   try:
     response = urllib2.urlopen(baseUrl)
     data = response.read()
-    print 'Response: ' + str(data)
     apiEndpoints = json.loads(data)
     for apiEndpoint in apiEndpoints['response']['obj']:
       url = baseUrl + apiEndpoints['response']['obj'][apiEndpoint]
@@ -158,19 +157,21 @@ def modifyTypeTarget(data, apiEndpoint):
 
 
 def addTypePoller(data, apiEndPoint):
-  validInput = 'name=([\w\.]+)\,minProcesses=(\d+)\,maxProcesses=(\d+)\,numProcesses=(\d+)\,holdDown=(\d+)'
+  validInput = 'name=([\w\.]+)\,minProcesses=(\d+)\,maxProcesses=(\d+)\,numProcesses=(\d+)\,holdDown=(\d+),cycleTime=(\d+)'
   reValidator = re.compile(validInput)
   validatedInput = reValidator.match(data)
   if validatedInput == None:
-    print 'Error: Format must be --data name=<name>,minProcesses=<num>,maxProcesses=<num>,numProcesses=<num>,holdDown=<num>'
-    print 'e.g. --data name=poller1,minProcesses=1,maxProcesses=50,numProcesses=2,holdTime=20'
+    print 'Error: Format must be --data name=<name>,minProcesses=<num>,maxProcesses=<num>,numProcesses=<num>,' \
+          'holdDown=<num>,cycleTime=<num>'
+    print 'e.g. --data name=poller1,minProcesses=1,maxProcesses=50,numProcesses=2,holdTime=20,cycleTime=5'
     exit(1)
 
   payload = {
     'minProcesses': int(validatedInput.group(2)),
     'maxProcesses': int(validatedInput.group(3)),
     'numProcesses': int(validatedInput.group(4)),
-    'holdDown': int(validatedInput.group(5))
+    'holdDown': int(validatedInput.group(5)),
+    'cycleTime': int(validatedInput.group(6))
   }
   jsonStr = json.dumps(payload)
 
@@ -200,13 +201,14 @@ def listTypePollers(apiEndPoint):
   rJson = json.loads(r.text)
   if 'response' in rJson:
     if 'success' in rJson['response'] and rJson['response']['success']:
-      print 'name,minProcesses,maxProcesses,numProcesses,holdDown'
+      print 'name,minProcesses,maxProcesses,numProcesses,holdDown,cycleTime'
       for poller in rJson['response']['obj']:
-        print '%s,%s,%s,%s,%s' % (poller['name'],
+        print '%s,%s,%s,%s,%s,%s' % (poller['name'],
                                   poller['minProcesses'],
                                   poller['maxProcesses'],
                                   poller['numProcesses'],
-                                  poller['holdDown'])
+                                  poller['holdDown'],
+                                  poller['cycleTime'])
 
     else:
       print 'Error: %s' % rJson['response']['err']
@@ -223,7 +225,7 @@ def listTypePoller(data, apiEndPoint):
     print 'e.g. --data name=poller1'
     exit(1)
 
-  apiCall = SubfragiumUtilsLib.apiEndpoint['urls']['poller'].replace('<string:name>', '')
+  apiCall = apiEndpoint['urls']['poller'].replace('<string:name>', '')
   apiCall = apiCall + validatedInput.group(1)
   r = requests.get(apiCall)
   rJson = json.loads(r.text)
@@ -231,11 +233,12 @@ def listTypePoller(data, apiEndPoint):
   if 'response' in rJson:
     if 'success' in rJson['response'] and rJson['response']['success']:
       res = rJson['response']['obj']
-      print '%s,%s,%s,%s,%s' % (res['name'],
+      print '%s,%s,%s,%s,%s,%s' % (res['name'],
                                 res['minProcesses'],
                                 res['maxProcesses'],
                                 res['numProcesses'],
-                                res['holdDown'])
+                                res['holdDown'],
+                                res['cycleTime'])
     else:
       print 'Error: %s' % rJson['response']['err']
   else:
@@ -266,15 +269,15 @@ def deleteTypePoller(data, apiEndPoint):
 
 
 def modifyTypePoller(data, apiEndPoint):
-  validInput = 'name=([\w\.]+)(\,minProcesses=(\d+))*(\,maxProcesses=(\d+))*(\,numProcesses=(\d+))*(\,holdDown=(\d+))*'
+  validInput = 'name=([\w\.]+)(\,minProcesses=(\d+))*(\,maxProcesses=(\d+))*(\,numProcesses=(\d+))*(\,holdDown=(\d+))*(\,cycleTime=(\d+))'
   reValidator = re.compile(validInput)
   validatedInput = reValidator.match(data)
   if validatedInput == None:
-    print 'Error: Format must be --data name=<name>,minProcesses=<num>,maxProcesses=<num>,numProcesses=<num>,holdDown=<num>'
-    print 'e.g. --data name=poller1,minProcesses=1,maxProcesses=50,numProcesses=2,holdTime=20'
+    print 'Error: Format must be --data name=<name>,minProcesses=<num>,maxProcesses=<num>,numProcesses=<num>,holdDown=<num>,cycleTime=<num>'
+    print 'e.g. --data name=poller1,minProcesses=1,maxProcesses=50,numProcesses=2,holdTime=20,cycle=20'
     exit(1)
 
-  apiCall = SubfragiumUtilsLib.apiEndpoint['urls']['poller'].replace('<string:name>', '')
+  apiCall = apiEndPoint['urls']['poller'].replace('<string:name>', '')
   apiCall = apiCall + validatedInput.group(1)
   r = requests.get(apiCall)
   rJson = json.loads(r.text)
@@ -291,6 +294,7 @@ def modifyTypePoller(data, apiEndPoint):
     exit(1)
 
   modifiedPoller = rJson['response']['obj']
+  del(modifiedPoller['name'])
 
   if validatedInput.group(3) != None:
     modifiedPoller['minProcesses'] = validatedInput.group(3)
@@ -300,6 +304,8 @@ def modifyTypePoller(data, apiEndPoint):
     modifiedPoller['numProcesses'] = validatedInput.group(7)
   if validatedInput.group(9) != None:
     modifiedPoller['holdDown'] = validatedInput.group(9)
+  if validatedInput.group(11) != None:
+      modifiedPoller['cycleTime'] = validatedInput.group(11)
 
   jsonStr = json.dumps(modifiedPoller)
 

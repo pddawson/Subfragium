@@ -184,6 +184,7 @@ def putPoller(name, data):
     if existingPoller['obj'] != []:
         app.logger.info('putPoller() %s update' % name)
         data['name'] = name
+        print data
         result = SubfragiumDBLib.modifyPollerByName(data)
         if not result['success']:
           return {'success': False, 'code': 503, 'err': 'putPoller() - Failed: %s' % result['err']}

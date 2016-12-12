@@ -23,7 +23,8 @@ pollerData = {
   'minProcesses': 1,
   'maxProcesses': 50,
   'numProcesses': 1,
-  'holdDown': 20
+  'holdDown': 20,
+  'cycleTime': 5
 }
 
 poller2 = 'poller2'
@@ -31,7 +32,8 @@ poller2Data = {
   'minProcesses': 1,
   'maxProcesses': 25,
   'numProcesses': 2,
-  'holdDown': 40
+  'holdDown': 40,
+  'cycleTime': 5
 }
 
 oid = '1.3.6.1.2.1'
@@ -729,6 +731,7 @@ class TestControllerApi(unittest.TestCase):
     res = self.app.put('/poller/' + poller,
                        data=json.dumps(pollerData),
                        content_type='application/json')
+    print res.data
     self.assertEquals(res.status_code, 200)
 
     resJson = json.loads(res.data)
@@ -793,7 +796,8 @@ class TestControllerApi(unittest.TestCase):
           'minProcesses': 1,
           'maxProcesses': 50,
           'numProcesses': 1,
-          'holdDown': 20
+          'holdDown': 20,
+          'cycleTime': 5
         }
       }
     }
@@ -1004,7 +1008,8 @@ class TestControllerApi(unittest.TestCase):
             'minProcesses': 1,
             'maxProcesses': 50,
             'numProcesses': 1,
-            'holdDown': 20
+            'holdDown': 20,
+            'cycleTime': 5
           }
         ]
       }

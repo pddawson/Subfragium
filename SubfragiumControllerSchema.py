@@ -28,9 +28,13 @@ Poller = {
     'holdDown': {
       'type': 'number',
       'minimum': 1
+    },
+    'cycleTime': {
+      'type': 'number',
+      'minimum': 1
     }
   },
-  'required': ['minProcesses', 'maxProcesses', 'numProcesses', 'holdDown'],
+  'required': ['minProcesses', 'maxProcesses', 'numProcesses', 'holdDown', 'cycleTime'],
   'additionalProperties': False
 }
 

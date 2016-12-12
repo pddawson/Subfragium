@@ -89,7 +89,8 @@ def putPollerByName(data):
                               data['minProcesses'],
                               data['maxProcesses'],
                               data['numProcesses'],
-                              data['holdDown'])
+                              data['holdDown'],
+                              data['cycleTime'])
     try:
         db.session.add(newPoller)
         db.session.commit()
@@ -123,12 +124,13 @@ def getPollerByName(data):
         if poller == None:
             return {'success': True, 'obj':[]}
         else:
-            return {'success': True, 'obj': [ {
+            return {'success': True, 'obj': [{
                 'name': poller.name,
                 'minProcesses': poller.minProcesses,
                 'maxProcesses': poller.maxProcesses,
                 'numProcesses': poller.numProcesses,
-                'holdDown': poller.holdDown}]}
+                'holdDown': poller.holdDown,
+                'cycleTime': poller.cycleTime}]}
     except Exception, e:
         return {'success': False, 'err': 'DBAPI getPollerByName() Failed: %s' % e}
 
@@ -145,6 +147,7 @@ def modifyPollerByName(data):
         existingPoller.maxProcesses = data['maxProcesses']
         existingPoller.numProcesses = data['numProcesses']
         existingPoller.holdDown = data['holdDown']
+        existingPoller.cycleTime = data['cycleTime']
         db.session.commit()
         return {'success': True}
     except Exception, e:
@@ -160,7 +163,8 @@ def getPollersAll():
                     'minProcesses': poller.minProcesses,
                     'maxProcesses': poller.maxProcesses,
                     'numProcesses': poller.numProcesses,
-                    'holdDown': poller.holdDown}
+                    'holdDown': poller.holdDown,
+                    'cycleTime': poller.cycleTime}
             pollerList.append(item)
         return {'success': True, 'obj': pollerList}
     except Exception, e:
