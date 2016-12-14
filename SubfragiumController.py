@@ -429,26 +429,39 @@ def oid(target, oid):
 @app.route('/oids', methods=['GET'])
 def oids():
 
-    queryParameters = {}
+    oidList = {}
 
-    if 'target' in request.args:
-        queryParameters['target'] = request.args['target']
-
-    if 'poller' in request.args:
-        queryParameters['poller'] = request.args['poller']
-
-    if 'name' in request.args:
-        queryParameters['name'] = request.args['name']
-
-    if 'oid' in request.args:
-        queryParameters['oid'] = request.args['oid']
-
-    if queryParameters == {}:
+    if len(request.args) == 0:
         app.logger.info('getOidsAll() request from %s' % request.remote_addr)
         oidList = SubfragiumDBLib.getOidsAll()
-    else:
+
+    else :
+        queryParameters = {}
+
+        if 'target' in request.args:
+            queryParameters['target'] = '%' + request.args['target'] + '%'
+        else:
+            queryParameters['target'] = '%'
+
+        if 'poller' in request.args:
+            queryParameters['poller'] = '%' + request.args['poller'] + '%'
+        else:
+            queryParameters['poller'] = '%'
+
+        if 'name' in request.args:
+            queryParameters['name'] = '%' + request.args['name'] + '%'
+        else:
+            queryParameters['name'] = '%'
+
+        if 'oid' in request.args:
+            queryParameters['oid'] = '%' + request.args['oid'] + '%'
+        else:
+            queryParameters['oid'] = '%'
+
+
         app.logger.info('getOidsQuery() request from %s' % request.remote_addr)
         oidList = SubfragiumDBLib.getOidsQuery(queryParameters)
+
     if not oidList['success']:
         error = 'getOids..() Failed: %s' % oidList['err']
         app.logger.error(error)

@@ -1557,6 +1557,7 @@ class TestControllerApi(unittest.TestCase):
     TestControllerApi.addTestData(self)
 
     res = self.app.get('/oids')
+    print res.data
     self.assertEquals(res.status_code, 503)
 
     resJson = json.loads(res.data)

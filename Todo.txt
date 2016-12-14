@@ -2,7 +2,6 @@ TODO
 ----
 - Add Schema for SubfragiumDBAPI.getOidsQuery
 - Separate SubfragiumCli into a CLI tool and a SubfragiumClientLib.py
-- Add graphite server details to poller API
 - Use name instead of OID as unique index in API
 - Change Cli to parse out arguments one by one to simplify CLI
   Or maybe just allow the CLI to change a single item at at time?
@@ -20,3 +19,4 @@ COMPLETE
     (Would provide Server / Client Separation but require duplication of code)
 - Use escaping to fix the paths in the OID names
 - Add cycle time to poller
+- Add graphite server details to poller API

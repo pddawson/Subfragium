@@ -33,7 +33,7 @@ def actionList(type, data, apiEndPoint):
     elif type == 'oid':
         SubfragiumClientLib.listTypeOid(data, apiEndPoint)
     elif type == 'oids':
-        SubfragiumClientLib.listTypeOids(apiEndPoint)
+        SubfragiumClientLib.listTypeOids(data, apiEndPoint)
     else:
         print 'Bad type input: %s' % type
 

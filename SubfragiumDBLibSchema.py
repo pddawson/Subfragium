@@ -88,6 +88,14 @@ getOidByOid = {
   'oid': basestring
 }
 
+getOidsQuery = {
+  'target': basestring,
+  'name': basestring,
+  'poller': basestring,
+  'oid': basestring,
+  # Add all parameters as optional
+}
+
 modifyOidByOid = {
   'name': basestring,
   'oid': basestring,

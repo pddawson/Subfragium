@@ -375,6 +375,7 @@ def addTypeOid(data, apiEndPoint):
 
 
 def modifyTypeOid(data, apiEndPoint):
+
   validInput = 'target=([\w\.]+)(\,oid=([\d\.]+))(\,poller=(\w+))*(\,name=([\w\.]+))*'
   reValidator = re.compile(validInput)
   validatedInput = reValidator.match(data)
@@ -433,10 +434,30 @@ def modifyTypeOid(data, apiEndPoint):
     print 'Error: Unknown response %s' % r.text
 
 
-def listTypeOids(apiEndPoint):
+def listTypeOids(data, apiEndPoint):
+
+  validInput = '(target=([\w\.]+))*(\,oid=([\d\.]+))*(\,poller=(\w+))*(\,name=([\w\.]+))*'
+  reValidator = re.compile(validInput)
+  validatedInput = reValidator.match(data)
+
   apiCall = apiEndPoint['urls']['oids']
+  apiCall = apiCall + '?'
+
+  if validatedInput.group(2) != None:
+      apiCall = apiCall + 'target=%s' % validatedInput.group(2)
+
+  if validatedInput.group(4) != None:
+      apiCall = apiCall + '&oid=%s' % validatedInput.group(4)
+
+  if validatedInput.group(6) != None:
+      apiCall = apiCall + '&poller=%s' % validatedInput.group(6)
+
+  if validatedInput.group(8) != None:
+      apiCall = apiCall + '&name=%s' % validatedInput.group(8)
+
   r = requests.get(apiCall)
   rJson = json.loads(r.text)
+
   if 'response' in rJson:
     if 'success' in rJson['response'] and rJson['response']['success']:
       print 'id,name,oid,target,poller,snmpString'
