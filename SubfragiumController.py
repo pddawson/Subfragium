@@ -317,7 +317,7 @@ def putOid(target, oid, data):
         app.logger.info('putOid() - Poller %s does not exist' % data['poller'])
         return {'success': False, 'code': 404, 'err': 'Poller %s does not exist' % data['poller']}
 
-    # Check for existence of target
+    # Check for existence of - Separate SubfragiumCli into a CLI tool and a SubfragiumClientLib.pytarget
     resTarget = SubfragiumDBLib.getTargetByName({'name': target})
     if not resTarget['success']:
         app.logger.error('putOid() Failure: %s ' % resTarget['err'])
@@ -457,7 +457,6 @@ def oids():
             queryParameters['oid'] = '%' + request.args['oid'] + '%'
         else:
             queryParameters['oid'] = '%'
-
 
         app.logger.info('getOidsQuery() request from %s' % request.remote_addr)
         oidList = SubfragiumDBLib.getOidsQuery(queryParameters)

@@ -290,10 +290,9 @@ def getOidByOid(data):
 
 def getOidsQuery(queryParameters):
 
-    # Remove once input object schema has got parameters marked as optional
-    # result = SubfragiumUtilsLib.validateObj(SubfragiumDBLibSchema.getOidsQuery, queryParameters)
-    # if not result['success']:
-    #     return {'success': False, 'err': 'DBAPI getOidByOid() invalid data: %s' % result['err']}
+    result = SubfragiumUtilsLib.validateObj(SubfragiumDBLibSchema.getOidsQuery, queryParameters)
+    if not result['success']:
+        return {'success': False, 'err': 'DBAPI getOidByOid() invalid data: %s' % result['err']}
 
     if 'poller' in queryParameters:
         queryParameters['poller'] = '%' + queryParameters['poller'] + '%'

@@ -2,6 +2,8 @@
 ## Target Schema
 ##
 
+from schema import Optional
+
 putTargetByName = {
   'name': basestring,
   'snmpString': basestring
@@ -89,10 +91,10 @@ getOidByOid = {
 }
 
 getOidsQuery = {
-  'target': basestring,
-  'name': basestring,
-  'poller': basestring,
-  'oid': basestring,
+  Optional('target'): basestring,
+  Optional('name'): basestring,
+  Optional('poller'): basestring,
+  Optional('oid'): basestring,
   # Add all parameters as optional
 }
 
