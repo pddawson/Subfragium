@@ -25,11 +25,11 @@ def actionList(type, data, apiEndPoint):
     if type == 'target':
         SubfragiumClientLib.listTypeTarget(data, apiEndPoint)
     elif type == 'targets':
-        SubfragiumClientLib.listTypeTargets(apiEndPoint)
+        SubfragiumClientLib.listTypeTargets(data, apiEndPoint)
     elif type == 'poller':
         SubfragiumClientLib.listTypePoller(data, apiEndPoint)
     elif type == 'pollers':
-        SubfragiumClientLib.listTypePollers(apiEndPoint)
+        SubfragiumClientLib.listTypePollers(data, apiEndPoint)
     elif type == 'oid':
         SubfragiumClientLib.listTypeOid(data, apiEndPoint)
     elif type == 'oids':
@@ -66,28 +66,28 @@ if __name__ == '__main__':
         print 'Error: Can not get API endpoints from server'
         exit(1)
 
-    parser = argparse.ArgumentParser('CLI Utility to manipulate the PingListServer')
+    parser = argparse.ArgumentParser()
 
     actions = ['add', 'list', 'delete', 'modify']
     types = ['target', 'targets', 'poller', 'pollers', 'oid', 'oids']
 
-    parser.add_argument('action', action='store', nargs=1, choices=actions, help='Action to take')
-    parser.add_argument('type', action='store', nargs=1, choices=types, help='Type of item')
-    parser.add_argument('--data', action='store', default='', help='Data to add')
+    parser.add_argument('action', action='store', nargs=1, choices=actions, help='Action to take on controller')
+    parser.add_argument('type', action='store', nargs=1, choices=types, help='Type of item to apply action to')
+    parser.add_argument('parameters', action='store', default='', help='Parameters for item e.g. help')
 
     args = parser.parse_args()
 
     if args.action[0] == 'add':
-        actionAdd(args.type[0], args.data, apiEndpoint)
+        actionAdd(args.type[0], args.parameters, apiEndpoint)
 
     elif args.action[0] == 'list':
-        actionList(args.type[0], args.data, apiEndpoint)
+        actionList(args.type[0], args.parameters, apiEndpoint)
 
     elif args.action[0] == 'delete':
-        actionDelete(args.type[0], args.data, apiEndpoint)
+        actionDelete(args.type[0], args.parameters, apiEndpoint)
 
     elif args.action[0] == 'modify':
-        actionModify(args.type[0], args.data, apiEndpoint)
+        actionModify(args.type[0], args.parameters, apiEndpoint)
 
     else:
         print 'Bad action input'

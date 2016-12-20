@@ -1,11 +1,11 @@
 TODO
 ----
-- Add Schema for SubfragiumDBAPI.getOidsQuery - PARTIALLY DONE
-- Change Cli to parse out arguments one by one to simplify CLI
-  Or maybe just allow the CLI to change a single item at at time?
 - Add testing of the SubfragiumClientLib
 - Add disabling of oid in poller if there are > threshold of failed polls
 - Controller Validation is only done on puts - ensure its done on delete/get too
+- Add parameter to disable poller
+- Add searching for oids to poll through search parameters
+- Add parameter to disable oids
 
 COMPLETE
 --------
@@ -20,6 +20,9 @@ COMPLETE
 - Add cycle time to poller
 - Add graphite server details to poller API
 - Separate SubfragiumCli into a CLI tool and a SubfragiumClientLib.py
+- Add Schema for SubfragiumDBAPI.getOidsQuery
+- Change Cli to parse out arguments one by one to simplify CLI
+  Or maybe just allow the CLI to change a single item at at time?
 
 
 
