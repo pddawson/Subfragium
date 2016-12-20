@@ -325,7 +325,8 @@ if __name__ == '__main__':
     else:
 
       # Get the list of targets
-      result = getTargets(apiEndpoint['urls']['oids'])
+      info = apiEndpoint['urls']['oids'] + '?poller=' + pollerName
+      result = getTargets(info)
       if result['success']:
         newPingList = result['data']
 
