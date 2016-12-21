@@ -11,13 +11,11 @@ import pickle
 import struct
 import socket
 import re
+import argparse
 
 
 # API Base
 apiServer = 'localhost:5000'
-
-# Poller name
-pollerName = 'poller1'
 
 storageType = ''
 storageHost = ''
@@ -246,6 +244,20 @@ def getSysMessages(process):
 
 if __name__ == '__main__':
 
+  parser = argparse.ArgumentParser()
+
+  parser.add_argument('pollerName', action='store', nargs=1, help='Defines name of poller')
+  parser.add_argument('-f', dest='foreground', action='store_true', help='Run process in foreground')
+
+  args = parser.parse_args()
+
+  if args.foreground:
+    print 'Foregrounding the process is currently unsupported'
+    exit(1)
+
+  # Poller name
+  pollerName = args.pollerName[0]
+
   logging.info('SubfragiumPoller starting')
 
   apiEndpoint = SubfragiumUtilsLib.getApiEndPoint(apiServer)
@@ -298,6 +310,7 @@ if __name__ == '__main__':
   # The hold down period (set to the current time i.e. no hold down)
   holdDown = time.time()
 
+  logging.info('SubfragiumPoller configuration - pollerName: %s' % pollerName)
   logging.info('SubfragiumPoller configuration - minProcesses: %s' % minProcesses)
   logging.info('SubfragiumPoller configuration - maxProcesses: %s' % maxProcesses)
   logging.info('SubfragiumPoller configuration - numProcesses: %s' % numProcesses)
