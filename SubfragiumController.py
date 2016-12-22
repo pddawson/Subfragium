@@ -432,7 +432,7 @@ def oids():
     oidList = {}
 
     if len(request.args) == 0:
-        app.logger.info('getOidsAll() request from %s' % request.remote_addr)
+        app.logger.info('getOidsQuery() request from %s' % request.remote_addr)
         oidList = SubfragiumDBLib.getOidsAll()
 
     else :
@@ -457,6 +457,14 @@ def oids():
             queryParameters['oid'] = '%' + request.args['oid'] + '%'
         else:
             queryParameters['oid'] = '%'
+
+        if 'enabled' in request.args:
+            if request.args['enabled'] == 'True' or request.args['enabled'] == 'true':
+                queryParameters['enabled'] = True
+            else:
+                queryParameters['enabled'] = False
+            # Otherwise leave out so we don't search on it
+
 
         app.logger.info('getOidsQuery() request from %s' % request.remote_addr)
         oidList = SubfragiumDBLib.getOidsQuery(queryParameters)

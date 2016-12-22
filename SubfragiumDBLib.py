@@ -188,7 +188,8 @@ def putOidByOid(data):
     newOid = models.Oid(data['target'],
                         data['name'],
                         data['oid'],
-                        data['poller'])
+                        data['poller'],
+                        data['enabled'])
     try:
         db.session.add(newOid)
         db.session.commit()
@@ -230,7 +231,8 @@ def getOidsByTarget(data):
                     'oid': oid.oid,
                     'name': oid.name,
                     'target': oid.target,
-                    'poller': oid.poller
+                    'poller': oid.poller,
+                    'enabled': oid.enabled
                     }
             oidList.append(item)
         return {'success': True, 'obj': oidList}
@@ -256,7 +258,8 @@ def getOidsByPoller(data):
                     'oid': oid.oid,
                     'name': oid.name,
                     'target': oid.target,
-                    'poller': oid.poller
+                    'poller': oid.poller,
+                    'enabled': oid.enabled
                     }
             oidList.append(item)
         return {'success': True, 'obj': oidList}
@@ -283,6 +286,7 @@ def getOidByOid(data):
                 'oid': existingOid.oid,
                 'target': existingOid.target,
                 'poller': existingOid.poller,
+                'enabled': existingOid.enabled,
                 'snmpString': existingOid.targetInfo.snmpString}]}
     except Exception, e:
         return {'success': False, 'err': 'DBAPI getOidByOid() Failed: %s' % e}
@@ -292,7 +296,7 @@ def getOidsQuery(queryParameters):
 
     result = SubfragiumUtilsLib.validateObj(SubfragiumDBLibSchema.getOidsQuery, queryParameters)
     if not result['success']:
-        return {'success': False, 'err': 'DBAPI getOidByOid() invalid data: %s' % result['err']}
+        return {'success': False, 'err': 'DBAPI getOidQuery() invalid data: %s' % result['err']}
 
     if 'poller' in queryParameters:
         queryParameters['poller'] = '%' + queryParameters['poller'] + '%'
@@ -314,12 +318,24 @@ def getOidsQuery(queryParameters):
     else:
         queryParameters['name'] = '%'
 
+    # Don't need to modify queryParameters for 'enabled' its a boolean field
+
     try:
-        oids = models.Oid.query.filter(
-          models.Oid.poller.like(queryParameters['poller']),
-          models.Oid.oid.like(queryParameters['oid']),
-          models.Oid.target.like(queryParameters['target']),
-          models.Oid.name.like(queryParameters['name'])).all()
+
+        if 'enabled' in queryParameters:
+            print 'Running with enabled match'
+            oids = models.Oid.query.filter(
+              models.Oid.poller.like(queryParameters['poller']),
+              models.Oid.oid.like(queryParameters['oid']),
+              models.Oid.target.like(queryParameters['target']),
+              models.Oid.name.like(queryParameters['name']),
+              models.Oid.enabled.is_(queryParameters['enabled'])).all()
+        else:
+            oids = models.Oid.query.filter(
+                models.Oid.poller.like(queryParameters['poller']),
+                models.Oid.oid.like(queryParameters['oid']),
+                models.Oid.target.like(queryParameters['target']),
+                models.Oid.name.like(queryParameters['name'])).all()
 
         oidList = []
         for oid in oids:
@@ -328,7 +344,8 @@ def getOidsQuery(queryParameters):
                   'name': oid.name,
                   'target': oid.target,
                   'poller': oid.poller,
-                  'snmpString': oid.targetInfo.snmpString
+                  'snmpString': oid.targetInfo.snmpString,
+                  'enabled': oid.enabled
                   }
           oidList.append(item)
         return {'success': True, 'obj': oidList}
@@ -350,6 +367,7 @@ def modifyOidByOid(data):
         existingOid.oid = data['oid']
         existingOid.target = data['target']
         existingOid.poller = data['poller']
+        existingOid.enabled = data['enabled']
         db.session.commit()
         return {'success': True}
     except Exception, e:
@@ -367,7 +385,8 @@ def getOidsAll():
                     'name': oid.name,
                     'target': oid.target,
                     'poller': oid.poller,
-                    'snmpString': oid.targetInfo.snmpString
+                    'snmpString': oid.targetInfo.snmpString,
+                    'enabled': oid.enabled
                     }
             oidList.append(item)
         return {'success': True, 'obj': oidList}

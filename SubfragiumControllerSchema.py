@@ -58,8 +58,11 @@ Oid = {
     },
     'name': {
       'type': 'string'
+    },
+    'enabled': {
+      'type': 'boolean'
     }
   },
-  'required': ['poller','name'],
+  'required': ['poller','name', 'enabled'],
   'additionalProperties': False
 }

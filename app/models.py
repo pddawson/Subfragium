@@ -67,19 +67,22 @@ class Oid(db.Model):
   oid = db.Column(db.String)
   target = db.Column(db.String, ForeignKey('Targets.name'))
   poller = db.Column(db.String, ForeignKey('Pollers.name')) # Do we need this?
+  enabled = db.Column(db.Boolean)
 
   targetInfo = relationship('Target', backref=backref('Targets', order_by=target))
 
-  def __init__(self, target, name, oid, poller):
+  def __init__(self, target, name, oid, poller, enabled):
     self.id = str(target) + ':' + str(oid)
     self.name = name
     self.oid = oid
     self.target = target
     self.poller = poller
+    self.enabled = enabled
 
   def __str__(self):
-    return 'id: %s, name: %s, oid: %s, target: %s, poller: %s' % (self.id,
+    return 'id: %s, name: %s, oid: %s, target: %s, poller: %s, enabled: %s' % (self.id,
                                                                   self.name,
                                                                   self.oid,
                                                                   self.target,
-                                                                  self.poller)
+                                                                  self.poller,
+                                                                  self.enabled)

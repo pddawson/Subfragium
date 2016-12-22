@@ -43,13 +43,15 @@ poller2Data = {
 oid = '1.3.6.1.2.1'
 oidData = {
   'poller': 'poller1',
-  'name': 'network.interface.ifInHcOctets.GigabitEthernet0/0'
+  'name': 'network.interface.ifInHcOctets.GigabitEthernet0/0',
+  'enabled': True
 }
 
 oid2 = '1.3.6.1.2.2'
 oid2Data = {
   'poller': 'poller2',
-  'name': 'network.interface.ifOutHcOctets.GigabitEthernet0/0'
+  'name': 'network.interface.ifOutHcOctets.GigabitEthernet0/0',
+  'enabled': False
 }
 
 class TestControllerApi(unittest.TestCase):
@@ -1404,6 +1406,7 @@ class TestControllerApi(unittest.TestCase):
           'oid': oid,
           'target': target,
           'poller': poller,
+          'enabled': True,
           'snmpString': targetData['snmpString']
         }
       }
@@ -1618,6 +1621,7 @@ class TestControllerApi(unittest.TestCase):
     TestControllerApi.addTestData(self)
 
     res = self.app.get('/oids?name=' + oidData['name'])
+    print res.data
     self.assertEquals(res.status_code, 200)
 
     resJson = json.loads(res.data)
@@ -1636,6 +1640,17 @@ class TestControllerApi(unittest.TestCase):
     self.assertEquals(len(resJson['response']['obj']), 1)
     self.assertEquals(resJson['response']['obj'][0]['oid'], oid)
 
+  def testGetOidsSuccessByEnabled(self):
+    TestControllerApi.addTestData(self)
+
+    res = self.app.get('/oids?enabled=' + 'True')
+    print res.data
+    self.assertEquals(res.status_code, 200)
+
+    resJson = json.loads(res.data)
+
+    self.assertEquals(len(resJson['response']['obj']), 1)
+    self.assertEquals(resJson['response']['obj'][0]['oid'], oid)
 
   ############################################################
   ############################################################

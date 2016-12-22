@@ -479,26 +479,31 @@ def addTypeOid(data, apiEndPoint):
 
   if data == 'help':
     print 'Parameter format must be:'
-    print '\tpython SubfragiumCli.py add oid target={name|ip},oid=<oid>,poller={poller},name={name}'
+    print '\tpython SubfragiumCli.py add oid target={name|ip},oid=<oid>,poller={poller},name={name},enabled={True|False}'
     print
     print '\te.g.'
-    print '\tpython SubfragiumCli.py add oid target=host.test.com,oid=1.3.6.1.2.1,poller=poller1,name=network.interface.ifInHcOctets.router1.FastEthernet0/0'
-    print '\tpython SubfragiumCli.py add oid target=123.123.1.10,oid=1.3.6.1.2.1,poller=poller1,name=network.interface.ifInHcOctets.router1.FastEthernet0/0'
+    print '\tpython SubfragiumCli.py add oid target=host.test.com,oid=1.3.6.1.2.1,poller=poller1,name=network.interface.ifInHcOctets.router1.FastEthernet0/0,enabled=False'
+    print '\tpython SubfragiumCli.py add oid target=123.123.1.10,oid=1.3.6.1.2.1,poller=poller1,name=network.interface.ifInHcOctets.router1.FastEthernet0/0,enabled=True'
     exit(0)
 
-  validInput = 'target=([\w\.]+)\,oid=([\d\.]+)\,poller=(\w+)\,name=([\w\.\/\-]+)'
+  validInput = 'target=([\w\.]+)\,oid=([\d\.]+)\,poller=(\w+)\,name=([\w\.\/\-]+)\,enabled=(True|False)'
   reValidator = re.compile(validInput)
   validatedInput = reValidator.match(data)
   if validatedInput == None:
     print 'Error - Parameter format must be:'
-    print '\tpython SubfragiumCli.py add oid target={name|ip},oid=<oid>,poller={poller},name={name}'
+    print '\tpython SubfragiumCli.py add oid target={name|ip},oid=<oid>,poller={poller},name={name},enabled={True|False}'
     print
     print '\te.g.'
-    print '\tpython SubfragiumCli.py add oid target=host.test.com,oid=1.3.6.1.2.1,poller=poller1,name=network.interface.ifInHcOctets.router1.FastEthernet0/0'
-    print '\tpython SubfragiumCli.py add oid target=123.123.1.10,oid=1.3.6.1.2.1,poller=poller1,name=network.interface.ifInHcOctets.router1.FastEthernet0/0'
+    print '\tpython SubfragiumCli.py add oid target=host.test.com,oid=1.3.6.1.2.1,poller=poller1,name=network.interface.ifInHcOctets.router1.FastEthernet0/0,enabled=False'
+    print '\tpython SubfragiumCli.py add oid target=123.123.1.10,oid=1.3.6.1.2.1,poller=poller1,name=network.interface.ifInHcOctets.router1.FastEthernet0/0,enabled=True'
     exit(1)
 
-  payload = {'poller': validatedInput.group(3), 'name': validatedInput.group(4)}
+  if validatedInput.group(5) == 'True':
+      enabled = True
+  else:
+      enabled = False
+
+  payload = {'poller': validatedInput.group(3), 'name': validatedInput.group(4), 'enabled': enabled}
   jsonStr = json.dumps(payload)
 
   apiCall = apiEndPoint['urls']['oid'].replace('<string:target>', validatedInput.group(1))
@@ -524,30 +529,32 @@ def modifyTypeOid(data, apiEndPoint):
 
   if data == 'help':
     print 'Parameter format must be:'
-    print '\tpython SubfragiumCli.py modify oid target={name|ip},oid=<oid>,{poller={poller}|name={name}}'
+    print '\tpython SubfragiumCli.py modify oid target={name|ip},oid=<oid>,{poller={poller}|name={name}|enabled={True|False}}'
     print
     print '\te.g.'
-    print '\tpython SubfragiumCli.py modify oid target=host.test.com,oid=1.3.6.1.2.1,name=network.interface.ifInHcOctets.router1.FastEthernet0/0'
-    print '\tpython SubfragiumCli.py modify oid target=123.123.1.10,oid=1.3.6.1.2.1,poller=poller1'
+    print '\tpython SubfragiumCli.py modify oid target=host.test.com,oid=1.3.6.1.2.1,name=network.interface.ifInHcOctets.router1.FastEthernet0/0,enabled=True'
+    print '\tpython SubfragiumCli.py modify oid target=123.123.1.10,oid=1.3.6.1.2.1,poller=poller1,enabled=True'
     exit(0)
 
-  validInput = 'target=([\w\.]+),oid=([\d\.]+),(poller=(\w+)|name=([\w\.]+))'
+  validInput = 'target=([\w\.]+),oid=([\d\.]+),(poller=(\w+)|name=([\w\.]+)|enabled=(True|False))'
   reValidator = re.compile(validInput)
   validatedInput = reValidator.match(data)
   if validatedInput == None:
     print 'Error - Parameter format must be:'
-    print '\tpython SubfragiumCli.py modify oid target={name|ip},oid=<oid>,{poller={poller}|name={name}}'
+    print '\tpython SubfragiumCli.py modify oid target={name|ip},oid=<oid>,{poller={poller}|name={name}|enabled={True|False}}'
     print
     print '\te.g.'
-    print '\tpython SubfragiumCli.py modify oid target=host.test.com,oid=1.3.6.1.2.1,name=network.interface.ifInHcOctets.router1.FastEthernet0/0'
-    print '\tpython SubfragiumCli.py modify oid target=123.123.1.10,oid=1.3.6.1.2.1,poller=poller1'
+    print '\tpython SubfragiumCli.py modify oid target=host.test.com,oid=1.3.6.1.2.1,name=network.interface.ifInHcOctets.router1.FastEthernet0/0,enabled=True'
+    print '\tpython SubfragiumCli.py modify oid target=123.123.1.10,oid=1.3.6.1.2.1,poller=poller1,enabled=True'
     exit(1)
 
-  print validatedInput.group(0)
-  print validatedInput.group(1)
-  print validatedInput.group(2)
-  print validatedInput.group(3)
   (field, value) = validatedInput.group(3).split('=')
+
+  if field == 'enabled':
+      if value == 'True':
+          value = True
+      else:
+          value = False
 
   apiCall = apiEndPoint['urls']['oid'].replace('<string:target>', validatedInput.group(1))
   apiCall = apiCall.replace('<string:oid>', validatedInput.group(2))
@@ -598,24 +605,24 @@ def listTypeOids(data, apiEndPoint):
 
   if data == 'help':
     print 'Parameter format must be:'
-    print '\tpython SubfragiumCli.py list oids target={name|ip},oid=<oid>,poller={poller},name={name}'
+    print '\tpython SubfragiumCli.py list oids target={name|ip}|oid=<oid>,|oller={poller}|name={name}|enabled={True|False}'
     print
     print '\te.g.'
-    print '\tpython SubfragiumCli.py list oids target=host.test.com,oid=1.3.6.1.2.1,poller=poller1,name=network.interface.ifInHcOctets.router1.FastEthernet0/0'
-    print '\tpython SubfragiumCli.py list oids target=123.123.1.10,oid=1.3.6.1.2.1,poller=poller1,name=network.interface.ifInHcOctets.router1.FastEthernet0/0'
+    print '\tpython SubfragiumCli.py list oids target=host.test.com,oid=1.3.6.1.2.1,poller=poller1,name=network.interface.ifInHcOctets.router1.FastEthernet0/0,enabled=True'
+    print '\tpython SubfragiumCli.py list oids target=123.123.1.10,oid=1.3.6.1.2.1,poller=poller1,name=network.interface.ifInHcOctets.router1.FastEthernet0/0,enabled=True'
     exit(0)
 
-  validInput = 'all|target=([\w\.]+)|oid=([\d\.]+)|poller=(\w+)|name=([\w\.]+)'
+  validInput = 'all|target=([\w\.]+)|oid=([\d\.]+)|poller=(\w+)|name=([\w\.]+)|enabled=(True|False)'
   reValidator = re.compile(validInput)
   validatedInput = reValidator.match(data)
 
   if validatedInput == None:
     print 'Error - Parameter format must be:'
-    print '\tpython SubfragiumCli.py list oids target={name|ip},oid=<oid>,poller={poller},name={name}'
+    print '\tpython SubfragiumCli.py list oids target={name|ip}|oid=<oid>,|oller={poller}|name={name}|enabled={True|False}'
     print
     print '\te.g.'
-    print '\tpython SubfragiumCli.py list oids target=host.test.com,oid=1.3.6.1.2.1,poller=poller1,name=network.interface.ifInHcOctets.router1.FastEthernet0/0'
-    print '\tpython SubfragiumCli.py list oids target=123.123.1.10,oid=1.3.6.1.2.1,poller=poller1,name=network.interface.ifInHcOctets.router1.FastEthernet0/0'
+    print '\tpython SubfragiumCli.py list oids target=host.test.com,oid=1.3.6.1.2.1,poller=poller1,name=network.interface.ifInHcOctets.router1.FastEthernet0/0,enabled=True'
+    print '\tpython SubfragiumCli.py list oids target=123.123.1.10,oid=1.3.6.1.2.1,poller=poller1,name=network.interface.ifInHcOctets.router1.FastEthernet0/0,enabled=True'
     exit(1)
 
 
@@ -631,15 +638,16 @@ def listTypeOids(data, apiEndPoint):
 
   if 'response' in rJson:
     if 'success' in rJson['response'] and rJson['response']['success']:
-      print 'ID\t\t\tName\t\tOID\t\tTarget\t\tPoller\t\tSnmpString'
-      print '--\t\t\t----\t\t---\t\t------\t\t------\t\t----------'
+      print 'ID\t\t\tName\t\tOID\t\tTarget\t\tPoller\t\tSnmpString\tEnabled'
+      print '--\t\t\t----\t\t---\t\t------\t\t------\t\t----------\t-------'
       for oid in rJson['response']['obj']:
-        print '%s\t%s\t%s\t%s\t%s\t\t%s' % (oid['id'],
+        print '%s\t%s\t%s\t%s\t%s\t\t%s\t\t%s' % (oid['id'],
                                      oid['name'],
                                      oid['oid'],
                                      oid['target'],
                                      oid['poller'],
-                                     oid['snmpString'])
+                                     oid['snmpString'],
+                                     oid['enabled'])
 
     else:
       print 'Error: %s' % rJson['response']['err']

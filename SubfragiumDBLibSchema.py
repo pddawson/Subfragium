@@ -69,7 +69,8 @@ putOidByOid = {
   'name': basestring,
   'oid': basestring,
   'target': basestring,
-  'poller': basestring
+  'poller': basestring,
+  'enabled': bool
 }
 
 deleteOidByOid = {
@@ -95,6 +96,7 @@ getOidsQuery = {
   Optional('name'): basestring,
   Optional('poller'): basestring,
   Optional('oid'): basestring,
+  Optional('enabled'): bool
   # Add all parameters as optional
 }
 
@@ -102,5 +104,6 @@ modifyOidByOid = {
   'name': basestring,
   'oid': basestring,
   'target': basestring,
-  'poller': basestring
+  'poller': basestring,
+  'enabled': bool
 }
