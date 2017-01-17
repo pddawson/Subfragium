@@ -25,26 +25,26 @@ def addTypeTarget(data, apiEndpoint):
 
   if data == 'help':
     print 'Parameter format must be:'
-    print '\tpython SubfragiumCli.py add target name={name|ip},snmpString=<string>'
+    print '\tpython SubfragiumCli.py add target name={name|ip},snmpString=<string>,timeout=<int>'
     print
     print '\te.g.'
-    print '\tpython SubfragiumCli.py add target name=123.123.11.10,snmpString=123'
-    print '\tpython SubfragiumCli.py add target name=host.test.com,snmpString=abc'
+    print '\tpython SubfragiumCli.py add target name=123.123.11.10,snmpString=123,timeout=10'
+    print '\tpython SubfragiumCli.py add target name=host.test.com,snmpString=abc,timeout=25'
     exit(0);
 
-  validInput = 'name=([\w\.]+)\,snmpString=(\w+)'
+  validInput = 'name=([\w\.]+)\,snmpString=(\w+),timeout=(\d+)'
   reValidator = re.compile(validInput)
   validatedInput = reValidator.match(data)
   if validatedInput == None:
     print 'Error - Parameter format must be:'
-    print '\tpython SubfragiumCli.py add target name={name|ip},snmpString=<string>'
+    print '\tpython SubfragiumCli.py add target name={name|ip},snmpString=<string>,timeout=<int>'
     print
     print '\te.g.'
-    print '\tpython SubfragiumCli.py add target name=123.123.11.10,snmpString=123'
-    print '\tpython SubfragiumCli.py add target name=host.test.com,snmpString=abc'
+    print '\tpython SubfragiumCli.py add target name=123.123.11.10,snmpString=123,timeout=10'
+    print '\tpython SubfragiumCli.py add target name=host.test.com,snmpString=abc,timeout=25'
     exit(1)
 
-  apiCall = {'snmpString': validatedInput.group(2)}
+  apiCall = {'snmpString': validatedInput.group(2), 'timeout': int(validatedInput.group(3))}
   jsonCall = json.dumps(apiCall)
 
   headers = {'content-type': 'application/json'}
@@ -77,10 +77,10 @@ def listTypeTargets(data, apiEndpoint):
   rJson = json.loads(r.text)
   if 'response' in rJson:
     if 'success' in rJson['response'] and rJson['response']['success']:
-      print 'Name\t\tSnmpString'
-      print '----\t\t----------'
+      print 'Name\t\tSnmpString\t\tTimeout(msec)'
+      print '----\t\t----------\t\t-------------'
       for target in rJson['response']['obj']:
-        print '%s\t%s' % (target['name'], target['snmpString'])
+        print '%s\t\t%s\t\t%s' % (target['name'], target['snmpString'], target['timeout'])
     else:
       print 'Error: %s' % rJson['response']['err']
   else:
@@ -117,10 +117,10 @@ def listTypeTarget(data, apiEndpoint):
 
   if 'response' in rJson:
     if 'success' in rJson['response'] and rJson['response']['success']:
-      print 'Name\t\tSnmpString'
-      print '----\t\t----------'
+      print 'Name\t\tSnmpString\t\tTimeout(msec)'
+      print '----\t\t----------\t\t-------------'
       res = rJson['response']['obj']
-      print '%s\t%s' % (res['name'], res['snmpString'])
+      print '%s\t\t%s\t\t\t%s' % (res['name'], res['snmpString'], res['timeout'])
     else:
       print 'Error: %s' % rJson['response']['err']
   else:
@@ -168,24 +168,26 @@ def modifyTypeTarget(data, apiEndpoint):
 
   if data == 'help':
     print 'Parameter format must be:'
-    print '\tpython SubfragiumCli.py modify target name={name|ip},snmpString={string}'
+    print '\tpython SubfragiumCli.py modify target name={name|ip},{snmpString={string}|timeout={number}'
     print
     print '\te.g.'
     print '\tpython SubfragiumCli.py modify target name=123.123.1.10,snmpString=123abc'
-    print '\tpython SubfragiumCli.py modify target name=host.test.com,snmpString=123abc'
+    print '\tpython SubfragiumCli.py modify target name=host.test.com,timeout=600'
     exit(0)
 
-  validInput = 'name=([\w\.]+)\,snmpString=(\w+)'
+  validInput = 'name=([\w\.]+)\,(snmpString=(\w+)|timeout=(\d+))'
   reValidator = re.compile(validInput)
   validatedInput = reValidator.match(data)
   if validatedInput == None:
     print 'Error - Parameter format must be:'
-    print '\tpython SubfragiumCli.py modify target name={name|ip},snmpString={string}'
+    print '\tpython SubfragiumCli.py modify target name={name|ip},{snmpString={string}|timeout={number}'
     print
     print '\te.g.'
     print '\tpython SubfragiumCli.py modify target name=123.123.1.10,snmpString=123abc'
-    print '\tpython SubfragiumCli.py modify target name=host.test.com,snmpString=123ab'
+    print '\tpython SubfragiumCli.py modify target name=host.test.com,timeout=600'
     exit(1)
+
+  (field, value) = validatedInput.group(2).split('=')
 
   apiCall = apiEndpoint['urls']['target'].replace('<string:name>', '')
   apiCall = apiCall + validatedInput.group(1)
@@ -203,8 +205,14 @@ def modifyTypeTarget(data, apiEndpoint):
     print 'Error: Failed %s' % rJson['response']['err']
     exit(1)
 
-  apiCallData = {'snmpString': validatedInput.group(2)}
-  jsonCall = json.dumps(apiCallData)
+  modifiedTarget = rJson['response']['obj']
+  if field == 'timeout':
+    modifiedTarget[field] = int(value)
+  else:
+    modifiedTarget[field] = value
+
+  del (modifiedTarget['name'])
+  jsonCall = json.dumps(modifiedTarget)
 
   headers = {'content-type': 'application/json'}
   apiCall = apiEndpoint['urls']['target'].replace('<string:name>', '')
@@ -638,16 +646,17 @@ def listTypeOids(data, apiEndPoint):
 
   if 'response' in rJson:
     if 'success' in rJson['response'] and rJson['response']['success']:
-      print 'ID\t\t\tName\t\tOID\t\tTarget\t\tPoller\t\tSnmpString\tEnabled'
-      print '--\t\t\t----\t\t---\t\t------\t\t------\t\t----------\t-------'
+      print 'ID\t\t\tName\t\tOID\t\tTarget\t\tPoller\t\tSnmpString\tEnabled\t\tTimeout(msec)'
+      print '--\t\t\t----\t\t---\t\t------\t\t------\t\t----------\t-------\t\t-------------'
       for oid in rJson['response']['obj']:
-        print '%s\t%s\t%s\t%s\t%s\t\t%s\t\t%s' % (oid['id'],
+        print '%s\t%s\t%s\t%s\t%s\t\t%s\t\t%s\t\t%s' % (oid['id'],
                                      oid['name'],
                                      oid['oid'],
                                      oid['target'],
                                      oid['poller'],
                                      oid['snmpString'],
-                                     oid['enabled'])
+                                     oid['enabled'],
+                                      oid['timeout'])
 
     else:
       print 'Error: %s' % rJson['response']['err']
@@ -685,14 +694,15 @@ def listTypeOid(data, apiEndPoint):
 
   if 'response' in rJson:
     if 'success' in rJson['response'] and rJson['response']['success']:
-      print 'ID\t\t\t\tTarget\t\tOID\t\t\tPoller\t\tName'
-      print '--\t\t\t\t------\t\t---\t\t\t------\t\t-----'
+      print 'ID\t\t\t\tTarget\t\tOID\t\t\tPoller\t\tName\t\tTimeout(msec)'
+      print '--\t\t\t\t------\t\t---\t\t\t------\t\t----\t\t-------------'
       res = rJson['response']['obj']
-      print '%s\t%s\t%s\t\t%s\t\t%s' % (res['id'],
+      print '%s\t%s\t%s\t\t%s\t\t%s\t%s' % (res['id'],
                                 res['target'],
                                 res['oid'],
                                 res['poller'],
-                                res['name'])
+                                res['name'],
+                                res['timeout'])
     else:
       print 'Error: %s' % rJson['response']['err']
   else:

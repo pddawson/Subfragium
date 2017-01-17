@@ -10,12 +10,14 @@ import SubfragiumDBLib
 
 target = '1.1.1.1'
 targetData = {
-  'snmpString': 'eur'
+  'snmpString': 'eur',
+  'timeout': 10
 }
 
 target2 = '2.2.2.2'
 target2Data = {
-  'snmpString': 'usa'
+  'snmpString': 'usa',
+  'timeout': 10
 }
 
 poller = 'poller1'
@@ -186,7 +188,8 @@ class TestControllerApi(unittest.TestCase):
         'success': True,
         'obj': {
           'name': target,
-          'snmpString': targetData['snmpString']
+          'snmpString': targetData['snmpString'],
+          'timeout': 10
         }
       }
     }
@@ -319,7 +322,8 @@ class TestControllerApi(unittest.TestCase):
         'success': True,
         'obj': {
           'name': target,
-          'snmpString': targetData['snmpString']
+          'snmpString': targetData['snmpString'],
+          'timeout': 10
         }
       }
     }

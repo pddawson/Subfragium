@@ -67,18 +67,18 @@ def putTarget(name, data):
     # Check if the target is already defined
     existingTarget = SubfragiumDBLib.getTargetByName({'name': name})
     if not existingTarget['success']:
-        app.logger.error('putTarget() - Failed : %s'  % existingTarget['err'])
+        app.logger.error('putTarget() - Failed : %s' % existingTarget['err'])
         return {'success': False, 'code': 503, 'err': 'putTarget() Failure: %s' % existingTarget['err']}
 
     if existingTarget['obj'] != []:
         app.logger.info('putTarget() %s update' % name)
-        result = SubfragiumDBLib.updateTargetByName({'name': name, 'snmpString': data['snmpString']})
+        result = SubfragiumDBLib.updateTargetByName({'name': name, 'snmpString': data['snmpString'], 'timeout': data['timeout']})
         if not result['success']:
             return {'success': False, 'code': 503, 'err': 'putTarget() - Failed: %s' % result['err']}
         else:
             return {'success': True, 'code': 200}
 
-    results = SubfragiumDBLib.putTargetByName({'name': name, 'snmpString': data['snmpString']})
+    results = SubfragiumDBLib.putTargetByName({'name': name, 'snmpString': data['snmpString'], 'timeout': data['timeout']})
     if not results['success']:
         app.logger.error('putTarget() - Failed : %s'  % results['err'])
         return {'success': False, 'code': 503, 'err': 'putTarget() Failed: %s ' % results['err']}

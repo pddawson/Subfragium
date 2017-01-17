@@ -7,6 +7,7 @@ TODO
 - Add parameter to disable oids
 - Add timeout parameter for target or maybe oid?
 - Add daemon and foreground for poller - PARTIALLY DONE
+- Remove all traces of 'Ping' from variable names / functions
 
 COMPLETE
 --------

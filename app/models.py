@@ -8,13 +8,15 @@ class Target(db.Model):
 
   name = db.Column(db.String, primary_key=True)
   snmpString = db.Column(db.String)
+  timeout = db.Column(db.Integer)
 
-  def __init__(self, name, snmpString):
+  def __init__(self, name, snmpString, timeout):
     self.name = name
     self.snmpString = snmpString
+    self.timeout = timeout
 
   def __str__(self):
-    return 'name: %s, snmpString: %s' % (self.name, self.snmpString)
+    return 'name: %s, snmpString: %s, timeout: %s' % (self.name, self.snmpString, self.timeout)
 
 
 class Poller(db.Model):

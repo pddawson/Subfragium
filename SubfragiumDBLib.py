@@ -10,7 +10,7 @@ def putTargetByName(data):
     if not result['success']:
         return {'success': False, 'err': 'DBAPI putTargetByName() invalid data'}
 
-    newTarget = models.Target(data['name'], data['snmpString'])
+    newTarget = models.Target(data['name'], data['snmpString'], data['timeout'])
 
     try:
         db.session.add(newTarget)
@@ -29,6 +29,7 @@ def updateTargetByName(data):
     try:
         existingTarget = models.Target.query.filter(models.Target.name == data['name']).first()
         existingTarget.snmpString = data['snmpString']
+        existingTarget.timeout = data['timeout']
         db.session.commit()
         return {'success': True}
     except Exception, e:
@@ -61,7 +62,7 @@ def getTargetByName(data):
         if target == None:
             return {'success': True, 'obj': []}
         else:
-            return {'success': True, 'obj': [{'name': target.name, 'snmpString': target.snmpString}]}
+            return {'success': True, 'obj': [{'name': target.name, 'snmpString': target.snmpString, 'timeout': target.timeout}]}
     except Exception, e:
         return {'success': False, 'err': 'DBAPI getTargetByName() Failed: %s' % e}
 
@@ -72,7 +73,7 @@ def getTargetsAll():
         targets = models.Target.query.filter().all()
         targetList = []
         for target in targets:
-            item = {'name': target.name, 'snmpString': target.snmpString}
+            item = {'name': target.name, 'snmpString': target.snmpString, 'timeout': target.timeout}
             targetList.append(item)
         return {'success': True, 'obj': targetList}
     except Exception, e:
@@ -345,7 +346,8 @@ def getOidsQuery(queryParameters):
                   'target': oid.target,
                   'poller': oid.poller,
                   'snmpString': oid.targetInfo.snmpString,
-                  'enabled': oid.enabled
+                  'enabled': oid.enabled,
+                  'timeout': oid.targetInfo.timeout
                   }
           oidList.append(item)
         return {'success': True, 'obj': oidList}
@@ -386,7 +388,8 @@ def getOidsAll():
                     'target': oid.target,
                     'poller': oid.poller,
                     'snmpString': oid.targetInfo.snmpString,
-                    'enabled': oid.enabled
+                    'enabled': oid.enabled,
+                    'timeout': oid.targetInfo.timeout
                     }
             oidList.append(item)
         return {'success': True, 'obj': oidList}

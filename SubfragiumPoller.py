@@ -81,11 +81,13 @@ def getTargets(url):
     return { 'success': False, 'err': 'Target List Server Down' }
 
 
-def snmpQuery(target, snmpString, oid, name):
+def snmpQuery(target, snmpString, oid, name, timeout):
+
+  timeoutSeconds = float(timeout) / 1000
 
   snmpEng = pysnmp.hlapi.SnmpEngine()
   commDat = pysnmp.hlapi.CommunityData(snmpString)
-  udpTran = pysnmp.hlapi.UdpTransportTarget((target, 161))
+  udpTran = pysnmp.hlapi.UdpTransportTarget((target, 161), timeout=timeoutSeconds)
   ctxData = pysnmp.hlapi.ContextData()
   objType = pysnmp.hlapi.ObjectType(pysnmp.hlapi.ObjectIdentity(oid))
 
@@ -122,7 +124,7 @@ def poller(q, sQ):
     except:
       None
     for target in targets:
-      d = snmpQuery(target['target'], target['snmpString'], target['oid'], target['name'])
+      d = snmpQuery(target['target'], target['snmpString'], target['oid'], target['name'], target['timeout'])
       if d['success']:
         t = time.time()
         intTime = re.search('(\d+)\.(\d)', str(t))
@@ -172,7 +174,7 @@ def sendToGraphite(dataPoints):
             s.sendall(message)
 
     except socket.error, e:
-        logging.warn('Send to Graphite for %s due to %s' % (data['name'], e))
+        logging.warn('Send to Graphite failed: %s' % e)
 
     s.close()
 

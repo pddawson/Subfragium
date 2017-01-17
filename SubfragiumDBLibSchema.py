@@ -6,12 +6,14 @@ from schema import Optional
 
 putTargetByName = {
   'name': basestring,
-  'snmpString': basestring
+  'snmpString': basestring,
+  'timeout': int
 }
 
 updateTargetByName = {
   'name': basestring,
-  'snmpString': basestring
+  'snmpString': basestring,
+  'timeout': int
 }
 
 deleteTargetByName = {
@@ -24,7 +26,8 @@ getTargetByName = {
 
 modifyTargetByName = {
   'name': basestring,
-  'snmpString': basestring
+  'snmpString': basestring,
+  'timeout': int
 }
 
 ##

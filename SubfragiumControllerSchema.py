@@ -4,9 +4,13 @@ PingTarget = {
   'properties': {
     'snmpString': {
       'type': 'string',
+    },
+    'timeout': {
+      'type': 'number',
+      'minimum': 1
     }
   },
-  'required': ['snmpString'],
+  'required': ['snmpString','timeout'],
   'additionalProperties': False
 }
 
