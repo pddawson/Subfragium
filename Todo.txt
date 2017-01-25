@@ -5,7 +5,6 @@ TODO
 - Controller Validation is only done on puts - ensure its done on delete/get too
 - Add parameter to disable poller
 - Add parameter to disable oids
-- Remove all traces of 'Ping' from variable names / functions
 
 COMPLETE
 --------
@@ -27,6 +26,7 @@ COMPLETE
 - Add CLI to specify poller name
 - Add timeout parameter for target or maybe oid?
 - Add daemon and foreground for poller
+- Remove all traces of 'Ping' from variable names / functions
 
 
 

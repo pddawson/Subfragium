@@ -152,7 +152,8 @@ def poller(q, sQ):
         data.append(dataItem)
 
     if storageType == 'graphite':
-        sendToGraphite(data)
+        if len(data) > 0:
+          sendToGraphite(data)
     else:
         logger.error('Unsupported storage type: %s' + storageType)
 
