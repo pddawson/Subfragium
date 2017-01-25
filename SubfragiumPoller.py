@@ -89,10 +89,10 @@ def getTargets(url):
     response = urllib2.urlopen(url)
     data = response.read()
     targets = json.loads(data)
-    pingList = targets['response']['obj']
-    return { 'success': True, 'data': pingList }
+    targetList = targets['response']['obj']
+    return {'success': True, 'data': targetList}
   except:
-    return { 'success': False, 'err': 'Target List Server Down' }
+    return {'success': False, 'err': 'Target List Server Down'}
 
 
 def snmpQuery(target, snmpString, oid, name, timeout):
@@ -200,13 +200,13 @@ def sendToGraphite(dataPoints):
     s.close()
 
 
-# Distributes the list of targets to ping to a number of pollers
-def allocatePoller(pingList, numProcesses):
+# Distributes the list of targets to target to a number of pollers
+def allocatePoller(targetList, numProcesses):
   # Distribute the targets to pollers
-  for i in range(0, len(pingList)):
-    pingList[i]['poller'] = i % numProcesses
+  for i in range(0, len(targetList)):
+    targetList[i]['poller'] = i % numProcesses
 
-  return pingList
+  return targetList
 
 # Initialises a array of arrays to hold each processes list of targets
 def initPollerLists(numProcesses):
@@ -216,14 +216,14 @@ def initPollerLists(numProcesses):
 
   return targets
 
-# Iterates through the pingList creating an array of targets for each poller
-def distributePollers(pingList, targets):
+# Iterates through the target list creating an array of targets for each poller
+def distributePollers(targetList, targets):
 
   logger = logging.getLogger('SubfragiumController')
 
-  for i in range(0, len(pingList)):
-    targets[pingList[i]['poller']].append(pingList[i])
-    logger.debug('Putting: %s in poller %s', str(pingList[i]), pingList[i]['poller'])
+  for i in range(0, len(targetList)):
+    targets[targetList[i]['poller']].append(targetList[i])
+    logger.debug('Putting: %s in poller %s', str(targetList[i]), targetList[i]['poller'])
 
   return targets
 
@@ -343,7 +343,7 @@ def mainLoop(pollerName):
     process = createProcess(i)
     processes.append(process)
 
-  pingList = []
+  targetList = []
 
   # Loop for ever
   while (1):
@@ -359,21 +359,21 @@ def mainLoop(pollerName):
       info = apiEndpoint['urls']['oids'] + '?poller=' + pollerName + '&enabled=True'
       result = getTargets(info)
       if result['success']:
-        newPingList = result['data']
+        newTargetList = result['data']
 
         # Distribute the targets to pollers
-        newPingList = allocatePoller(newPingList, numProcesses)
+        newTargetList = allocatePoller(newTargetList, numProcesses)
 
         # Check if there has been any change to the list since last time
-        if pingList != newPingList:
-          pingList = newPingList
-          logger.debug('New Ping List')
+        if targetList != newTargetList:
+          targetList = newTargetList
+          logger.debug('New Target List')
 
           # Initialise the target lists to pass to each of the pollers
           targets = initPollerLists(numProcesses)
 
           # Iterate through the target list appending targets to correct poller
-          targets = distributePollers(pingList, targets)
+          targets = distributePollers(targetList, targets)
 
           # Send the target lists to poller processes
           putTargetsLists(targets, processes, numProcesses)
@@ -383,8 +383,8 @@ def mainLoop(pollerName):
           logger.debug('No change to targets')
 
       else:
-        # Log the error when the system tried to get the ping list from the server
-        logger.error('Could not get ping list due to: %s', result['err'])
+        # Log the error when the system tried to get the target list from the server
+        logger.error('Could not get target list due to: %s', result['err'])
 
       # Check if we've got any messages back from the poller processes
       for process in processes:
