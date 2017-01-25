@@ -12,6 +12,8 @@ import struct
 import socket
 import re
 import argparse
+import daemon
+import os
 
 
 # API Base
@@ -22,11 +24,27 @@ storageHost = ''
 storagePort = ''
 storageProtocol = ''
 
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s=%(levelname)s,%(message)s')
 
+def setupLogging(daemon, logLevel):
+
+    logger = logging.getLogger('SubfragiumController')
+    logger.setLevel(logLevel.upper())
+    formatter = logging.Formatter('%(asctime)s=%(levelname)s,%(name)s,%(message)s')
+
+    if daemon:
+        # Setup logging as a daemon to a file
+        handler = logging.FileHandler(filename='SubfragiumPoller.log')
+
+    else:
+        # Setup logging as a foreground process to the console
+        handler = logging.StreamHandler()
+
+    handler.setLevel(logLevel.upper())
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
 
 # This function gets the poller information
-def getPollerInfo(apiEndpoint):
+def getPollerInfo(apiEndpoint, pollerName):
 
     apiCall = apiEndpoint['urls']['poller'].replace('<string:name>', pollerName)
     try:
@@ -55,10 +73,6 @@ def parseStorage(type, location):
   storageHost = storage.group(2)
   storagePort = int(storage.group(3))
 
-  print 'Storage Protocol: %s' % storageProtocol
-  print 'Storage Host: %s' % storageHost
-  print 'Storage Port: %s' % storagePort
-
   if storageProtocol != 'pickle':
     return {'success': False, 'err': 'Unspported storage protocol: %s' % storageProtocol}
 
@@ -83,6 +97,8 @@ def getTargets(url):
 
 def snmpQuery(target, snmpString, oid, name, timeout):
 
+  logger = logging.getLogger('SubfragiumController')
+
   timeoutSeconds = float(timeout) / 1000
 
   snmpEng = pysnmp.hlapi.SnmpEngine()
@@ -96,23 +112,26 @@ def snmpQuery(target, snmpString, oid, name, timeout):
   try:
       eI, eS, eIdx, vBs = next(snmpReq)
   except:
-      logging.warn('SNMP Exception for %s:%s (%s)' %(target, oid, name))
+      logger.warn('SNMP Exception for %s:%s (%s)' %(target, oid, name))
       return {'success': False, 'err': 'SNMP Error' }
 
   if eI:
-    print logging.warn('SNMP Error for %s:%s %s: %s' % (target, oid, name, eI))
+    print logger.warn('SNMP Error for %s:%s %s: %s' % (target, oid, name, eI))
     return {'success': False, 'err': 'SNMP Error for %s:%s %s: %s' % (target, oid, name, eI)}
   elif eS:
-    logging.warn('SNMP Error: %s at %s' %( eS, eI ))
+    logger.warn('SNMP Error: %s at %s' %( eS, eI ))
     return {'success': False, 'err': 'SNMP Error: %s at %s' % (eS, eI)}
   else:
     if len(vBs) != 1:
-      logging.error('SNMP %s:%s %s Query returned more than one row'
+      logger.error('SNMP %s:%s %s Query returned more than one row'
                     % (target, oid, name))
 
     return {'success': True, 'data':  { 'name': name, 'value': '%d' % vBs[0][1] } }
 
 def poller(q, sQ):
+
+  logger = logging.getLogger('SubfragiumController')
+
   targets = []
   procName = multiprocessing.current_process().name
   while(1):
@@ -120,7 +139,7 @@ def poller(q, sQ):
     startTime = time.time()
     try:
       targets = q.get(False)
-      logging.debug('Putting %s', str(targets))
+      logger.debug('Putting %s', str(targets))
     except:
       None
     for target in targets:
@@ -135,7 +154,7 @@ def poller(q, sQ):
     if storageType == 'graphite':
         sendToGraphite(data)
     else:
-        logging.error('Unsupported storage type: %s' + storageType)
+        logger.error('Unsupported storage type: %s' + storageType)
 
     stopTime = time.time()
     totalTime = stopTime - startTime
@@ -158,11 +177,13 @@ def poller(q, sQ):
 
 def sendToGraphite(dataPoints):
 
+    logger = logging.getLogger('SubfragiumController')
+
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.connect((storageHost, storagePort))
     except socket.error, e:
-        logging.warn('Error opening socket to graphite %s' % e);
+        logger.warn('Error opening socket to graphite %s' % e);
 
     try:
 
@@ -174,7 +195,7 @@ def sendToGraphite(dataPoints):
             s.sendall(message)
 
     except socket.error, e:
-        logging.warn('Send to Graphite failed: %s' % e)
+        logger.warn('Send to Graphite failed: %s' % e)
 
     s.close()
 
@@ -197,14 +218,17 @@ def initPollerLists(numProcesses):
 
 # Iterates through the pingList creating an array of targets for each poller
 def distributePollers(pingList, targets):
+
+  logger = logging.getLogger('SubfragiumController')
+
   for i in range(0, len(pingList)):
     targets[pingList[i]['poller']].append(pingList[i])
-    logging.debug('Putting: %s in poller %s', str(pingList[i]), pingList[i]['poller'])
+    logger.debug('Putting: %s in poller %s', str(pingList[i]), pingList[i]['poller'])
 
   return targets
 
 # Put the target lists messages on the queues for each of the pollers
-def putTargetsLists(processes, numProcesses):
+def putTargetsLists(targets, processes, numProcesses):
   for i in range(0, numProcesses):
     processes[i % numProcesses]['queue'].put(targets[i])
 
@@ -222,8 +246,11 @@ def createProcess(id):
 
 # Terminate the process provided
 def deleteProcess(process):
+
+  logger = logging.getLogger('SubfragiumController')
+
   process['handle'].terminate()
-  logging.info('Shutdown process %s', process['processName'])
+  logger.info('Shutdown process %s', process['processName'])
 
 # Check for system messages from poller
 def getSysMessages(process):
@@ -240,39 +267,23 @@ def getSysMessages(process):
 
   return messages
 
-#######################
-# Program starts here #
-#######################
 
-if __name__ == '__main__':
+def mainLoop(pollerName):
 
-  parser = argparse.ArgumentParser()
+  logger = logging.getLogger('SubfragiumController')
 
-  parser.add_argument('pollerName', action='store', nargs=1, help='Defines name of poller')
-  parser.add_argument('-f', dest='foreground', action='store_true', help='Run process in foreground')
-
-  args = parser.parse_args()
-
-  if args.foreground:
-    print 'Foregrounding the process is currently unsupported'
-    exit(1)
-
-  # Poller name
-  pollerName = args.pollerName[0]
-
-  logging.info('SubfragiumPoller starting')
+  logger.info('SubfragiumPoller starting')
 
   apiEndpoint = SubfragiumUtilsLib.getApiEndPoint(apiServer)
   if not apiEndpoint['success']:
-      print 'Could not get Api Endpoints: %s' % apiEndpoint['err']
-      exit(1)
+    print 'Could not get Api Endpoints: %s' % apiEndpoint['err']
+    exit(1)
 
-  pollerInfo = getPollerInfo(apiEndpoint)
+  pollerInfo = getPollerInfo(apiEndpoint, pollerName)
   if not pollerInfo['success']:
-      print 'Could not get poller info: %s' % pollerInfo['err']
-      exit(1)
+    print 'Could not get poller info: %s' % pollerInfo['err']
+    exit(1)
 
-  print pollerInfo
 
   # List of poller processes
   processes = []
@@ -290,37 +301,42 @@ if __name__ == '__main__':
   minProcesses = pollerInfo['obj']['minProcesses']
 
   # Cycle time between polls
+  global cycleTime
   cycleTime = pollerInfo['obj']['cycleTime']
 
   storage = parseStorage(pollerInfo['obj']['storageType'], pollerInfo['obj']['storageLocation'])
   if not storage['success']:
-      print 'Error setting up storage back end: %s' % storage['err']
-      exit(1)
+    print 'Error setting up storage back end: %s' % storage['err']
+    exit(1)
 
   # Setup the storage host
+  global storageHost
   storageHost = storage['storageHost']
 
   # Setup the storage port
+  global storagePort
   storagePort = storage['storagePort']
 
   # Setup the storage type
+  global storageType
   storageType = storage['storageType']
 
   # Setup the storage protocol
+  global storageProtocol
   storageProtocol = storage['storageProtocol']
 
   # The hold down period (set to the current time i.e. no hold down)
   holdDown = time.time()
 
-  logging.info('SubfragiumPoller configuration - pollerName: %s' % pollerName)
-  logging.info('SubfragiumPoller configuration - minProcesses: %s' % minProcesses)
-  logging.info('SubfragiumPoller configuration - maxProcesses: %s' % maxProcesses)
-  logging.info('SubfragiumPoller configuration - numProcesses: %s' % numProcesses)
-  logging.info('SubfragiumPoller configuration - cycleTime: %s' % cycleTime)
-  logging.info('SubfragiumPoller configuration - Storage Type: %s' % storageType)
-  logging.info('SubfragiumPoller configuration - Storage Protocol: %s' % storageProtocol)
-  logging.info('SubfragiumPoller configuration - Storage Host: %s' % storageHost)
-  logging.info('SubfragiumPoller configuration - Storage Port: %s' % storagePort)
+  logger.info('SubfragiumPoller configuration - pollerName: %s' % pollerName)
+  logger.info('SubfragiumPoller configuration - minProcesses: %s' % minProcesses)
+  logger.info('SubfragiumPoller configuration - maxProcesses: %s' % maxProcesses)
+  logger.info('SubfragiumPoller configuration - numProcesses: %s' % numProcesses)
+  logger.info('SubfragiumPoller configuration - cycleTime: %s' % cycleTime)
+  logger.info('SubfragiumPoller configuration - Storage Type: %s' % storageType)
+  logger.info('SubfragiumPoller configuration - Storage Protocol: %s' % storageProtocol)
+  logger.info('SubfragiumPoller configuration - Storage Host: %s' % storageHost)
+  logger.info('SubfragiumPoller configuration - Storage Port: %s' % storagePort)
 
   # Initialise a set of processes to start with
   for i in range(0, numProcesses):
@@ -330,13 +346,13 @@ if __name__ == '__main__':
   pingList = []
 
   # Loop for ever
-  while(1):
+  while (1):
 
     # Get the API base
 
     apiEndpoint = SubfragiumUtilsLib.getApiEndPoint(apiServer)
     if not apiEndpoint['success']:
-      logging.error(apiEndpoint['err'])
+      logger.error(apiEndpoint['err'])
     else:
 
       # Get the list of targets
@@ -351,7 +367,7 @@ if __name__ == '__main__':
         # Check if there has been any change to the list since last time
         if pingList != newPingList:
           pingList = newPingList
-          logging.debug('New Ping List')
+          logger.debug('New Ping List')
 
           # Initialise the target lists to pass to each of the pollers
           targets = initPollerLists(numProcesses)
@@ -360,15 +376,15 @@ if __name__ == '__main__':
           targets = distributePollers(pingList, targets)
 
           # Send the target lists to poller processes
-          putTargetsLists(processes, numProcesses)
+          putTargetsLists(targets, processes, numProcesses)
 
         else:
           # Change to the list of targets so just print a message if logging is at the debug level
-          logging.debug('No change to targets')
+          logger.debug('No change to targets')
 
       else:
         # Log the error when the system tried to get the ping list from the server
-        logging.error('Could not get ping list due to: %s', result['err'])
+        logger.error('Could not get ping list due to: %s', result['err'])
 
       # Check if we've got any messages back from the poller processes
       for process in processes:
@@ -384,7 +400,7 @@ if __name__ == '__main__':
 
           # Check if we're in the hold down period (i.e the time difference is negative)
           if inHoldDown < 0:
-            logging.info('%s %s', message['message'], message['details'])
+            logger.debug('%s %s', message['message'], message['details'])
 
             # Handle a message indicating we're getting close to the time for the loop to execute
             if message['message'] == 'Looptime-warning':
@@ -396,15 +412,16 @@ if __name__ == '__main__':
 
             # Handle a message indcating the loop is taking very little time to execute
             elif message['message'] == 'Looptime-under':
-              loopCounter = loopCounter -1
+              loopCounter = loopCounter - 1
 
             # Handle an unknown message type
             else:
-              logging.error('Unknown system message %s', message)
+              logger.error('Unknown system message %s', message)
 
           # We're still in the hold down period so log and ignore the message
           else:
-            logging.info('Still in hold time for %s - ignoring message: %s, %s', inHoldDown, message['message'], message['details'])
+            logger.info('Still in hold time for %s - ignoring message: %s, %s', inHoldDown, message['message'],
+                         message['details'])
 
       # If loopCounter indicates pollers are overloaded
       if loopCounter > 5:
@@ -416,15 +433,15 @@ if __name__ == '__main__':
         # Check if we've reached the max number of processes
         if numProcesses < maxProcesses:
           # Still less than our max so start a new process
-          process = createProcess(numProcesses+1)
+          process = createProcess(numProcesses + 1)
           processes.append(process)
           numProcesses += 1
-          logging.info('Added new process - previous number: %s, new number: %s', numProcesses - 1, numProcesses)
-          logging.info('Entering number of processes hold for 20 seconds' )
+          logger.info('Added new process - previous number: %s, new number: %s', numProcesses - 1, numProcesses)
+          logger.info('Entering number of processes hold for 20 seconds')
         else:
           # Reached our maximum so log error
-          logging.error('Reached max number of processes: %s', numProcesses)
-          logging.info('Entering number of processes hold for 20 seconds')
+          logger.error('Reached max number of processes: %s', numProcesses)
+          logger.info('Entering number of processes hold for 20 seconds')
 
       # If looppCounter indicates pollers are underloaded
       elif loopCounter < -5:
@@ -436,15 +453,15 @@ if __name__ == '__main__':
         # Check if we're reached the minimum number of processes
         if numProcesses > minProcesses:
           # Still more than the minimum so destroy a process
-          deleteProcess(processes[numProcesses-1])
-          processes.pop(numProcesses-1)
+          deleteProcess(processes[numProcesses - 1])
+          processes.pop(numProcesses - 1)
           numProcesses -= 1
-          logging.info('Removed process - previous number: %s, new number: %s', numProcesses + 1, numProcesses)
-          logging.info('Entering number of process hold for 20 seconds')
+          logger.info('Removed process - previous number: %s, new number: %s', numProcesses + 1, numProcesses)
+          logger.info('Entering number of process hold for 20 seconds')
         else:
           # Reached out minimum so log a message
-          logging.info('Reached miniumum number of processes: %s', numProcesses)
-          logging.info('Entering number of processes hold for 20 seconds')
+          logger.info('Reached miniumum number of processes: %s', numProcesses)
+          logger.info('Entering number of processes hold for 20 seconds')
 
       # loopCounter indicates no capacity issues
       else:
@@ -456,3 +473,46 @@ if __name__ == '__main__':
   # Stop the processes
   for i in range(0, numProcesses):
     processes[i]['handle'].join()
+
+
+#######################
+# Program starts here #
+#######################
+
+if __name__ == '__main__':
+
+  parser = argparse.ArgumentParser()
+
+  levels = ['debug', 'info', 'warning', 'error', 'critical']
+
+  parser.add_argument('pollerName', action='store', nargs=1, help='Defines name of poller')
+  parser.add_argument('-f', dest='foreground', action='store_true', help='Run process in foreground')
+  parser.add_argument('-l', dest='logLevel', action='store', choices=levels, help='Logging level')
+
+  args = parser.parse_args()
+
+  pollerName = args.pollerName[0]
+
+  if not args.logLevel:
+      logLevel = 'debug'
+  else:
+      logLevel = args.logLevel
+
+  path = os.getcwd()
+
+  if args.foreground:
+    setupLogging(False, logLevel)
+    mainLoop(pollerName)
+
+
+  else:
+
+    print path
+
+    context = daemon.DaemonContext(
+      working_directory=path,
+    )
+
+    with context:
+      setupLogging(True, logLevel)
+      mainLoop(pollerName)
