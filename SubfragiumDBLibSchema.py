@@ -42,7 +42,8 @@ putPollerByName = {
   'holdDown': int,
   'cycleTime': int,
   'storageType': basestring,
-  'storageLocation': basestring
+  'storageLocation': basestring,
+  'disabled': bool
 }
 
 deletePollerByName = {
@@ -61,7 +62,8 @@ modifyPollerByName = {
   'holdDown': int,
   'cycleTime': int,
   'storageType': basestring,
-  'storageLocation': basestring
+  'storageLocation': basestring,
+  'disabled': bool
 }
 
 ##

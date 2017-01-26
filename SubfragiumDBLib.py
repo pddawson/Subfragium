@@ -93,7 +93,8 @@ def putPollerByName(data):
                               data['holdDown'],
                               data['cycleTime'],
                               data['storageType'],
-                              data['storageLocation'])
+                              data['storageLocation'],
+                              data['disabled'])
     try:
         db.session.add(newPoller)
         db.session.commit()
@@ -135,7 +136,8 @@ def getPollerByName(data):
                 'holdDown': poller.holdDown,
                 'cycleTime': poller.cycleTime,
                 'storageType': poller.storageType,
-                'storageLocation': poller.storageLocation}]}
+                'storageLocation': poller.storageLocation,
+                'disabled': poller.disabled}]}
     except Exception, e:
         return {'success': False, 'err': 'DBAPI getPollerByName() Failed: %s' % e}
 
@@ -155,6 +157,7 @@ def modifyPollerByName(data):
         existingPoller.cycleTime = data['cycleTime']
         existingPoller.storageType = data['storageType']
         existingPoller.storageLocation = data['storageLocation']
+        existingPoller.disabled = data['disabled']
         db.session.commit()
         return {'success': True}
     except Exception, e:
@@ -173,7 +176,8 @@ def getPollersAll():
                     'holdDown': poller.holdDown,
                     'cycleTime': poller.cycleTime,
                     'storageType': poller.storageType,
-                    'storageLocation': poller.storageLocation}
+                    'storageLocation': poller.storageLocation,
+                    'disabled': poller.disabled}
             pollerList.append(item)
         return {'success': True, 'obj': pollerList}
     except Exception, e:

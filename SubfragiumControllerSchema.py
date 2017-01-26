@@ -42,6 +42,9 @@ Poller = {
     },
     'storageLocation': {
       'type': 'string'
+    },
+    'disabled': {
+      'type': 'boolean'
     }
   },
   'required': ['minProcesses',
@@ -50,7 +53,8 @@ Poller = {
                'holdDown',
                'cycleTime',
                'storageType',
-               'storageLocation'],
+               'storageLocation',
+               'disabled'],
   'additionalProperties': False
 }
 

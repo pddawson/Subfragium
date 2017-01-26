@@ -317,6 +317,10 @@ def putOid(target, oid, data):
         app.logger.info('putOid() - Poller %s does not exist' % data['poller'])
         return {'success': False, 'code': 404, 'err': 'Poller %s does not exist' % data['poller']}
 
+    # Check the poller isn't disabled
+    if resPoller['obj'][0]['disabled']:
+        return {'success': False, 'code': 404, 'err': 'Poller %s is disabled' % data['poller']}
+
     # Check for existence of - Separate SubfragiumCli into a CLI tool and a SubfragiumClientLib.pytarget
     resTarget = SubfragiumDBLib.getTargetByName({'name': target})
     if not resTarget['success']:

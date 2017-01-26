@@ -1,10 +1,15 @@
+Longer Term
+-----------
+- Move to HTTPS
+- Add authentication
+- Add ACL to limit where management requests can come from
+
 TODO
 ----
 - Add testing of the SubfragiumClientLib
 - Add disabling of oid in poller if there are > threshold of failed polls
-- Controller Validation is only done on puts - ensure its done on delete/get too
-- Add parameter to disable poller
-- Add parameter to disable oids
+- Add script to be run periodically to re-allocate oids assigned to disabled pollers
+- For DB functions that return specific values consider returning an object instead of array?
 
 COMPLETE
 --------
@@ -27,6 +32,7 @@ COMPLETE
 - Add timeout parameter for target or maybe oid?
 - Add daemon and foreground for poller
 - Remove all traces of 'Ping' from variable names / functions
+- Add parameter to disable poller
 
 
 
