@@ -3,6 +3,7 @@ from app import db
 import SubfragiumUtilsLib
 import SubfragiumDBLibSchema
 
+
 # Targets
 def putTargetByName(data):
 
@@ -46,7 +47,7 @@ def deleteTargetByName(data):
         existingTarget = models.Target.query.filter(models.Target.name == data['name']).first()
         db.session.delete(existingTarget)
         db.session.commit()
-        return { 'success': True}
+        return {'success': True}
     except Exception, e:
         return {'success': False, 'err': 'DBAPI deleteTargetByName() Failed: %s' % e}
 
@@ -59,10 +60,16 @@ def getTargetByName(data):
 
     try:
         target = models.Target.query.filter(models.Target.name == data['name']).first()
-        if target == None:
+        if target is None:
             return {'success': True, 'obj': []}
         else:
-            return {'success': True, 'obj': [{'name': target.name, 'snmpString': target.snmpString, 'timeout': target.timeout}]}
+            return {'success': True,
+                    'obj': [
+                        {'name': target.name,
+                         'snmpString': target.snmpString,
+                         'timeout': target.timeout}
+                        ]
+                    }
     except Exception, e:
         return {'success': False, 'err': 'DBAPI getTargetByName() Failed: %s' % e}
 
@@ -78,6 +85,7 @@ def getTargetsAll():
         return {'success': True, 'obj': targetList}
     except Exception, e:
         return {'success': False, 'err': 'DBAPI getTargetsAll() Failed: %s' % e}
+
 
 # Pollers
 def putPollerByName(data):
@@ -102,6 +110,7 @@ def putPollerByName(data):
     except Exception, e:
         return {'success': False, 'err': 'DBAPI putPollerByName() DB put operation failed %s' % e}
 
+
 def deletePollerByName(data):
 
     result = SubfragiumUtilsLib.validateObj(SubfragiumDBLibSchema.deletePollerByName, data)
@@ -125,8 +134,8 @@ def getPollerByName(data):
 
     try:
         poller = models.Poller.query.filter(models.Poller.name == data['name']).first()
-        if poller == None:
-            return {'success': True, 'obj':[]}
+        if poller is None:
+            return {'success': True, 'obj': []}
         else:
             return {'success': True, 'obj': [{
                 'name': poller.name,
@@ -163,6 +172,7 @@ def modifyPollerByName(data):
     except Exception, e:
         return {'success': False, 'err': 'DBAPI modifyPollerByName() DB put operation failed: %s' % e}
 
+
 def getPollersAll():
 
     try:
@@ -183,6 +193,7 @@ def getPollersAll():
     except Exception, e:
         return {'success': False, 'err': 'DBAPI getTargetsAll() Failed: %s' % e}
 
+
 # Oids
 def putOidByOid(data):
 
@@ -201,6 +212,7 @@ def putOidByOid(data):
         return {'success': True}
     except Exception, e:
         return {'success': False, 'err': 'DBAPI putOidByOid() DB put operation failed: %s' % e}
+
 
 def deleteOidByOid(data):
 
@@ -227,7 +239,7 @@ def getOidsByTarget(data):
 
     try:
         existingOids = models.Oid.query.filter(models.Oid.target == data['target']).all()
-        if existingOids == []:
+        if existingOids is []:
             return {'success': True, 'obj': []}
 
         oidList = []
@@ -254,7 +266,7 @@ def getOidsByPoller(data):
 
     try:
         existingOids = models.Oid.query.filter(models.Oid.poller == data['poller']).all()
-        if existingOids == []:
+        if existingOids is []:
             return {'success': True, 'obj': []}
 
         oidList = []
@@ -282,7 +294,7 @@ def getOidByOid(data):
     oidId = data['target'] + ':' + data['oid']
     try:
         existingOid = models.Oid.query.filter(models.Oid.id == oidId).first()
-        if existingOid == None:
+        if existingOid is None:
             return {'success': True, 'obj': []}
         else:
             return {'success': True, 'obj': [{
@@ -344,20 +356,21 @@ def getOidsQuery(queryParameters):
 
         oidList = []
         for oid in oids:
-          item = {'id': oid.id,
-                  'oid': oid.oid,
-                  'name': oid.name,
-                  'target': oid.target,
-                  'poller': oid.poller,
-                  'snmpString': oid.targetInfo.snmpString,
-                  'enabled': oid.enabled,
-                  'timeout': oid.targetInfo.timeout
-                  }
-          oidList.append(item)
+            item = {'id': oid.id,
+                    'oid': oid.oid,
+                    'name': oid.name,
+                    'target': oid.target,
+                    'poller': oid.poller,
+                    'snmpString': oid.targetInfo.snmpString,
+                    'enabled': oid.enabled,
+                    'timeout': oid.targetInfo.timeout
+                    }
+            oidList.append(item)
         return {'success': True, 'obj': oidList}
 
     except Exception, e:
         return {'success': False, 'err': 'DBAPI getOidsQuery() Failed: %s' % e}
+
 
 def modifyOidByOid(data):
 

@@ -10,7 +10,7 @@ PingTarget = {
       'minimum': 1
     }
   },
-  'required': ['snmpString','timeout'],
+  'required': ['snmpString', 'timeout'],
   'additionalProperties': False
 }
 
@@ -71,6 +71,6 @@ Oid = {
       'type': 'boolean'
     }
   },
-  'required': ['poller','name', 'enabled'],
+  'required': ['poller', 'name', 'enabled'],
   'additionalProperties': False
 }
