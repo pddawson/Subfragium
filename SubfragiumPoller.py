@@ -15,6 +15,7 @@ import argparse
 import daemon
 import os
 import Queue
+import datetime
 
 
 # API Base
@@ -119,7 +120,7 @@ def snmpQuery(target, snmpString, oid, name, timeout):
         return {'success': False, 'err': 'SNMP Error'}
 
     if eI:
-        print logger.warn('SNMP Error for %s:%s %s: %s' % (target, oid, name, eI))
+        logger.warn('SNMP Error for %s:%s %s: %s' % (target, oid, name, eI))
         return {'success': False, 'err': 'SNMP Error for %s:%s %s: %s' % (target, oid, name, eI)}
     elif eS:
         logger.warn('SNMP Error: %s at %s' % (eS, eI))
@@ -132,11 +133,120 @@ def snmpQuery(target, snmpString, oid, name, timeout):
         return {'success': True, 'data':  {'name': name, 'value': '%d' % vBs[0][1]}}
 
 
+def disableTarget(target, oid, failures):
+
+    logger = logging.getLogger( 'SubfragiumController' )
+
+    failureThreshold = 3
+    disableTime = 20
+
+    # Create the unique identifier for the target and oid
+    pollId = target + ':' + oid
+
+    # Check if that id has already seen a failure and isn't in disabled state
+    if pollId in failures:
+        # It is so check if its already disabled
+        if not failures[pollId]['disable']:
+            failures[pollId]['count'] += 1
+            logger.debug('%s:%s incrementing failure count: %s threshold %s' % (target,
+                                                                                oid,
+                                                                                failures[pollId]['count'],
+                                                                                failureThreshold))
+    else:
+        # It has not so define the failure counter
+        failures[pollId] = dict()
+        failures[pollId]['count'] = 1
+        failures[pollId]['disable'] = False
+        failures[pollId]['reenable'] = ''
+        logger.debug('%s:%s added to failure tracking' % (target, oid))
+
+    # Check if we need to disable it for a while
+    if not failures[pollId]['disable'] and failures[pollId]['count'] > failureThreshold:
+        currTime = time.time()
+        logger.debug('%s:%s disabled as count: %s exceeded threshold: %s' % (target,
+                                                                             oid,
+                                                                             failures[pollId]['count'],
+                                                                             failureThreshold))
+
+        failures[pollId]['count'] = 0
+        failures[pollId]['disable'] = True
+        failures[pollId]['reenable'] = currTime + disableTime
+
+        holdTime = datetime.datetime.fromtimestamp(int(currTime + disableTime))
+        timeString = holdTime.strftime('%Y-%m-%d %H:%M:%S')
+        logger.info('Disabled %s:%s until %s' % (target, oid, timeString))
+
+        # Return the failures object for future reference
+        return failures
+
+    # Return the failure object for future reference
+    return failures
+
+
+def checkTarget(target, oid, failure):
+
+    # Form the pollId index used to track oids
+    pollId = target + ':' + oid
+
+    # Check if a target/oid id exists and if its in a disabled state
+    if pollId in failure and failure[pollId]['disable']:
+        # It is so return true
+        return True
+
+    # It isn't so return false
+    return False
+
+
+def enableTarget(target, oid, failures):
+
+    logger = logging.getLogger('SubfragiumController')
+
+    # Create the unique identifier for the target and oid
+    pollId = target + ':' + oid
+
+    # Get the current time
+    currTime = int(time.time())
+
+    # Check if this target has seen any failures
+    if pollId in failures:
+
+        # It has so check if its disabled
+        if failures[pollId]['disable']:
+
+            # It is so check if its time to re-enable it
+            if currTime > failures[pollId]['reenable']:
+
+                currTimeObj = datetime.datetime.fromtimestamp(int(currTime))
+                currTimeStr = currTimeObj.strftime('%Y-%m-%d %H:%M:%S')
+                enableTime = datetime.datetime.fromtimestamp(int(failures[pollId]['reenable']))
+                enableTimeStr = enableTime.strftime( '%Y-%m-%d %H:%M:%S' )
+                logger.debug('Enabling %s:%s as %s is later than %s' % (target,
+                                                                        oid,
+                                                                        currTimeStr,
+                                                                        enableTimeStr))
+                failures[pollId]['disable'] = False
+                failures[pollId]['reenable'] = currTime
+                logger.info('Enabled %s:%s for future polling' % (target, oid))
+
+                return failures
+
+            # Else do nothing - haven't reached re-enable time yet
+
+        # Else do nothing - this oid isn't in a disabled state
+
+    # Else do nothing - this oid isn't in failures list
+
+    return failures
+
+
 def poller(q, sQ):
 
     logger = logging.getLogger('SubfragiumController')
 
     targets = []
+
+    failures = dict()
+
     while 1:
         data = []
         startTime = time.time()
@@ -146,13 +256,22 @@ def poller(q, sQ):
         except Queue.Empty:
             None
         for target in targets:
-            d = snmpQuery(target['target'], target['snmpString'], target['oid'], target['name'], target['timeout'])
-            if d['success']:
-                t = time.time()
-                intTime = re.search('(\d+)\.(\d)', str(t))
-                escapedName = re.sub('\/', '-', target['name'])
-                dataItem = [(escapedName, (int(intTime.group(1)), int(d['data']['value'])))]
-                data.append(dataItem)
+            disabledTarget = checkTarget(target['target'], target['oid'], failures)
+            if not disabledTarget:
+                d = snmpQuery(target['target'], target['snmpString'], target['oid'], target['name'], target['timeout'])
+                if d['success']:
+                    t = time.time()
+                    intTime = re.search('(\d+)\.(\d)', str(t))
+                    escapedName = re.sub('\/', '-', target['name'])
+                    dataItem = [(escapedName, (int(intTime.group(1)), int(d['data']['value'])))]
+                    data.append(dataItem)
+                else:
+                    logger.info('SNMP Failure for %s' % target['target'])
+                    failures = disableTarget(target['target'], target['oid'], failures)
+            else:
+                logger.debug('Ignoring %s:%s as its currently disabled' % (target['target'],
+                                                                           target['oid']))
+                failures = enableTarget(target['target'], target['oid'], failures)
 
         if storageType == 'graphite':
             if len(data) > 0:
