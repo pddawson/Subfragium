@@ -29,7 +29,7 @@ storageProtocol = ''
 
 def setupLogging(daemonStatus, loggingLevel):
 
-    logger = logging.getLogger('SubfragiumController')
+    logger = logging.getLogger('SubfragiumPoller')
     logger.setLevel(loggingLevel.upper())
     formatter = logging.Formatter('%(asctime)s=%(levelname)s,%(name)s,%(message)s')
 
@@ -101,7 +101,7 @@ def getTargets(url):
 
 def snmpQuery(target, snmpString, oid, name, timeout):
 
-    logger = logging.getLogger('SubfragiumController')
+    logger = logging.getLogger('SubfragiumPoller')
 
     timeoutSeconds = float(timeout) / 1000
 
@@ -135,7 +135,7 @@ def snmpQuery(target, snmpString, oid, name, timeout):
 
 def disableTarget(target, oid, failures):
 
-    logger = logging.getLogger( 'SubfragiumController' )
+    logger = logging.getLogger('SubfragiumPoller')
 
     failureThreshold = 3
     disableTime = 20
@@ -199,7 +199,7 @@ def checkTarget(target, oid, failure):
 
 def enableTarget(target, oid, failures):
 
-    logger = logging.getLogger('SubfragiumController')
+    logger = logging.getLogger('SubfragiumPoller')
 
     # Create the unique identifier for the target and oid
     pollId = target + ':' + oid
@@ -241,7 +241,7 @@ def enableTarget(target, oid, failures):
 
 def poller(q, sQ):
 
-    logger = logging.getLogger('SubfragiumController')
+    logger = logging.getLogger('SubfragiumPoller')
 
     targets = []
 
@@ -301,7 +301,7 @@ def poller(q, sQ):
 
 def sendToGraphite(dataPoints):
 
-    logger = logging.getLogger('SubfragiumController')
+    logger = logging.getLogger('SubfragiumPoller')
 
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -346,7 +346,7 @@ def initPollerLists(numProcesses):
 # Iterates through the target list creating an array of targets for each poller
 def distributePollers(targetList, targets):
 
-    logger = logging.getLogger('SubfragiumController')
+    logger = logging.getLogger('SubfragiumPoller')
 
     for i in range(0, len(targetList)):
         targets[targetList[i]['poller']].append(targetList[i])
@@ -377,7 +377,7 @@ def createProcess(pid):
 # Terminate the process provided
 def deleteProcess(process):
 
-    logger = logging.getLogger('SubfragiumController')
+    logger = logging.getLogger('SubfragiumPoller')
 
     process['handle'].terminate()
     logger.info('Shutdown process %s', process['processName'])
@@ -401,7 +401,7 @@ def getSysMessages(process):
 
 def mainLoop(pollerName):
 
-    logger = logging.getLogger('SubfragiumController')
+    logger = logging.getLogger('SubfragiumPoller')
 
     logger.info('SubfragiumPoller starting')
 
@@ -459,15 +459,15 @@ def mainLoop(pollerName):
     # The hold down period (set to the current time i.e. no hold down)
     holdDown = time.time()
 
-    logger.info('SubfragiumPoller configuration - pollerName: %s' % pollerName)
-    logger.info('SubfragiumPoller configuration - minProcesses: %s' % minProcesses)
-    logger.info('SubfragiumPoller configuration - maxProcesses: %s' % maxProcesses)
-    logger.info('SubfragiumPoller configuration - numProcesses: %s' % numProcesses)
-    logger.info('SubfragiumPoller configuration - cycleTime: %s' % cycleTime)
-    logger.info('SubfragiumPoller configuration - Storage Type: %s' % storageType)
-    logger.info('SubfragiumPoller configuration - Storage Protocol: %s' % storageProtocol)
-    logger.info('SubfragiumPoller configuration - Storage Host: %s' % storageHost)
-    logger.info('SubfragiumPoller configuration - Storage Port: %s' % storagePort)
+    logger.info('Configuration - pollerName: %s' % pollerName)
+    logger.info('Configuration - minProcesses: %s' % minProcesses)
+    logger.info('Configuration - maxProcesses: %s' % maxProcesses)
+    logger.info('Configuration - numProcesses: %s' % numProcesses)
+    logger.info('Configuration - cycleTime: %s' % cycleTime)
+    logger.info('Configuration - Storage Type: %s' % storageType)
+    logger.info('Configuration - Storage Protocol: %s' % storageProtocol)
+    logger.info('Configuration - Storage Host: %s' % storageHost)
+    logger.info('Configuration - Storage Port: %s' % storagePort)
 
     # Initialise a set of processes to start with
     for i in range(0, int(numProcesses)):
