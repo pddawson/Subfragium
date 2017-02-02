@@ -252,7 +252,8 @@ def poller(q, sQ):
         startTime = time.time()
         try:
             targets = q.get(False)
-            logger.debug('Putting %s', str(targets))
+            for t in targets:
+                logger.debug('Putting %s', str(t['id']))
         except Queue.Empty:
             None
         for target in targets:
@@ -349,7 +350,7 @@ def distributePollers(targetList, targets):
 
     for i in range(0, len(targetList)):
         targets[targetList[i]['poller']].append(targetList[i])
-        logger.debug('Putting: %s in poller %s', str(targetList[i]), targetList[i]['poller'])
+        logger.debug('Allocating: %s to poller %s', str(targetList[i]['id']), targetList[i]['poller'])
 
     return targets
 
