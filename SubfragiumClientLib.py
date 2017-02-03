@@ -77,10 +77,10 @@ def listTypeTargets(data, apiEndpoint):
     rJson = json.loads(r.text)
     if 'response' in rJson:
         if 'success' in rJson['response'] and rJson['response']['success']:
-            print 'Name\t\tSnmpString\t\tTimeout(msec)'
-            print '----\t\t----------\t\t-------------'
+            print 'Name'
+            print '----'
             for target in rJson['response']['obj']:
-                print '%s\t\t%s\t\t%s' % (target['name'], target['snmpString'], target['timeout'])
+                print '%s' % (target['name'])
         else:
             print 'Error: %s' % rJson['response']['err']
     else:
@@ -117,10 +117,10 @@ def listTypeTarget(data, apiEndpoint):
 
     if 'response' in rJson:
         if 'success' in rJson['response'] and rJson['response']['success']:
-            print 'Name\t\tSnmpString\t\tTimeout(msec)'
-            print '----\t\t----------\t\t-------------'
             res = rJson['response']['obj']
-            print '%s\t\t%s\t\t\t%s' % (res['name'], res['snmpString'], res['timeout'])
+            print 'Name: %s' % (res['name'])
+            print 'SnmpString: %s' % (res['snmpString'])
+            print 'Timeout (msec): %s' % (res['timeout'])
         else:
             print 'Error: %s' % rJson['response']['err']
     else:
@@ -309,19 +309,10 @@ def listTypePollers(data, apiEndPoint):
     rJson = json.loads(r.text)
     if 'response' in rJson:
         if 'success' in rJson['response'] and rJson['response']['success']:
-            print 'name\t\tminProcesses\tmaxProcesses\tnumProcesses\tholdDown\tcycleTime\tstorageType\tstorageLocation\t\tDisabled'
-            print '----\t\t------------\t------------\t------------\t--------\t---------\t-----------\t---------------\t\t--------'
+            print 'name\t\tDisabled'
+            print '----\t\t--------'
             for poller in rJson['response']['obj']:
-                print '%s\t\t%s\t\t%s\t\t%s\t\t%s\t\t%s\t\t%s\t%s\t%s' % (poller['name'],
-                                                                          poller['minProcesses'],
-                                                                          poller['maxProcesses'],
-                                                                          poller['numProcesses'],
-                                                                          poller['holdDown'],
-                                                                          poller['cycleTime'],
-                                                                          poller['storageType'],
-                                                                          poller['storageLocation'],
-                                                                          poller['disabled'])
-
+                print '%s\t\t%s' % (poller['name'], poller['disabled'])
         else:
             print 'Error: %s' % rJson['response']['err']
     else:
@@ -357,17 +348,15 @@ def listTypePoller(data, apiEndPoint):
     if 'response' in rJson:
         if 'success' in rJson['response'] and rJson['response']['success']:
             res = rJson['response']['obj']
-            print 'name\t\tminProcesses\tmaxProcesses\tnumProcesses\tholdDown\tcycleTime\tstorageType\tstorageLocation\t\tDisabled'
-            print '----\t\t------------\t------------\t------------\t--------\t---------\t-----------\t---------------\t\t--------'
-            print '%s\t\t%s\t\t%s\t\t%s\t\t%s\t\t%s\t\t%s\t%s\t%s' % (res['name'],
-                                                                      res['minProcesses'],
-                                                                      res['maxProcesses'],
-                                                                      res['numProcesses'],
-                                                                      res['holdDown'],
-                                                                      res['cycleTime'],
-                                                                      res['storageType'],
-                                                                      res['storageLocation'],
-                                                                      res['disabled'])
+            print 'Name: %s' % (res['name'])
+            print 'Disabled: %s' % (res['disabled'])
+            print 'Min Num Processes: %s' % (res['minProcesses'])
+            print 'Max Num Processes: %s' % (res['maxProcesses'])
+            print 'Start Num Processes: %s' % (res['numProcesses'])
+            print 'Num Process Hold Time (sec): %s' % (res['holdDown'])
+            print 'Poller Cycle Time (sec): %s' % (res['cycleTime'])
+            print 'Data Storage Type: %s' % (res['storageType'])
+            print 'Data Storage Location: %s' % (res['storageLocation'])
         else:
             print 'Error: %s' % rJson['response']['err']
     else:
@@ -661,18 +650,10 @@ def listTypeOids(data, apiEndPoint):
 
     if 'response' in rJson:
         if 'success' in rJson['response'] and rJson['response']['success']:
-            print 'ID\t\t\tName\t\tOID\t\tTarget\t\tPoller\t\tSnmpString\tEnabled\t\tTimeout(msec)'
-            print '--\t\t\t----\t\t---\t\t------\t\t------\t\t----------\t-------\t\t-------------'
+            print 'ID\t\t\t\t\tName'
+            print '--\t\t\t\t\t----'
             for oid in rJson['response']['obj']:
-                print '%s\t%s\t%s\t%s\t%s\t\t%s\t\t%s\t\t%s' % (oid['id'],
-                                                                oid['name'],
-                                                                oid['oid'],
-                                                                oid['target'],
-                                                                oid['poller'],
-                                                                oid['snmpString'],
-                                                                oid['enabled'],
-                                                                oid['timeout'])
-
+                print '%s\t%s' % (oid['id'],oid['name'])
         else:
             print 'Error: %s' % rJson['response']['err']
     else:
@@ -709,15 +690,14 @@ def listTypeOid(data, apiEndPoint):
 
     if 'response' in rJson:
         if 'success' in rJson['response'] and rJson['response']['success']:
-            print 'ID\t\t\t\tTarget\t\tOID\t\t\tPoller\t\tName\t\tTimeout(msec)'
-            print '--\t\t\t\t------\t\t---\t\t\t------\t\t----\t\t-------------'
             res = rJson['response']['obj']
-            print '%s\t%s\t%s\t\t%s\t\t%s\t%s' % (res['id'],
-                                                  res['target'],
-                                                  res['oid'],
-                                                  res['poller'],
-                                                  res['name'],
-                                                  res['timeout'])
+            print 'Id: %s' % (res['id'])
+            print 'Target: %s' % (res['target'])
+            print 'OID: %s' % (res['oid'])
+            print 'Assigned Poller: %s' % (res['poller'])
+            print 'Name: %s' % (res['name'])
+            print 'Snmp String: %s' % (res['snmpString'])
+            print 'Enabled: %s' % (res['enabled'])
         else:
             print 'Error: %s' % rJson['response']['err']
     else:

@@ -8,9 +8,11 @@ Longer Term
 TODO
 ----
 - Add testing of the SubfragiumClientLib
+- Add testing of SubfragiumPoller
 - Add script to be run periodically to re-allocate oids assigned to disabled pollers
 - For DB functions that return specific values consider returning an object instead of array?
-- Add fields to poller to support changing the threshold and hold dowm for target/oids
+- Add fields to poller to support changing the threshold and hold down for target/oids
+- Change list <item> all to be minimal and list item <specifics> to vertical format
 
 COMPLETE
 --------
