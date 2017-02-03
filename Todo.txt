@@ -9,10 +9,14 @@ TODO
 ----
 - Add testing of the SubfragiumClientLib
 - Add testing of SubfragiumPoller
+- Split out SubfragiumPoller functions into SubfragiumPollerLib
 - Add script to be run periodically to re-allocate oids assigned to disabled pollers
 - For DB functions that return specific values consider returning an object instead of array?
 - Add fields to poller to support changing the threshold and hold down for target/oids
-- Change list <item> all to be minimal and list item <specifics> to vertical format
+- Add internal statistics reporting (cycle time, num processes, failures etc)
+- Turn poller fields in a dictionary as there are too many
+- Change cycle time to use configured variable rather than static 5 seconds
+- Move all the configuration items into config dictionary
 
 COMPLETE
 --------
@@ -39,6 +43,7 @@ COMPLETE
 - Add disabling of oid in poller if there are > threshold of failed polls
 - Change debug statement so poller distribution across pollers to individual log statements
 - Modify logging in SubfragiumPoller to not log as SubfragiumController
+- Change list <item> all to be minimal and list item <specifics> to vertical format
 
 
 

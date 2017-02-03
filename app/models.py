@@ -32,9 +32,12 @@ class Poller(db.Model):
     storageType = db.Column(db.String)
     storageLocation = db.Column(db.String)
     disabled = db.Column(db.Boolean)
+    errorThreshold = db.Column(db.Integer)
+    errorHoldTime = db.Column(db.Integer)
 
     def __init__(self, name, minProcesses, maxProcesses, numProcesses,
-                 holdDown, cycleTime, storageType, storageLocation, disabled):
+                 holdDown, cycleTime, storageType, storageLocation, disabled,
+                 errorThreshold, errorHoldTime):
         self.name = name
         self.minProcesses = minProcesses
         self.maxProcesses = maxProcesses
@@ -44,6 +47,8 @@ class Poller(db.Model):
         self.storageType = storageType
         self.storageLocation = storageLocation
         self.disabled = disabled
+        self.errorThreshold = errorThreshold
+        self.errorHoldTime = errorHoldTime
 
     def __str__(self):
         return 'name: %s, ' \
@@ -54,7 +59,9 @@ class Poller(db.Model):
                'cycleTime: %s' \
                'storageType: %s' \
                'storageLocation: %s' \
-               'disabled: %s' % \
+               'disabled: %s' \
+               'errorThreshold: %s' \
+               'errorHoldTime: %s' % \
                (self.name,
                 self.minProcesses,
                 self.maxProcesses,
@@ -63,7 +70,9 @@ class Poller(db.Model):
                 self.cycleTime,
                 self.storageType,
                 self.storageLocation,
-                self.disabled)
+                self.disabled,
+                self.errorThreshold,
+                self.errorHoldTime)
 
 
 class Oid(db.Model):

@@ -45,6 +45,12 @@ Poller = {
     },
     'disabled': {
       'type': 'boolean'
+    },
+    'errorThreshold': {
+      'type': 'number'
+    },
+    'errorHoldTime': {
+      'type': 'number'
     }
   },
   'required': ['minProcesses',
@@ -54,7 +60,9 @@ Poller = {
                'cycleTime',
                'storageType',
                'storageLocation',
-               'disabled'],
+               'disabled',
+               'errorThreshold',
+               'errorHoldTime'],
   'additionalProperties': False
 }
 

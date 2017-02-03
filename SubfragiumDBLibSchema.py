@@ -43,7 +43,9 @@ putPollerByName = {
   'cycleTime': int,
   'storageType': basestring,
   'storageLocation': basestring,
-  'disabled': bool
+  'disabled': bool,
+  'errorThreshold': int,
+  'errorHoldTime': int
 }
 
 deletePollerByName = {
@@ -63,7 +65,9 @@ modifyPollerByName = {
   'cycleTime': int,
   'storageType': basestring,
   'storageLocation': basestring,
-  'disabled': bool
+  'disabled': bool,
+  'errorThreshold': int,
+  'errorHoldTime': int
 }
 
 ##

@@ -25,7 +25,7 @@ storageType = ''
 storageHost = ''
 storagePort = ''
 storageProtocol = ''
-
+configuration = dict()
 
 def setupLogging(daemonStatus, loggingLevel):
 
@@ -137,8 +137,10 @@ def disableTarget(target, oid, failures):
 
     logger = logging.getLogger('SubfragiumPoller')
 
-    failureThreshold = 3
-    disableTime = 20
+    global configuration
+
+    failureThreshold = configuration['errorThreshold']
+    disableTime = configuration['errorHoldTime']
 
     # Create the unique identifier for the target and oid
     pollId = target + ':' + oid
@@ -456,6 +458,13 @@ def mainLoop(pollerName):
     global storageProtocol
     storageProtocol = storage['storageProtocol']
 
+    # Setup errorThreshold
+    global configuration
+    configuration['errorThreshold'] = pollerInfo['obj']['errorThreshold']
+
+    # Setup errorHoldTime
+    configuration['errorHoldTime'] = pollerInfo['obj']['errorHoldTime']
+
     # The hold down period (set to the current time i.e. no hold down)
     holdDown = time.time()
 
@@ -468,6 +477,8 @@ def mainLoop(pollerName):
     logger.info('Configuration - Storage Protocol: %s' % storageProtocol)
     logger.info('Configuration - Storage Host: %s' % storageHost)
     logger.info('Configuration - Storage Port: %s' % storagePort)
+    logger.info('Configuration - errorThreshold: %s' % configuration['errorThreshold'])
+    logger.info('Configuration - errorHoldTime: %s' % configuration['errorHoldTime'])
 
     # Initialise a set of processes to start with
     for i in range(0, int(numProcesses)):

@@ -238,23 +238,23 @@ def addTypePoller(data, apiEndPoint):
 
     if data == 'help':
         print 'Parameter format must be:'
-        print '\tpython SubfragiumCli.py add poller name={name},minProcesses={num},maxProcesses={num},numProcesses={num},holdDown={num},cycleTime={num},storageType={graphite},storageLocation=pickle://{string},disabled={True|False}'
+        print '\tpython SubfragiumCli.py add poller name={name},minProcesses={num},maxProcesses={num},numProcesses={num},holdDown={num},cycleTime={num},storageType={graphite},storageLocation=pickle://{string},disabled={True|False},errorThreshold=<num>,errorHoldTime=<num>'
         print
         print '\te.g.'
-        print '\tpython SubfragiumCli.py add poller name=poller1,minProcesses=1,maxProcesses=10,numProcesses=5,holdDown=20,cycleTime=60,storageType=graphite,storageLocation=pickle://graphite:5000,disabled=True'
-        print '\tpython SubfragiumCli.py add poller name=poller2,minProcesses=1,maxProcesses=10,numProcesses=5,holdDown=20,cycleTime=60,storageType=graphite,storageLocation=pickle://123.123.1.10:5000,disabled=False'
+        print '\tpython SubfragiumCli.py add poller name=poller1,minProcesses=1,maxProcesses=10,numProcesses=5,holdDown=20,cycleTime=60,storageType=graphite,storageLocation=pickle://graphite:5000,disabled=True,errorThreshold=3,errorHoldTime=1800'
+        print '\tpython SubfragiumCli.py add poller name=poller2,minProcesses=1,maxProcesses=10,numProcesses=5,holdDown=20,cycleTime=60,storageType=graphite,storageLocation=pickle://123.123.1.10:5000,disabled=False,errorThreshold=3,errorHoldTime=1800'
         exit(0)
 
-    validInput = 'name=([\w\.]+)\,minProcesses=(\d+)\,maxProcesses=(\d+)\,numProcesses=(\d+)\,holdDown=(\d+),cycleTime=(\d+),storageType=(\w+),storageLocation=([\w\.\:\/]+),disabled=(True|False)'
+    validInput = 'name=([\w\.]+)\,minProcesses=(\d+)\,maxProcesses=(\d+)\,numProcesses=(\d+)\,holdDown=(\d+),cycleTime=(\d+),storageType=(\w+),storageLocation=([\w\.\:\/]+),disabled=(True|False),errorThreshold=(\d+),errorHoldTime=(\d+)'
     reValidator = re.compile(validInput)
     validatedInput = reValidator.match(data)
     if validatedInput is None:
         print 'Error - Parameter format must be:'
-        print '\tpython SubfragiumCli.py add poller name={name},minProcesses={num},maxProcesses={num},numProcesses={num},holdDown={num},cycleTime={num},storageType={graphite},storageLocation=pickle://{string},disabled={True|False}'
+        print '\tpython SubfragiumCli.py add poller name={name},minProcesses={num},maxProcesses={num},numProcesses={num},holdDown={num},cycleTime={num},storageType={graphite},storageLocation=pickle://{string},disabled={True|False},errorThreshold=<num>,errorHoldTime=<num>'
         print
         print '\te.g.'
-        print '\tpython SubfragiumCli.py add poller name=poller1,minProcesses=1,maxProcesses=10,numProcesses=5,holdDown=20,cycleTime=60,storageType=graphite,storageLocation=pickle://graphite:5000,disabled=True'
-        print '\tpython SubfragiumCli.py add poller name=poller2,minProcesses=1,maxProcesses=10,numProcesses=5,holdDown=20,cycleTime=60,storageType=graphite,storageLocation=pickle://123.123.1.10:5000,disabled=False'
+        print '\tpython SubfragiumCli.py add poller name=poller1,minProcesses=1,maxProcesses=10,numProcesses=5,holdDown=20,cycleTime=60,storageType=graphite,storageLocation=pickle://graphite:5000,disabled=True,errorThreshold=3,errorHoldTime=1800'
+        print '\tpython SubfragiumCli.py add poller name=poller2,minProcesses=1,maxProcesses=10,numProcesses=5,holdDown=20,cycleTime=60,storageType=graphite,storageLocation=pickle://123.123.1.10:5000,disabled=False,errorThreshold=3,errorHoldTime=1800'
         exit(1)
 
     payload = {
@@ -264,7 +264,10 @@ def addTypePoller(data, apiEndPoint):
         'holdDown': int(validatedInput.group(5)),
         'cycleTime': int(validatedInput.group(6)),
         'storageType': validatedInput.group(7),
-        'storageLocation': validatedInput.group(8)
+        'storageLocation': validatedInput.group(8),
+        'disabled': validatedInput.group(9),
+        'errorThreshold': int(validatedInput.group(10)),
+        'errorHoldTime': int(validatedInput.group(11))
     }
     if validatedInput.group(9):
         payload['disabled'] = True
@@ -357,6 +360,8 @@ def listTypePoller(data, apiEndPoint):
             print 'Poller Cycle Time (sec): %s' % (res['cycleTime'])
             print 'Data Storage Type: %s' % (res['storageType'])
             print 'Data Storage Location: %s' % (res['storageLocation'])
+            print 'Error Threshold: %s' % (res['errorThreshold'])
+            print 'Error Hold Time (sec): %s' % (res['errorHoldTime'])
         else:
             print 'Error: %s' % rJson['response']['err']
     else:
@@ -402,7 +407,7 @@ def modifyTypePoller(data, apiEndPoint):
 
     if data == 'help':
         print 'Parameter format must be:'
-        print '\tpython SubfragiumCli.py modify poller name={name},{minProcesses=<num>|maxProcesses=<num>|numProcesses=<num>|holdDown=<num>|cycleTime=<num>|storageType=<name>|storageLocation=<location>|disabled={True|False}'
+        print '\tpython SubfragiumCli.py modify poller name={name},{minProcesses=<num>|maxProcesses=<num>|numProcesses=<num>|holdDown=<num>|cycleTime=<num>|storageType=<name>|storageLocation=<location>|disabled={True|False}|errorThreshold=<num>|errorHoldTime=<num>'
         print
         print '\te.g.'
         print '\tpython SubfragiumCli.py modify poller name=poller1,minProcesses=10'
@@ -413,14 +418,16 @@ def modifyTypePoller(data, apiEndPoint):
         print '\tpython SubfragiumCli.py modify poller name=poller1,storageType=graphite'
         print '\tpython SubfragiumCli.py modify poller name=poller1,storageType=pickle://graphite:5000'
         print '\tpython SubfragiumCli.py modify poller name=poller1,disabled=True'
+        print '\tpython SubfragiumCli.py modify poller name=poller1,errorThreshold=4'
+        print '\tpython SubfragiumCli.py modify poller name=poller1,errorHoldTime=1800'
         exit(0)
 
-    validInput = '^(name=([\w\.]+)),(minProcesses=\d+|maxProcesses=\d+|numProcesses=\d+|holdDown=\d+|cycleTime=\d+|storageType=\w+|storageLocation=[\w\.\:\/]+|disabled=(True|False))$'
+    validInput = '^(name=([\w\.]+)),(minProcesses=\d+|maxProcesses=\d+|numProcesses=\d+|holdDown=\d+|cycleTime=\d+|storageType=\w+|storageLocation=[\w\.\:\/]+|disabled=(True|False)|errorThreshold=\d+|errorHoldTime=\d+)$'
     reValidator = re.compile(validInput)
     validatedInput = reValidator.match(data)
     if validatedInput is None:
         print 'Error - Parameter format must be:'
-        print '\tpython SubfragiumCli.py modify poller name={name},{minProcesses=<num>|maxProcesses=<num>|numProcesses=<num>|holdDown=<num>|cycleTime=<num>|storageType=<name>|storageLocation=<location>|disabled={True|False}'
+        print '\tpython SubfragiumCli.py modify poller name={name},{minProcesses=<num>|maxProcesses=<num>|numProcesses=<num>|holdDown=<num>|cycleTime=<num>|storageType=<name>|storageLocation=<location>|disabled={True|False}|errorThreshold=<num>|errorHoldTime=<num>'
         print
         print '\te.g.'
         print '\tpython SubfragiumCli.py modify poller name=poller1,minProcesses=10'
@@ -430,6 +437,8 @@ def modifyTypePoller(data, apiEndPoint):
         print '\tpython SubfragiumCli.py modify poller name=poller1,cycleTime=60'
         print '\tpython SubfragiumCli.py modify poller name=poller1,storageType=graphite'
         print '\tpython SubfragiumCli.py modify poller name=poller1,storageType=pickle://graphite:5000'
+        print '\tpython SubfragiumCli.py modify poller name=poller1,errorThreshold=4'
+        print '\tpython SubfragiumCli.py modify poller name=poller1,errorHoldTime=1800'
         print '\tpython SubfragiumCli.py modify poller name=poller1,disabled=True'
         exit(1)
 
