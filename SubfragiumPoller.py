@@ -245,6 +245,9 @@ def poller(q, sQ):
 
     logger = logging.getLogger('SubfragiumPoller')
 
+    global configuration
+    cycleTime = configuration['cycleTime']
+
     targets = []
 
     failures = dict()
@@ -434,8 +437,7 @@ def mainLoop(pollerName):
     minProcesses = pollerInfo['obj']['minProcesses']
 
     # Cycle time between polls
-    global cycleTime
-    cycleTime = pollerInfo['obj']['cycleTime']
+    configuration['cycleTime'] = pollerInfo['obj']['cycleTime']
 
     storage = parseStorage(pollerInfo['obj']['storageType'], pollerInfo['obj']['storageLocation'])
     if not storage['success']:
@@ -472,7 +474,7 @@ def mainLoop(pollerName):
     logger.info('Configuration - minProcesses: %s' % minProcesses)
     logger.info('Configuration - maxProcesses: %s' % maxProcesses)
     logger.info('Configuration - numProcesses: %s' % numProcesses)
-    logger.info('Configuration - cycleTime: %s' % cycleTime)
+    logger.info('Configuration - cycleTime: %s' % configuration['cycleTime'])
     logger.info('Configuration - Storage Type: %s' % storageType)
     logger.info('Configuration - Storage Protocol: %s' % storageProtocol)
     logger.info('Configuration - Storage Host: %s' % storageHost)
