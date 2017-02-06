@@ -21,10 +21,6 @@ import datetime
 # API Base
 apiServer = 'localhost:5000'
 
-storageType = ''
-storageHost = ''
-storagePort = ''
-storageProtocol = ''
 configuration = dict()
 
 def setupLogging(daemonStatus, loggingLevel):
@@ -279,11 +275,11 @@ def poller(q, sQ):
                                                                            target['oid']))
                 failures = enableTarget(target['target'], target['oid'], failures)
 
-        if storageType == 'graphite':
+        if configuration['storageType'] == 'graphite':
             if len(data) > 0:
                 sendToGraphite(data)
         else:
-            logger.error('Unsupported storage type: %s' + storageType)
+            logger.error('Unsupported storage type: %s' + configuration['storageType'])
 
         stopTime = time.time()
         totalTime = stopTime - startTime
@@ -310,7 +306,7 @@ def sendToGraphite(dataPoints):
 
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.connect((storageHost, storagePort))
+        s.connect((configuration['storageHost'], configuration['storagePort']))
     except socket.error, e:
         logger.warn('Error opening socket to graphite %s' % e)
         return
@@ -420,21 +416,23 @@ def mainLoop(pollerName):
         print 'Could not get poller info: %s' % pollerInfo['err']
         exit(1)
 
+    # Global dictionary for configuration information
+    global configuration
 
     # List of poller processes
     processes = []
 
     # Current number of poller processes
-    numProcesses = pollerInfo['obj']['numProcesses']
+    configuration['numProcesses'] = pollerInfo['obj']['numProcesses']
 
     # How overloaded or underloaded the poller processes are
     loopCounter = 0
 
     # Max number of poller processes
-    maxProcesses = pollerInfo['obj']['maxProcesses']
+    configuration['maxProcesses'] = pollerInfo['obj']['maxProcesses']
 
     # Min number of poller processes
-    minProcesses = pollerInfo['obj']['minProcesses']
+    configuration['minProcesses'] = pollerInfo['obj']['minProcesses']
 
     # Cycle time between polls
     configuration['cycleTime'] = pollerInfo['obj']['cycleTime']
@@ -445,23 +443,18 @@ def mainLoop(pollerName):
         exit(1)
 
     # Setup the storage host
-    global storageHost
-    storageHost = storage['storageHost']
+    configuration['storageHost'] = storage['storageHost']
 
     # Setup the storage port
-    global storagePort
-    storagePort = storage['storagePort']
+    configuration['storagePort'] = storage['storagePort']
 
     # Setup the storage type
-    global storageType
-    storageType = storage['storageType']
+    configuration['storageType'] = storage['storageType']
 
     # Setup the storage protocol
-    global storageProtocol
-    storageProtocol = storage['storageProtocol']
+    configuration['storageProtocol'] = storage['storageProtocol']
 
     # Setup errorThreshold
-    global configuration
     configuration['errorThreshold'] = pollerInfo['obj']['errorThreshold']
 
     # Setup errorHoldTime
@@ -471,19 +464,19 @@ def mainLoop(pollerName):
     holdDown = time.time()
 
     logger.info('Configuration - pollerName: %s' % pollerName)
-    logger.info('Configuration - minProcesses: %s' % minProcesses)
-    logger.info('Configuration - maxProcesses: %s' % maxProcesses)
-    logger.info('Configuration - numProcesses: %s' % numProcesses)
+    logger.info('Configuration - minProcesses: %s' % configuration['minProcesses'])
+    logger.info('Configuration - maxProcesses: %s' % configuration['maxProcesses'])
+    logger.info('Configuration - numProcesses: %s' % configuration['numProcesses'])
     logger.info('Configuration - cycleTime: %s' % configuration['cycleTime'])
-    logger.info('Configuration - Storage Type: %s' % storageType)
-    logger.info('Configuration - Storage Protocol: %s' % storageProtocol)
-    logger.info('Configuration - Storage Host: %s' % storageHost)
-    logger.info('Configuration - Storage Port: %s' % storagePort)
+    logger.info('Configuration - Storage Type: %s' % configuration['storageType'])
+    logger.info('Configuration - Storage Protocol: %s' % configuration['storageProtocol'])
+    logger.info('Configuration - Storage Host: %s' % configuration['storageHost'])
+    logger.info('Configuration - Storage Port: %s' % configuration['storagePort'])
     logger.info('Configuration - errorThreshold: %s' % configuration['errorThreshold'])
     logger.info('Configuration - errorHoldTime: %s' % configuration['errorHoldTime'])
 
     # Initialise a set of processes to start with
-    for i in range(0, int(numProcesses)):
+    for i in range(0, int(configuration['numProcesses'])):
         process = createProcess(i)
         processes.append(process)
 
@@ -506,7 +499,7 @@ def mainLoop(pollerName):
                 newTargetList = result['data']
 
                 # Distribute the targets to pollers
-                newTargetList = allocatePoller(newTargetList, numProcesses)
+                newTargetList = allocatePoller(newTargetList, configuration['numProcesses'])
 
                 # Check if there has been any change to the list since last time
                 if targetList != newTargetList:
@@ -514,13 +507,13 @@ def mainLoop(pollerName):
                     logger.debug('New Target List')
 
                     # Initialise the target lists to pass to each of the pollers
-                    targets = initPollerLists(numProcesses)
+                    targets = initPollerLists(configuration['numProcesses'])
 
                     # Iterate through the target list appending targets to correct poller
                     targets = distributePollers(targetList, targets)
 
                     # Send the target lists to poller processes
-                    putTargetsLists(targets, processes, numProcesses)
+                    putTargetsLists(targets, processes, configuration['numProcesses'])
 
                 else:
                     # Change to the list of targets so just print a message if logging is at the debug level
@@ -576,17 +569,18 @@ def mainLoop(pollerName):
                 holdDown = time.time() + 20
 
                 # Check if we've reached the max number of processes
-                if numProcesses < maxProcesses:
+                if configuration['numProcesses'] < configuration['maxProcesses']:
                     # Still less than our max so start a new process
-                    process = createProcess(numProcesses + 1)
+                    process = createProcess(configuration['numProcesses'] + 1)
                     processes.append(process)
-                    numProcesses += 1
-                    logger.info('Added new process - previous number: %s, new number: %s', numProcesses - 1,
-                                numProcesses)
+                    configuration[ 'numProcesses'] += 1
+                    logger.info('Added new process - previous number: %s, new number: %s',
+                                configuration['numProcesses'] - 1,
+                                configuration[ 'numProcesses'])
                     logger.info('Entering number of processes hold for 20 seconds')
                 else:
                     # Reached our maximum so log error
-                    logger.error('Reached max number of processes: %s', numProcesses)
+                    logger.error('Reached max number of processes: %s', configuration['numProcesses'])
                     logger.info('Entering number of processes hold for 20 seconds')
 
             # If looppCounter indicates pollers are underloaded
@@ -597,16 +591,17 @@ def mainLoop(pollerName):
                 holdDown = time.time() + 20
 
                 # Check if we're reached the minimum number of processes
-                if numProcesses > minProcesses:
+                if configuration['numProcesses'] > configuration['minProcesses']:
                     # Still more than the minimum so destroy a process
-                    deleteProcess(processes[numProcesses - 1])
-                    processes.pop(numProcesses - 1)
-                    numProcesses -= 1
-                    logger.info('Removed process - previous number: %s, new number: %s', numProcesses + 1, numProcesses)
+                    deleteProcess(processes[configuration['numProcesses'] - 1])
+                    processes.pop(configuration['numProcesses'] - 1)
+                    configuration[ 'numProcesses' ] -= 1
+                    logger.info('Removed process - previous number: %s, new number: %s',
+                                configuration['numProcesses'] + 1, configuration['numProcesses'])
                     logger.info('Entering number of process hold for 20 seconds')
                 else:
                     # Reached out minimum so log a message
-                    logger.info('Reached miniumum number of processes: %s', numProcesses)
+                    logger.info('Reached miniumum number of processes: %s', configuration['numProcesses'])
                     logger.info('Entering number of processes hold for 20 seconds')
 
             # loopCounter indicates no capacity issues
