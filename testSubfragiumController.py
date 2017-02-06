@@ -29,7 +29,9 @@ pollerData = {
     'cycleTime': 5,
     'storageType': 'graphite',
     'storageLocation': 'pickle://graphite:5000',
-    'disabled': False
+    'disabled': False,
+    'errorThreshold': 3,
+    'errorHoldTime': 60
 }
 
 poller2 = 'poller2'
@@ -41,7 +43,9 @@ poller2Data = {
     'cycleTime': 5,
     'storageType': 'graphite',
     'storageLocation': 'pickle://graphite:5000',
-    'disabled': False
+    'disabled': False,
+    'errorThreshold': 6,
+    'errorHoldTime': 120
 }
 
 oid = '1.3.6.1.2.1'
@@ -820,7 +824,9 @@ class TestControllerApi(unittest.TestCase):
                     'cycleTime': 5,
                     'storageType': 'graphite',
                     'storageLocation': 'pickle://graphite:5000',
-                    'disabled': False
+                    'disabled': False,
+                    'errorThreshold': 3,
+                    'errorHoldTime': 60
                 }
             }
         }
@@ -1035,7 +1041,9 @@ class TestControllerApi(unittest.TestCase):
                         'cycleTime': 5,
                         'storageType': 'graphite',
                         'storageLocation': 'pickle://graphite:5000',
-                        'disabled': False
+                        'disabled': False,
+                        'errorThreshold': 3,
+                        'errorHoldTime': 60
                     }
                 ]
             }
@@ -1506,6 +1514,7 @@ class TestControllerApi(unittest.TestCase):
         res = self.app.put('/poller/' + poller,
                            data=json.dumps(pollerData),
                            content_type='application/json')
+        print res.data
         self.assertEquals(res.status_code, 200)
 
         res = self.app.put('/target/' + target,
