@@ -14,6 +14,7 @@ def create_app():
     dbPath = os.path.join(app.root_path, 'SubfragiumDB.sqlite3')
 
     app.config.update(dict(SQLALCHEMY_DATABASE_URI='sqlite:///' + dbPath))
+    app.config.update(dict(SQLALCHEMY_TRACK_MODIFICATIONS=False))
 
     errHandler = logging.FileHandler('SubfragiumController.log')
     errHandler.setFormatter(logging.Formatter('%(asctime)s,%(levelname)s,%(message)s'))
