@@ -13,13 +13,15 @@ apiServer = 'localhost:5000'
 
 def actionAdd(type, data, apiEndPoint):
     if type == 'target':
-        SubfragiumClientLib.addTypeTarget(data, apiEndPoint)
+        results = SubfragiumClientLib.addTypeTarget(data, apiEndPoint)
     elif type == 'poller':
         SubfragiumClientLib.addTypePoller(data, apiEndPoint)
     elif type == 'oid':
         SubfragiumClientLib.addTypeOid(data, apiEndpoint)
     else:
-        print 'Bad type input: %s' % type
+        return {'success': False, 'err': 'Bad type input: %s' % type}
+
+    return results
 
 def actionList(type, data, apiEndPoint):
     if type == 'target':
@@ -78,7 +80,17 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     if args.action[0] == 'add':
-        actionAdd(args.type[0], args.parameters, apiEndpoint)
+        results = actionAdd(args.type[0], args.parameters, apiEndpoint)
+        if args.parameters == 'help':
+            print results['help']
+            exit(0)
+        if results['success']:
+            print 'OK'
+            exit(0)
+        else:
+            print 'ERROR'
+            print  results['err']
+            exit(1)
 
     elif args.action[0] == 'list':
         actionList(args.type[0], args.parameters, apiEndpoint)

@@ -21,28 +21,30 @@ def getApiEndPoint(apiServer):
     except urllib2.URLError:
         return {'success': False, 'err': 'Could not get API End Points'}
 
+
 def addTypeTarget(data, apiEndpoint):
 
     if data == 'help':
-        print 'Parameter format must be:'
-        print '\tpython SubfragiumCli.py add target name={name|ip},snmpString=<string>,timeout=<int>'
-        print
-        print '\te.g.'
-        print '\tpython SubfragiumCli.py add target name=123.123.11.10,snmpString=123,timeout=10'
-        print '\tpython SubfragiumCli.py add target name=host.test.com,snmpString=abc,timeout=25'
-        exit(0)
+        helpMsg = 'Parameter format must be:\n'
+        helpMsg += '\tpython SubfragiumCli.py add target name={name|ip},snmpString=<string>,timeout=<int>\n'
+        helpMsg += '\n'
+        helpMsg += '\n'
+        helpMsg += '\te.g.\n'
+        helpMsg += '\tpython SubfragiumCli.py add target name=123.123.11.10,snmpString=123,timeout=10\n'
+        helpMsg += '\tpython SubfragiumCli.py add target name=host.test.com,snmpString=abc,timeout=25\n'
+        return {'success': True, 'help': helpMsg}
 
     validInput = 'name=([\w\.]+)\,snmpString=(\w+),timeout=(\d+)'
     reValidator = re.compile(validInput)
     validatedInput = reValidator.match(data)
     if validatedInput is None:
-        print 'Error - Parameter format must be:'
-        print '\tpython SubfragiumCli.py add target name={name|ip},snmpString=<string>,timeout=<int>'
-        print
-        print '\te.g.'
-        print '\tpython SubfragiumCli.py add target name=123.123.11.10,snmpString=123,timeout=10'
-        print '\tpython SubfragiumCli.py add target name=host.test.com,snmpString=abc,timeout=25'
-        exit(1)
+        errMsg = 'Parameter format must be:\n'
+        errMsg +='\tpython SubfragiumCli.py add target name={name|ip},snmpString=<string>,timeout=<int>\n'
+        errMsg += '\n'
+        errMsg += '\te.g.\n'
+        errMsg += '\tpython SubfragiumCli.py add target name=123.123.11.10,snmpString=123,timeout=10\n'
+        errMsg += '\tpython SubfragiumCli.py add target name=host.test.com,snmpString=abc,timeout=25\n'
+        return {'success': False, 'err': errMsg}
 
     apiCall = {'snmpString': validatedInput.group(2), 'timeout': int(validatedInput.group(3))}
     jsonCall = json.dumps(apiCall)
@@ -54,11 +56,11 @@ def addTypeTarget(data, apiEndpoint):
     rJson = json.loads(r.text)
     if 'response' in rJson:
         if 'success' in rJson['response'] and rJson['response']['success']:
-            print 'OK'
+            return {'success': True}
         else:
-            print 'Error: %s' % rJson['response']['err']
+            return {'success': False, 'err': 'Error: %s' % rJson['response']['err']}
     else:
-        print 'Error: Unknown response - %s' % r.text
+        return {'success': False, 'err': 'Error: Unknown response - %s' % r.text}
 
 
 def listTypeTargets(data, apiEndpoint):
