@@ -17,7 +17,7 @@ def actionAdd(type, data, apiEndPoint):
     elif type == 'poller':
         results = SubfragiumClientLib.addTypePoller(data, apiEndPoint)
     elif type == 'oid':
-        SubfragiumClientLib.addTypeOid(data, apiEndpoint)
+        results = SubfragiumClientLib.addTypeOid(data, apiEndpoint)
     else:
         return {'success': False, 'err': 'Bad type input: %s' % type}
 

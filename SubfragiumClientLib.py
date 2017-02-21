@@ -500,25 +500,25 @@ def modifyTypePoller(data, apiEndPoint):
 def addTypeOid(data, apiEndPoint):
 
     if data == 'help':
-        print 'Parameter format must be:'
-        print '\tpython SubfragiumCli.py add oid target={name|ip},oid=<oid>,poller={poller},name={name},enabled={True|False}'
-        print
-        print '\te.g.'
-        print '\tpython SubfragiumCli.py add oid target=host.test.com,oid=1.3.6.1.2.1,poller=poller1,name=network.interface.ifInHcOctets.router1.FastEthernet0/0,enabled=False'
-        print '\tpython SubfragiumCli.py add oid target=123.123.1.10,oid=1.3.6.1.2.1,poller=poller1,name=network.interface.ifInHcOctets.router1.FastEthernet0/0,enabled=True'
-        exit(0)
+        helpMsg = 'Parameter format must be:\n'
+        helpMsg += '\tpython SubfragiumCli.py add oid target={name|ip},oid=<oid>,poller={poller},name={name},enabled={True|False}\n'
+        helpMsg += '\n'
+        helpMsg += '\te.g.\n'
+        helpMsg += '\tpython SubfragiumCli.py add oid target=host.test.com,oid=1.3.6.1.2.1,poller=poller1,name=network.interface.ifInHcOctets.router1.FastEthernet0/0,enabled=False\n'
+        helpMsg += '\tpython SubfragiumCli.py add oid target=123.123.1.10,oid=1.3.6.1.2.1,poller=poller1,name=network.interface.ifInHcOctets.router1.FastEthernet0/0,enabled=True\n'
+        return {'success': True, 'help': helpMsg}
 
     validInput = 'target=([\w\.]+)\,oid=([\d\.]+)\,poller=(\w+)\,name=([\w\.\/\-]+)\,enabled=(True|False)'
     reValidator = re.compile(validInput)
     validatedInput = reValidator.match(data)
     if validatedInput is None:
-        print 'Error - Parameter format must be:'
-        print '\tpython SubfragiumCli.py add oid target={name|ip},oid=<oid>,poller={poller},name={name},enabled={True|False}'
-        print
-        print '\te.g.'
-        print '\tpython SubfragiumCli.py add oid target=host.test.com,oid=1.3.6.1.2.1,poller=poller1,name=network.interface.ifInHcOctets.router1.FastEthernet0/0,enabled=False'
-        print '\tpython SubfragiumCli.py add oid target=123.123.1.10,oid=1.3.6.1.2.1,poller=poller1,name=network.interface.ifInHcOctets.router1.FastEthernet0/0,enabled=True'
-        exit(1)
+        errMsg = 'Error - Parameter format must be:\n'
+        errMsg += '\tpython SubfragiumCli.py add oid target={name|ip},oid=<oid>,poller={poller},name={name},enabled={True|False}\n'
+        errMsg += '\n'
+        errMsg += '\te.g.\n'
+        errMsg += '\tpython SubfragiumCli.py add oid target=host.test.com,oid=1.3.6.1.2.1,poller=poller1,name=network.interface.ifInHcOctets.router1.FastEthernet0/0,enabled=False\n'
+        errMsg += '\tpython SubfragiumCli.py add oid target=123.123.1.10,oid=1.3.6.1.2.1,poller=poller1,name=network.interface.ifInHcOctets.router1.FastEthernet0/0,enabled=True\n'
+        return {'success': False, 'err': errMsg}
 
     if validatedInput.group(5) == 'True':
         enabled = True
@@ -533,18 +533,17 @@ def addTypeOid(data, apiEndPoint):
     headers = {'content-type': 'application/json'}
     r = requests.put(apiCall, data=jsonStr, headers=headers)
     if r.status_code == 500:
-        print 'Error: %s' % r.text
-        exit(1)
+        return {'success': False, 'err': 'Error: %s' % r.text}
 
     rJson = json.loads(r.text)
 
     if 'response' in rJson:
         if 'success' in rJson['response'] and rJson['response']['success']:
-            print 'OK'
+            return {'success': True}
         else:
-            print 'Error: %s' % rJson['response']['err']
+            return {'success': False, 'err': 'Error: %s' % rJson['response']['err']}
     else:
-        print 'Error: Unknown response %s' % r.text
+        return {'success': False, 'err': 'Error: Unknown response %s' % r.text}
 
 
 def modifyTypeOid(data, apiEndPoint):

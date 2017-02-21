@@ -342,11 +342,118 @@ class TestControllerApi(unittest.TestCase):
 
         inputString = 'name=poller1,minProcesses=1,maxProcesses=10,numProcesses=1,holdDown=20,cycleTime=60,storageType=graphite,storageLocation=pickle://123.123.1.10:5000,disabled=False,errorThreshold=4,errorHoldTime=300'
         results = SubfragiumClientLib.addTypePoller(inputString, getApiEndPointUrls)
-        print results
-        print mockRequestResponse.call_args
         reqPayload = mockRequestResponse.call_args[1]['data']
 
         validJson = validateJson(SubfragiumControllerSchema.Poller, json.loads(reqPayload))
+
+        # First check that API requirements were satisfied
+        self.assertEquals(validJson['success'], True)
+
+        # Now check the function returned the correct results
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], True)
+
+    ##
+    ## Testing OID API
+    ##
+
+    def testAddOidHelp(self):
+
+        results = SubfragiumClientLib.addTypeOid('help', getApiEndpointSuccess)
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], True)
+        self.assertIn('help', results)
+
+    def testAddOidMissingTarget(self):
+
+        results = SubfragiumClientLib.addTypeOid('', getApiEndpointSuccess)
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], False)
+        self.assertIn('err', results)
+
+    def testAddOidMissingOid(self):
+
+        inputString = 'target=123.123.10.1'
+        results = SubfragiumClientLib.addTypeOid(inputString, getApiEndpointSuccess)
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], False)
+        self.assertIn('err', results)
+
+    def testAddOidMissingPoller(self):
+
+        inputString = 'target=123.123.10.1,oid=1.3.6.1.2'
+        results = SubfragiumClientLib.addTypeOid(inputString, getApiEndpointSuccess)
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], False)
+        self.assertIn('err', results)
+
+    def testAddOidMissingName(self):
+
+        inputString = 'target=123.123.10.1,oid=1.3.6.1.2,poller=poller1'
+        results = SubfragiumClientLib.addTypeOid(inputString, getApiEndpointSuccess)
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], False)
+        self.assertIn('err', results)
+
+    def testAddOidMissingEnabled(self):
+
+        inputString = 'target=123.123.10.1,oid=1.3.6.1.2,poller=poller1,name=TestOid1'
+        results = SubfragiumClientLib.addTypeOid(inputString, getApiEndpointSuccess)
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], False)
+        self.assertIn('err', results)
+
+    def testAddOidBadTarget(self):
+
+        inputString = 'target=abc,oid=1.3.6.1.2,poller=poller1,name=TestOid1'
+        results = SubfragiumClientLib.addTypeOid(inputString, getApiEndpointSuccess)
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], False)
+        self.assertIn('err', results)
+
+    def testAddOidBadOid(self):
+
+        inputString = 'target=123.123.1.10,oid=abc,poller=poller1,name=TestOid1'
+        results = SubfragiumClientLib.addTypeOid(inputString, getApiEndpointSuccess)
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], False)
+        self.assertIn('err', results)
+
+    def testAddOidBadPoller(self):
+
+        inputString = 'target=123.123.1.10,oid=1.3.6.1,poller=^,name=TestOid1'
+        results = SubfragiumClientLib.addTypeOid(inputString, getApiEndpointSuccess)
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], False)
+        self.assertIn('err', results)
+
+    def testAddOidBadName(self):
+
+        inputString = 'target=123.123.1.10,oid=1.3.6.1,poller=poller1,name=^'
+        results = SubfragiumClientLib.addTypeOid(inputString, getApiEndpointSuccess)
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], False)
+        self.assertIn('err', results)
+
+    def testAddOidBadEnabled(self):
+
+        inputString = 'target=123.123.1.10,oid=1.3.6.1,poller=poller1,name=TestOid1,enabled=Yes'
+        results = SubfragiumClientLib.addTypeOid(inputString, getApiEndpointSuccess)
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], False)
+        self.assertIn('err', results)
+
+    @mock.patch( 'SubfragiumClientLib.requests.put' )
+    def testAddOidSuccess(self, mockRequestResponse):
+
+        requestObj = requestResponse('{"response": {"success": "True" } }', 200)
+        mockRequestResponse.return_value = requestObj
+
+        inputString = 'target=123.123.1.10,oid=1.3.6.1,poller=poller1,name=TestOid1,enabled=True'
+        results = SubfragiumClientLib.addTypeOid(inputString, getApiEndPointUrls)
+        reqPayload = mockRequestResponse.call_args[1]['data']
+
+        validJson = validateJson(SubfragiumControllerSchema.Oid, json.loads(reqPayload))
 
         # First check that API requirements were satisfied
         self.assertEquals(validJson['success'], True)
