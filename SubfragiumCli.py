@@ -15,7 +15,7 @@ def actionAdd(type, data, apiEndPoint):
     if type == 'target':
         results = SubfragiumClientLib.addTypeTarget(data, apiEndPoint)
     elif type == 'poller':
-        SubfragiumClientLib.addTypePoller(data, apiEndPoint)
+        results = SubfragiumClientLib.addTypePoller(data, apiEndPoint)
     elif type == 'oid':
         SubfragiumClientLib.addTypeOid(data, apiEndpoint)
     else:

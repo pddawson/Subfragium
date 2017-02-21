@@ -44,8 +44,9 @@ def validateJson(jsonSchema, jsonInput):
 
 class requestResponse():
 
-    def __init__(self, text):
+    def __init__(self, text, statusCode):
         self.text = text
+        self.status_code = statusCode
 
 getApiEndPointUrls = {
     'urls': {
@@ -62,6 +63,10 @@ getApiEndPointUrls = {
 
 
 class TestControllerApi(unittest.TestCase):
+
+    ##
+    ## Testing Target API
+    ##
 
     def testAddTargetHelp(self):
 
@@ -125,16 +130,223 @@ class TestControllerApi(unittest.TestCase):
         self.assertIn('err', results)
 
     @mock.patch('SubfragiumClientLib.requests.put')
-    def testAddTargetSuccess(self, mockRequstResponse):
+    def testAddTargetSuccess(self, mockRequestResponse):
 
-        requestObj = requestResponse('{"response": {"success": "True" } }')
-        mockRequstResponse.return_value = requestObj
+        requestObj = requestResponse('{"response": {"success": "True" } }', 200)
+        mockRequestResponse.return_value = requestObj
 
         inputString = 'name=123.123.1.10,snmpString=eur,timeout=200'
         results = SubfragiumClientLib.addTypeTarget(inputString, getApiEndPointUrls)
-        reqPayload = mockRequstResponse.call_args[1]['data']
+        reqPayload = mockRequestResponse.call_args[1]['data']
 
         validJson = validateJson(SubfragiumControllerSchema.PingTarget, json.loads(reqPayload))
+
+        # First check that API requirements were satisfied
+        self.assertEquals(validJson['success'], True)
+
+        # Now check the function returned the correct results
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], True)
+
+    ##
+    ## Testing Poller API
+    ##
+
+    def testAddPollerHelp(self):
+
+        results = SubfragiumClientLib.addTypePoller('help', getApiEndpointSuccess)
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], True)
+        self.assertIn('help', results)
+
+    def testAddPollerMissingName(self):
+
+        results = SubfragiumClientLib.addTypePoller('', getApiEndpointSuccess)
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], False)
+        self.assertIn('err', results)
+
+    def testAddPollerMissingMinProcesses(self):
+
+        inputString = 'name=poller1'
+        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndpointSuccess)
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], False)
+        self.assertIn('err', results)
+
+    def testAddPollerMissingMaxProcesses(self):
+
+        inputString = 'name=poller1,minProcesses=1'
+        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndpointSuccess)
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], False)
+        self.assertIn('err', results)
+
+    def testAddPollerMissingNumProcesses(self):
+
+        inputString = 'name=poller1,minProcesses=1,maxProcesses=10'
+        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndpointSuccess)
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], False)
+        self.assertIn('err', results)
+
+    def testAddPollerMissingHoldTime(self):
+
+        inputString = 'name=poller1,minProcesses=1,maxProcesses=10,NumProcesses=1'
+        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndpointSuccess)
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], False)
+        self.assertIn('err', results)
+
+    def testAddPollerMissingCycleTime(self):
+
+        inputString = 'name=poller1,minProcesses=1,maxProcesses=10,NumProcesses=1,holdDown=20'
+        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndpointSuccess)
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], False)
+        self.assertIn('err', results)
+
+    def testAddPollerMissingStorageType(self):
+
+        inputString = 'name=poller1,minProcesses=1,maxProcesses=10,numProcesses=1,holdDown=20,cycleTime=60'
+        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndpointSuccess)
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], False)
+        self.assertIn('err', results)
+
+    def testAddPollerMissingStorageLocation(self):
+
+        inputString = 'name=poller1,minProcesses=1,maxProcesses=10,numProcesses=1,holdDown=20,cycleTime=60,storageType=graphite'
+        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndpointSuccess)
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], False)
+        self.assertIn('err', results)
+
+    def testAddPollerMissingDisabled(self):
+
+        inputString = 'name=poller1,minProcesses=1,maxProcesses=10,numProcesses=1,holdDown=20,cycleTime=60,storageType=graphite,storageLocation=pickle://123.123.1.10:5000'
+        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndpointSuccess)
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], False)
+        self.assertIn('err', results)
+
+    def testAddPollerMissingErrorThreshold(self):
+
+        inputString = 'name=poller1,minProcesses=1,maxProcesses=10,numProcesses=1,holdDown=20,cycleTime=60,storageType=graphite,storageLocation=pickle://123.123.1.10:5000,disabled=False'
+        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndpointSuccess)
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], False)
+        self.assertIn('err', results)
+
+    def testAddPollerMissingErrorHoldTime(self):
+
+        inputString = 'name=poller1,minProcesses=1,maxProcesses=10,numProcesses=1,holdDown=20,cycleTime=60,storageType=graphite,storageLocation=pickle://123.123.1.10:5000,disabled=False,errorThreshold=4'
+        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndpointSuccess)
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], False)
+        self.assertIn('err', results)
+
+    def testAddPollerBadName(self):
+
+        inputString = 'name=abc>234,minProcesses=1,maxProcesses=10,numProcesses=1,holdDown=20,cycleTime=60,storageType=graphite,storageLocation=pickle://123.123.1.10:5000,disabled=False,errorThreshold=4,errorHoldTime=1800'
+        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndpointSuccess)
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], False)
+        self.assertIn('err', results)
+
+    def testAddPollerBadMinProcesses(self):
+
+        inputString = 'name=poller1,minProcesses=a,maxProcesses=10,numProcesses=1,holdDown=20,cycleTime=60,storageType=graphite,storageLocation=pickle://123.123.1.10:5000,disabled=False,errorThreshold=4,errorHoldTime=1800'
+        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndpointSuccess)
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], False)
+        self.assertIn('err', results)
+
+    def testAddPollerBadMaxProcesses(self):
+
+        inputString = 'name=poller1,minProcesses=1,maxProcesses=a,numProcesses=1,holdDown=20,cycleTime=60,storageType=graphite,storageLocation=pickle://123.123.1.10:5000,disabled=False,errorThreshold=4,errorHoldTime=1800'
+        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndpointSuccess)
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], False)
+        self.assertIn('err', results)
+
+    def testAddPollerBadNumProcesses(self):
+
+        inputString = 'name=poller1,minProcesses=1,maxProcesses=10,numProcesses=a,holdDown=20,cycleTime=60,storageType=graphite,storageLocation=pickle://123.123.1.10:5000,disabled=False,errorThreshold=4,errorHoldTime=1800'
+        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndpointSuccess)
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], False)
+        self.assertIn('err', results)
+
+    def testAddPollerBadHoldDown(self):
+
+        inputString = 'name=poller1,minProcesses=1,maxProcesses=10,numProcesses=1,holdDown=a,cycleTime=60,storageType=graphite,storageLocation=pickle://123.123.1.10:5000,disabled=False,errorThreshold=4,errorHoldTime=1800'
+        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndpointSuccess)
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], False)
+        self.assertIn('err', results)
+
+    def testAddPollerBadCycleTime(self):
+
+        inputString = 'name=poller1,minProcesses=1,maxProcesses=10,numProcesses=1,holdDown=2,cycleTime=a,storageType=graphite,storageLocation=pickle://123.123.1.10:5000,disabled=False,errorThreshold=4,errorHoldTime=1800'
+        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndpointSuccess)
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], False)
+        self.assertIn('err', results)
+
+    def testAddPollerBadStorageType(self):
+
+        inputString = 'name=poller1,minProcesses=1,maxProcesses=10,numProcesses=1,holdDown=2,cycleTime=60,storageType=(,storageLocation=pickle://123.123.1.10:5000,disabled=False,errorThreshold=4,errorHoldTime=1800'
+        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndpointSuccess)
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], False)
+        self.assertIn('err', results)
+
+    def testAddPollerBadStorageLocation(self):
+
+        inputString = 'name=poller1,minProcesses=1,maxProcesses=10,numProcesses=1,holdDown=2,cycleTime=60,storageType=graphite,storageLocation=pickle:,disabled=False,errorThreshold=4,errorHoldTime=1800'
+        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndpointSuccess)
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], False)
+        self.assertIn('err', results)
+
+    def testAddPollerBadDisabledStatus(self):
+
+        inputString = 'name=poller1,minProcesses=1,maxProcesses=10,numProcesses=1,holdDown=2,cycleTime=60,storageType=graphite,storageLocation=pickle://123.123.1.10:5000,disabled=yes,errorThreshold=4,errorHoldTime=1800'
+        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndpointSuccess)
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], False)
+        self.assertIn('err', results)
+
+    def testAddPollerBadErrorThreshold(self):
+
+        inputString = 'name=poller1,minProcesses=1,maxProcesses=10,numProcesses=1,holdDown=2,cycleTime=60,storageType=graphite,storageLocation=pickle://123.123.1.10:5000,disabled=False,errorThreshold=a,errorHoldTime=1800'
+        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndpointSuccess)
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], False)
+        self.assertIn('err', results)
+
+    def testAddPollerBadErrorHoldTime(self):
+
+        inputString = 'name=poller1,minProcesses=1,maxProcesses=10,numProcesses=1,holdDown=2,cycleTime=60,storageType=graphite,storageLocation=pickle://123.123.1.10:5000,disabled=False,errorThreshold=3,errorHoldTime=abc'
+        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndpointSuccess)
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], False)
+        self.assertIn('err', results)
+
+    @mock.patch('SubfragiumClientLib.requests.put')
+    def testAddPollerSuccess(self, mockRequestResponse):
+
+        requestObj = requestResponse('{"response": {"success": "True" } }', 200)
+        mockRequestResponse.return_value = requestObj
+
+        inputString = 'name=poller1,minProcesses=1,maxProcesses=10,numProcesses=1,holdDown=20,cycleTime=60,storageType=graphite,storageLocation=pickle://123.123.1.10:5000,disabled=False,errorThreshold=4,errorHoldTime=300'
+        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndPointUrls)
+        print results
+        print mockRequestResponse.call_args
+        reqPayload = mockRequestResponse.call_args[1]['data']
+
+        validJson = validateJson(SubfragiumControllerSchema.Poller, json.loads(reqPayload))
 
         # First check that API requirements were satisfied
         self.assertEquals(validJson['success'], True)
