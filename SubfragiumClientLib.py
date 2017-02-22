@@ -66,51 +66,48 @@ def addTypeTarget(data, apiEndpoint):
 def listTypeTargets(data, apiEndpoint):
 
     if data == 'help':
-        print 'Parameter format must be:'
-        print '\tpython SubfragiumCli.py list targets all'
-        print
-        print '\te.g.'
-        print '\tpython SubfragiumCli.py list targets all'
-        print '\tpython SubfragiumCli.py list targets all'
-        exit(0)
+        helpMsg = 'Parameter format must be:\n'
+        helpMsg += '\tpython SubfragiumCli.py list targets all\n'
+        helpMsg += '\n'
+        helpMsg += '\te.g.\n'
+        helpMsg += '\tpython SubfragiumCli.py list targets all\n'
+        helpMsg += '\tpython SubfragiumCli.py list targets all\n'
+        return {'success': True, 'helpMsg': helpMsg}
 
     apiCall = apiEndpoint['urls']['targets']
     r = requests.get(apiCall)
     rJson = json.loads(r.text)
     if 'response' in rJson:
         if 'success' in rJson['response'] and rJson['response']['success']:
-            print 'Name'
-            print '----'
-            for target in rJson['response']['obj']:
-                print '%s' % (target['name'])
+            return {'success': True, 'obj': rJson['response']['obj']}
         else:
-            print 'Error: %s' % rJson['response']['err']
+            return {'success': False, 'err': 'Error: %s' % rJson['response']['err']}
     else:
-        print 'Error: Unknown response - %s ' % r.text
+        return {'success': False, 'err': 'Error: Unknown response - %s ' % r.text}
 
 
 def listTypeTarget(data, apiEndpoint):
 
     if data == 'help':
-        print 'Parameter format must be:'
-        print '\tpython SubfragiumCli.py list target name={name|ip}'
-        print
-        print '\te.g.'
-        print '\tpython SubfragiumCli.py list target name=123.123.1.10'
-        print '\tpython SubfragiumCli.py list target name=test.host.com'
-        exit(0)
+        helpMsg = 'Parameter format must be:\n'
+        helpMsg += '\tpython SubfragiumCli.py list target name={name|ip}\n'
+        helpMsg += '\n'
+        helpMsg += '\te.g.\n'
+        helpMsg += '\tpython SubfragiumCli.py list target name=123.123.1.10\n'
+        helpMsg += '\tpython SubfragiumCli.py list target name=test.host.com\n'
+        return {'success': True, 'helpMsg': helpMsg}
 
     validInput = 'name=([\w\.]+)'
     reValidator = re.compile(validInput)
     validatedInput = reValidator.match(data)
     if validatedInput is None:
-        print 'Error  - Parameter format must be:'
-        print '\tpython SubfragiumCli.py list target name={name|ip}'
-        print
-        print '\te.g.'
-        print '\tpython SubfragiumCli.py list target name=123.123.1.10'
-        print '\tpython SubfragiumCli.py list target name=test.host.com'
-        exit(1)
+        errorMsg = 'Error  - Parameter format must be:\n'
+        errorMsg += '\tpython SubfragiumCli.py list target name={name|ip}\n'
+        errorMsg += '\n'
+        errorMsg += '\te.g.\n'
+        errorMsg += '\tpython SubfragiumCli.py list target name=123.123.1.10\n'
+        errorMsg += '\tpython SubfragiumCli.py list target name=test.host.com\n'
+        return {'success': False, 'err': errorMsg}
 
     apiCall = apiEndpoint['urls']['target'].replace('<string:name>', '')
     apiCall += validatedInput.group(1)
@@ -119,14 +116,11 @@ def listTypeTarget(data, apiEndpoint):
 
     if 'response' in rJson:
         if 'success' in rJson['response'] and rJson['response']['success']:
-            res = rJson['response']['obj']
-            print 'Name: %s' % (res['name'])
-            print 'SnmpString: %s' % (res['snmpString'])
-            print 'Timeout (msec): %s' % (res['timeout'])
+            return {'success': True, 'obj': rJson['response']['obj']}
         else:
-            print 'Error: %s' % rJson['response']['err']
+            return {'success': False, 'err': 'Error: %s' % rJson['response']['err']}
     else:
-        print 'Error: Unknown response - %s ' % r.text
+        return {'success': False, 'err': 'Error: Unknown response - %s ' % r.text}
 
 
 def deleteTypeTarget(data, apiEndpoint):

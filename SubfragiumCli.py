@@ -23,11 +23,37 @@ def actionAdd(type, data, apiEndPoint):
 
     return results
 
+def printTargets(targets):
+
+    print 'Name'
+    print '----'
+    for target in targets:
+        print target['name']
+
+def printTarget(target):
+
+    print 'Name: %s' % (target['name'])
+    print 'SnmpString: %s' % (target['snmpString'])
+    print 'Timeout (msec): %s' % (target['timeout'])
+
 def actionList(type, data, apiEndPoint):
+
     if type == 'target':
-        SubfragiumClientLib.listTypeTarget(data, apiEndPoint)
+        results = SubfragiumClientLib.listTypeTarget(data, apiEndPoint)
+        if results['success']:
+            printTarget(results['obj'])
+            exit(0)
+        else:
+            print 'ERROR - %s' % results['err']
+            exit(1)
     elif type == 'targets':
-        SubfragiumClientLib.listTypeTargets(data, apiEndPoint)
+        results = SubfragiumClientLib.listTypeTargets(data, apiEndPoint)
+        if results['success']:
+            printTargets(results['obj'])
+            exit(0)
+        else:
+            print 'ERROR - %s' % results['err']
+            exit(1)
     elif type == 'poller':
         SubfragiumClientLib.listTypePoller(data, apiEndPoint)
     elif type == 'pollers':

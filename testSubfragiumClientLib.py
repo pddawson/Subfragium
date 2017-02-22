@@ -148,6 +148,58 @@ class TestControllerApi(unittest.TestCase):
         self.assertIn('success', results)
         self.assertEquals(results['success'], True)
 
+    def testListTargetsHelp(self):
+
+        results = SubfragiumClientLib.listTypeTargets('help', getApiEndpointSuccess)
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], True)
+        self.assertIn('helpMsg', results)
+
+    @mock.patch('SubfragiumClientLib.requests.get')
+    def testListTargetsSucess(self, mockRequestResponse):
+
+        requestObj = requestResponse('{"response": {"success": "True", "obj": [ { "name": "123.123.1.10", "snmpString": "eur", "timeout": 20 } ] } }', 200)
+        mockRequestResponse.return_value = requestObj
+
+        results = SubfragiumClientLib.listTypeTargets('all', getApiEndPointUrls)
+
+        # Now check the function returned the correct results
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], True)
+
+    def testListTargetHelp(self):
+
+        results = SubfragiumClientLib.listTypeTarget('help', getApiEndpointSuccess)
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], True)
+        self.assertIn('helpMsg', results)
+
+    def testListTargetMissingName(self):
+
+        results = SubfragiumClientLib.listTypeTarget('', getApiEndpointSuccess)
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], False)
+        self.assertIn('err', results)
+
+    def testListTargetBadName(self):
+
+        results = SubfragiumClientLib.listTypeTarget('name=^', getApiEndpointSuccess)
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], False)
+        self.assertIn('err', results)
+
+    @mock.patch( 'SubfragiumClientLib.requests.get' )
+    def testListTargetSuccess(self, mockRequestResponse):
+
+        requestObj = requestResponse('{"response": {"success": "True", "obj": [ { "name": "123.123.1.10", "snmpString": "eur", "timeout": 20 } ] } }', 200)
+        mockRequestResponse.return_value = requestObj
+
+        results = SubfragiumClientLib.listTypeTargets('name=123.123.1.10', getApiEndPointUrls)
+
+        # Now check the function returned the correct results
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], True)
+
     ##
     ## Testing Poller API
     ##
