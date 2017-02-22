@@ -19,6 +19,9 @@ TODO
 - Turn poller fields in a dictionary as there are too many fields
 - Need to get to the bottom of the following error:
   /home/pdd/PythonVEnv/Subfragium/local/lib/python2.7/site-packages/flask/exthook.py:71: ExtDeprecationWarning: Importing flask.ext.sqlalchemy is deprecated, use flask_sqlalchemy instead.
+- In testSubfragiumClientLib.py the apiEndpoints passed into the failing functions is technically wrong should be apiEndPointsUrls
+- Add more validation in testSubfragiumClientLib.py on list functions to validate data is properly returne
+- Add more validation of HTTP failures in testSubfragiumClientLib.py
 
 COMPLETE
 --------

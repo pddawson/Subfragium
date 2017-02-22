@@ -405,6 +405,58 @@ class TestControllerApi(unittest.TestCase):
         self.assertIn('success', results)
         self.assertEquals(results['success'], True)
 
+    def testListPollersHelp(self):
+
+        results = SubfragiumClientLib.listTypePollers('help', getApiEndpointSuccess)
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], True)
+        self.assertIn('helpMsg', results)
+
+    @mock.patch('SubfragiumClientLib.requests.get')
+    def testListPollerSuccess(self, mockRequestResponse):
+
+        requestObj = requestResponse('{"response": {"success": "True", "obj": [ { "cycleTime": 3, "disable": False, "errorHoldTime": 60, "errorThreshold": 10, "holdDown": 20, "maxProcesses": 10, "minProcesses": 1, "name": "poller1", "numProcesses": 1, "storageLocation": "pickle://graphite:5000", "storageType": "graphite"} ] } }', 200)
+        mockRequestResponse.return_value = requestObj
+
+        results = SubfragiumClientLib.listTypePollers('all', getApiEndPointUrls)
+
+        # Now check the function returned the correct results
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], True)
+
+    def testListPollerHelp(self):
+
+        results = SubfragiumClientLib.listTypePoller('help', getApiEndpointSuccess)
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], True)
+        self.assertIn('helpMsg', results)
+
+    def testListPollerNoName(self):
+
+        results = SubfragiumClientLib.listTypePoller('', getApiEndpointSuccess)
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], False)
+        self.assertIn('err', results)
+
+    def testListPollerBadName(self):
+
+        results = SubfragiumClientLib.listTypePoller('name=^', getApiEndpointSuccess)
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], False)
+        self.assertIn('err', results)
+
+    @mock.patch('SubfragiumClientLib.requests.get')
+    def testListPollerSuccess(self, mockRequestResponse):
+
+        requestObj = requestResponse('{"response": {"success": "True", "obj": [ { "cycleTime": 3, "disable": false, "errorHoldTime": 60, "errorThreshold": 10, "holdDown": 20, "maxProcesses": 10, "minProcesses": 1, "name": "poller1", "numProcesses": 1, "storageLocation": "pickle://graphite:5000", "storageType": "graphite"} ] } }', 200)
+        mockRequestResponse.return_value = requestObj
+
+        results = SubfragiumClientLib.listTypePoller('name=poller1', getApiEndPointUrls)
+
+        # Now check the function returned the correct results
+        self.assertIn('success', results )
+        self.assertEquals(results['success'], True)
+
     ##
     ## Testing OID API
     ##

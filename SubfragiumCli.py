@@ -36,6 +36,26 @@ def printTarget(target):
     print 'SnmpString: %s' % (target['snmpString'])
     print 'Timeout (msec): %s' % (target['timeout'])
 
+def printPollers(pollers):
+
+    print 'name\t\tDisabled'
+    print '----\t\t--------'
+    for poller in pollers:
+        print '%s\t\t%s' % (poller['name'], poller['disabled'])
+
+def printPoller(poller):
+    print 'Name: %s' % (poller[ 'name' ])
+    print 'Disabled: %s' % (poller[ 'disabled' ])
+    print 'Min Num Processes: %s' % (poller[ 'minProcesses' ])
+    print 'Max Num Processes: %s' % (poller[ 'maxProcesses' ])
+    print 'Start Num Processes: %s' % (poller[ 'numProcesses' ])
+    print 'Num Process Hold Time (sec): %s' % (poller[ 'holdDown' ])
+    print 'Poller Cycle Time (sec): %s' % (poller[ 'cycleTime' ])
+    print 'Data Storage Type: %s' % (poller[ 'storageType' ])
+    print 'Data Storage Location: %s' % (poller[ 'storageLocation' ])
+    print 'Error Threshold: %s' % (poller[ 'errorThreshold' ])
+    print 'Error Hold Time (sec): %s' % (poller[ 'errorHoldTime' ])
+
 def actionList(type, data, apiEndPoint):
 
     if type == 'target':
@@ -55,9 +75,21 @@ def actionList(type, data, apiEndPoint):
             print 'ERROR - %s' % results['err']
             exit(1)
     elif type == 'poller':
-        SubfragiumClientLib.listTypePoller(data, apiEndPoint)
+        results = SubfragiumClientLib.listTypePoller(data, apiEndPoint)
+        if results['success']:
+            printPoller(results['obj'])
+            exit(0)
+        else:
+            print 'ERROR - %s' % results['err']
+            exit(1)
     elif type == 'pollers':
-        SubfragiumClientLib.listTypePollers(data, apiEndPoint)
+        results = SubfragiumClientLib.listTypePollers(data, apiEndPoint)
+        if results['success']:
+            printPollers(results['obj'])
+            exit(0)
+        else:
+            print 'ERROR - %s' % results['err']
+            exit(1)
     elif type == 'oid':
         SubfragiumClientLib.listTypeOid(data, apiEndPoint)
     elif type == 'oids':

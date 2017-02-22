@@ -294,49 +294,46 @@ def addTypePoller(data, apiEndPoint):
 def listTypePollers(data, apiEndPoint):
 
     if data == 'help':
-        print 'Parameter format must be:'
-        print '\tpython SubfragiumCli.py list pollers all'
-        print
-        print '\te.g.'
-        print '\tpython SubfragiumCli.py list pollers all'
-        print '\tpython SubfragiumCli.py list pollers all'
-        exit(0)
+        helpMsg = 'Parameter format must be:\n'
+        helpMsg += '\tpython SubfragiumCli.py list pollers all\n'
+        helpMsg += '\n'
+        helpMsg += '\te.g.\n'
+        helpMsg += '\tpython SubfragiumCli.py list pollers all\n'
+        helpMsg += '\tpython SubfragiumCli.py list pollers all\n'
+        return {'success': True, 'helpMsg': helpMsg}
 
     apiCall = apiEndPoint['urls']['pollers']
     r = requests.get(apiCall)
     rJson = json.loads(r.text)
     if 'response' in rJson:
         if 'success' in rJson['response'] and rJson['response']['success']:
-            print 'name\t\tDisabled'
-            print '----\t\t--------'
-            for poller in rJson['response']['obj']:
-                print '%s\t\t%s' % (poller['name'], poller['disabled'])
+            return {'success': True, 'obj': rJson['response']['obj']}
         else:
-            print 'Error: %s' % rJson['response']['err']
+            return {'success': False, 'err': 'Error: %s' % rJson['response']['err']}
     else:
-        print 'Error: Unknown response - %s ' % r.text
+        return {'success': False, 'err': 'Error: Unknown response - %s ' % r.text}
 
 
 def listTypePoller(data, apiEndPoint):
 
     if data == 'help':
-        print 'Parameter format must be:'
-        print '\tpython SubfragiumCli.py list poller name={name}'
-        print
-        print '\te.g.'
-        print '\tpython SubfragiumCli.py list poller name=poller1'
-        exit(0)
+        helpMsg = 'Parameter format must be:\n'
+        helpMsg += '\tpython SubfragiumCli.py list poller name={name}\n'
+        helpMsg += '\n'
+        helpMsg += '\te.g.\n'
+        helpMsg += '\tpython SubfragiumCli.py list poller name=poller1\n'
+        return {'success': True, 'helpMsg': helpMsg}
 
     validInput = 'name=([\w\.]+)'
     reValidator = re.compile(validInput)
     validatedInput = reValidator.match(data)
     if validatedInput is None:
-        print 'Error - Parameter format must be:'
-        print '\tpython SubfragiumCli.py list poller name={name}'
-        print
-        print '\te.g.'
-        print '\tpython SubfragiumCli.py list poller name=poller1'
-        exit(1)
+        errorMsg = 'Error - Parameter format must be:\n'
+        errorMsg += '\tpython SubfragiumCli.py list poller name={name}\n'
+        errorMsg += '\n'
+        errorMsg += '\te.g.\n'
+        errorMsg += '\tpython SubfragiumCli.py list poller name=poller1\n'
+        return {'success': False, 'err': errorMsg}
 
     apiCall = apiEndPoint['urls']['poller'].replace('<string:name>', '')
     apiCall += validatedInput.group(1)
@@ -346,21 +343,11 @@ def listTypePoller(data, apiEndPoint):
     if 'response' in rJson:
         if 'success' in rJson['response'] and rJson['response']['success']:
             res = rJson['response']['obj']
-            print 'Name: %s' % (res['name'])
-            print 'Disabled: %s' % (res['disabled'])
-            print 'Min Num Processes: %s' % (res['minProcesses'])
-            print 'Max Num Processes: %s' % (res['maxProcesses'])
-            print 'Start Num Processes: %s' % (res['numProcesses'])
-            print 'Num Process Hold Time (sec): %s' % (res['holdDown'])
-            print 'Poller Cycle Time (sec): %s' % (res['cycleTime'])
-            print 'Data Storage Type: %s' % (res['storageType'])
-            print 'Data Storage Location: %s' % (res['storageLocation'])
-            print 'Error Threshold: %s' % (res['errorThreshold'])
-            print 'Error Hold Time (sec): %s' % (res['errorHoldTime'])
+            return {'success': True, 'obj': res}
         else:
-            print 'Error: %s' % rJson['response']['err']
+            return {'success': False, 'err': 'Error: %s' % rJson['response']['err']}
     else:
-        print 'Error: Unknown response - %s ' % r.text
+        return {'success': False, 'err': 'Error: Unknown response - %s ' % r.text}
 
 
 def deleteTypePoller(data, apiEndPoint):
