@@ -188,13 +188,47 @@ class TestControllerApi(unittest.TestCase):
         self.assertEquals(results['success'], False)
         self.assertIn('err', results)
 
-    @mock.patch( 'SubfragiumClientLib.requests.get' )
+    @mock.patch('SubfragiumClientLib.requests.get')
     def testListTargetSuccess(self, mockRequestResponse):
 
         requestObj = requestResponse('{"response": {"success": "True", "obj": [ { "name": "123.123.1.10", "snmpString": "eur", "timeout": 20 } ] } }', 200)
         mockRequestResponse.return_value = requestObj
 
         results = SubfragiumClientLib.listTypeTargets('name=123.123.1.10', getApiEndPointUrls)
+
+        # Now check the function returned the correct results
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], True)
+
+    def testDeleteTargetHelp(self):
+
+        results = SubfragiumClientLib.deleteTypeTarget('help', getApiEndpointSuccess)
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], True)
+        self.assertIn('helpMsg', results)
+
+    def testDeleteTargetMissingName(self):
+
+        results = SubfragiumClientLib.deleteTypeTarget('', getApiEndpointSuccess)
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], False)
+        self.assertIn('err', results)
+
+    def testDeleteTargetBadname(self):
+
+        results = SubfragiumClientLib.deleteTypeTarget('name=^', getApiEndpointSuccess)
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], False)
+        self.assertIn('err', results)
+
+    @mock.patch('SubfragiumClientLib.requests.delete')
+    def testDeleteTargetSuccess(self, mockRequestResponse):
+
+        requestObj = requestResponse('{"response": {"success": true} }', 200)
+        mockRequestResponse.return_value = requestObj
+
+        results = SubfragiumClientLib.deleteTypeTarget('name=123.123.1.10', getApiEndPointUrls)
+        print results
 
         # Now check the function returned the correct results
         self.assertIn('success', results)

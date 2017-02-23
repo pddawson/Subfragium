@@ -126,25 +126,25 @@ def listTypeTarget(data, apiEndpoint):
 def deleteTypeTarget(data, apiEndpoint):
 
     if data == 'help':
-        print 'Parameter format must be:'
-        print '\tpython SubfragiumCli.py delete target name={name|ip}'
-        print
-        print '\te.g.'
-        print '\tpython SubfragiumCli.py delete target name=123.123.1.10'
-        print '\tpython SubfragiumCli.py delete target name=test.host.com'
-        exit(0)
+        helpMsg = 'Parameter format must be:\n'
+        helpMsg += '\tpython SubfragiumCli.py delete target name={name|ip}\n'
+        helpMsg += '\n'
+        helpMsg += '\te.g.\n'
+        helpMsg += '\tpython SubfragiumCli.py delete target name=123.123.1.10\n'
+        helpMsg += '\tpython SubfragiumCli.py delete target name=test.host.com\n'
+        return {'success': True, 'helpMsg': helpMsg}
 
     validInput = 'name=([\w\.]+)'
     reValidator = re.compile(validInput)
     validatedInput = reValidator.match(data)
     if validatedInput is None:
-        print 'Error Parameter format must be:'
-        print '\tpython SubfragiumCli.py delete target name={name|ip}'
-        print
-        print '\te.g.'
-        print '\tpython SubfragiumCli.py delete target name=123.123.1.10'
-        print '\tpython SubfragiumCli.py delete target name=test.host.com'
-        exit(1)
+        errorMsg = 'Error Parameter format must be:\n'
+        errorMsg += '\tpython SubfragiumCli.py delete target name={name|ip}\n'
+        errorMsg += '\n'
+        errorMsg += '\te.g.\n'
+        errorMsg += '\tpython SubfragiumCli.py delete target name=123.123.1.10\n'
+        errorMsg += '\tpython SubfragiumCli.py delete target name=test.host.com\n'
+        return {'success': False, 'err': errorMsg}
 
     apiCall = apiEndpoint['urls']['target'].replace('<string:name>', '')
     apiCall += validatedInput.group(1)
@@ -153,11 +153,11 @@ def deleteTypeTarget(data, apiEndpoint):
 
     if 'response' in rJson:
         if 'success' in rJson['response'] and rJson['response']['success']:
-            print 'OK'
+            return {'success': True}
         else:
-            print 'Error: %s' % rJson['response']['err']
+            return {'success': True, 'err': 'Error: %s' % rJson['response']['err']}
     else:
-        print 'Error: Unknown response - %s' % r.text
+        return {'success': True, 'err': 'Error: Unknown response - %s' % r.text}
 
 
 def modifyTypeTarget(data, apiEndpoint):
@@ -672,7 +672,6 @@ def listTypeOid(data, apiEndPoint):
     apiCall = apiEndPoint['urls']['oid'].replace('<string:tgt>', validatedInput.group(1))
     apiCall = apiCall.replace('<string:oidInfo>', validatedInput.group(2))
     r = requests.get(apiCall)
-    print r.text
     rJson = json.loads(r.text)
 
     if 'response' in rJson:
