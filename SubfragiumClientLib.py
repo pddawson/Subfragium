@@ -353,23 +353,23 @@ def listTypePoller(data, apiEndPoint):
 def deleteTypePoller(data, apiEndPoint):
 
     if data == 'help':
-        print 'Parameter format must be:'
-        print '\tpython SubfragiumCli.py delete poller name={name}'
-        print
-        print '\te.g.'
-        print '\tpython SubfragiumCli.py delete poller name=poller1'
-        exit(0)
+        helpMsg = 'Parameter format must be:\n'
+        helpMsg += '\tpython SubfragiumCli.py delete poller name={name}\n'
+        helpMsg += '\n'
+        helpMsg += '\te.g.\n'
+        helpMsg += '\tpython SubfragiumCli.py delete poller name=poller1\n'
+        return {'success': True, 'helpMsg': helpMsg}
 
     validInput = 'name=([\w\.]+)'
     reValidator = re.compile(validInput)
     validatedInput = reValidator.match(data)
     if validatedInput is None:
-        print 'Error - Parameter format must be:'
-        print '\tpython SubfragiumCli.py delete poller name={name}'
-        print
-        print '\te.g.'
-        print '\tpython SubfragiumCli.py delete poller name=poller1'
-        exit(1)
+        errorMsg = 'Error - Parameter format must be:\n'
+        errorMsg += '\tpython SubfragiumCli.py delete poller name={name}\n'
+        errorMsg += '\n'
+        errorMsg += '\te.g.\n'
+        errorMsg += '\tpython SubfragiumCli.py delete poller name=poller1\n'
+        return {'success': False, 'err': errorMsg}
 
     apiCall = apiEndPoint['urls']['poller'].replace('<string:name>', '')
     apiCall += validatedInput.group(1)
@@ -378,11 +378,11 @@ def deleteTypePoller(data, apiEndPoint):
 
     if 'response' in rJson:
         if 'success' in rJson['response'] and rJson['response']['success']:
-            print 'OK'
+            return {'success': True}
         else:
-            print 'Error: %s' % rJson['response']['err']
+            return {'success': False, 'err': 'Error: %s' % rJson['response']['err']}
     else:
-        print 'Error: Unknown response - %s' % r.text
+        return {'success': False, 'err': 'Error: Unknown response - %s' % r.text}
 
 
 def modifyTypePoller(data, apiEndPoint):

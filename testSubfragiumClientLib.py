@@ -490,6 +490,40 @@ class TestControllerApi(unittest.TestCase):
         self.assertIn('success', results )
         self.assertEquals(results['success'], True)
 
+    def testDeletePollerHelp(self):
+
+        results = SubfragiumClientLib.deleteTypePoller('help', getApiEndpointSuccess)
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], True)
+        self.assertIn('helpMsg', results)
+
+    def testDeletePollerMissingName(self):
+
+        results = SubfragiumClientLib.deleteTypePoller('', getApiEndpointSuccess)
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], False)
+        self.assertIn('err', results)
+
+    def testDeletePollerBadname(self):
+
+        results = SubfragiumClientLib.deleteTypePoller('name=^', getApiEndpointSuccess)
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], False)
+        self.assertIn('err', results)
+
+    @mock.patch('SubfragiumClientLib.requests.delete')
+    def testDeletePollerSuccess(self, mockRequestResponse):
+
+        requestObj = requestResponse('{"response": {"success": "True" } }', 200)
+        mockRequestResponse.return_value = requestObj
+
+        results = SubfragiumClientLib.deleteTypePoller('name=poller1', getApiEndPointUrls)
+        print results
+
+        # Now check the function returned the correct results
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], True)
+
     ##
     ## Testing OID API
     ##
