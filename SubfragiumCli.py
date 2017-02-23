@@ -63,6 +63,17 @@ def printOids(oids):
     for oid in oids:
         print '%s\t%s' % (oid['id'], oid['name'])
 
+def printOid(oid):
+
+    print 'Name: %s' % oid['name']
+    print 'Target: %s' % oid['target']
+    print 'OID: %s' % oid['oid']
+    print 'ID: %s' % oid['id']
+    print 'Enabled: %s' % oid['enabled']
+    print 'Poller: %s' % oid['poller']
+    print 'SnmpString: %s' % oid['snmpString']
+    #print 'Timeout: %s' % oid['timeout']
+
 def actionList(type, data, apiEndPoint):
 
     if type == 'target':
@@ -98,7 +109,13 @@ def actionList(type, data, apiEndPoint):
             print 'ERROR - %s' % results['err']
             exit(1)
     elif type == 'oid':
-        SubfragiumClientLib.listTypeOid(data, apiEndPoint)
+        results = SubfragiumClientLib.listTypeOid(data, apiEndPoint)
+        if results['success']:
+            printOid(results['obj'])
+            exit(0)
+        else:
+            print 'ERROR - %s' % results['err']
+            exit(1)
     elif type == 'oids':
         results = SubfragiumClientLib.listTypeOids(data, apiEndPoint)
         if results['success']:
@@ -113,13 +130,15 @@ def actionList(type, data, apiEndPoint):
 
 def actionDelete(type, data, apiEndPoint):
     if type == 'target':
-        SubfragiumClientLib.deleteTypeTarget(data, apiEndPoint)
+        results = SubfragiumClientLib.deleteTypeTarget(data, apiEndPoint)
     elif type == 'poller':
         SubfragiumClientLib.deleteTypePoller(data, apiEndPoint)
     elif type == 'oid':
         SubfragiumClientLib.deleteTypeOid(data, apiEndPoint)
     else:
-        print 'Bad type input: %s' % type
+        return {'success': False, 'err': 'Bad type input: %s' % type}
+
+    return results
 
 
 def actionModify(type, data, apiEndPoint):
@@ -167,7 +186,14 @@ if __name__ == '__main__':
         actionList(args.type[0], args.parameters, apiEndpoint)
 
     elif args.action[0] == 'delete':
-        actionDelete(args.type[0], args.parameters, apiEndpoint)
+        results = actionDelete(args.type[0], args.parameters, apiEndpoint)
+        if results['success']:
+            print 'OK'
+            exit(0)
+        else:
+            print 'ERROR'
+            print results['err']
+            exit(1)
 
     elif args.action[0] == 'modify':
         actionModify(args.type[0], args.parameters, apiEndpoint)

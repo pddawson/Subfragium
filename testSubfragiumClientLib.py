@@ -228,7 +228,6 @@ class TestControllerApi(unittest.TestCase):
         mockRequestResponse.return_value = requestObj
 
         results = SubfragiumClientLib.deleteTypeTarget('name=123.123.1.10', getApiEndPointUrls)
-        print results
 
         # Now check the function returned the correct results
         self.assertIn('success', results)
