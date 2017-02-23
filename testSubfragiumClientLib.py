@@ -547,7 +547,7 @@ class TestControllerApi(unittest.TestCase):
         self.assertEquals(results['success'], False)
         self.assertIn('err', results)
 
-    @mock.patch( 'SubfragiumClientLib.requests.put' )
+    @mock.patch('SubfragiumClientLib.requests.put')
     def testAddOidSuccess(self, mockRequestResponse):
 
         requestObj = requestResponse('{"response": {"success": "True" } }', 200)
@@ -561,6 +561,58 @@ class TestControllerApi(unittest.TestCase):
 
         # First check that API requirements were satisfied
         self.assertEquals(validJson['success'], True)
+
+        # Now check the function returned the correct results
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], True)
+
+    def testListOidsHelp(self):
+
+        results = SubfragiumClientLib.listTypeOids('help', getApiEndpointSuccess)
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], True)
+        self.assertIn('helpMsg', results)
+
+    @mock.patch('SubfragiumClientLib.requests.get')
+    def testListOidsSuccess(self, mockRequestResponse):
+
+        requestObj = requestResponse('{"response": {"success": true, "obj": [ { "enabled": true, "id": "123.123.1.10:1.3.6.1.2.1.2.2.1.10.2", "name": "network.interface.IfInOctets.router1.FastEthernet0/0", "oid": "1.3.6.1.2.1.2.2.1.10.2", "poller": "poller1", "snmpString": "eur", "target": "123.123.1.10", "timeout": 200} ] } }', 200)
+        mockRequestResponse.return_value = requestObj
+
+        results = SubfragiumClientLib.listTypeOids('', getApiEndPointUrls)
+
+        # Now check the function returned the correct results
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], True)
+
+    def testListOidHelp(self):
+
+        results = SubfragiumClientLib.listTypeOid('help', getApiEndpointSuccess)
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], True)
+        self.assertIn('helpMsg', results)
+
+    def testListOidMissingTarget(self):
+
+        results = SubfragiumClientLib.listTypeOid('', getApiEndpointSuccess)
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], False)
+        self.assertIn('err', results)
+
+    def testListOidMissingOid(self):
+
+        results = SubfragiumClientLib.listTypeOid('target=123.123.1.10', getApiEndpointSuccess)
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], False)
+        self.assertIn('err', results)
+
+    @mock.patch( 'SubfragiumClientLib.requests.get' )
+    def testListOidSuccess(self, mockRequestResponse):
+
+        requestObj = requestResponse('{"response": {"success": true, "obj": [ { "enabled": true, "id": "123.123.1.10:1.3.6.1.2.1.2.2.1.10.2", "name": "network.interface.IfInOctets.router1.FastEthernet0/0", "oid": "1.3.6.1.2.1.2.2.1.10.2", "poller": "poller1", "snmpString": "eur", "target": "123.123.1.10", "timeout": 200} ] } }', 200)
+        mockRequestResponse.return_value = requestObj
+
+        results = SubfragiumClientLib.listTypeOid('target=123.123.1.10,oid=1.3.6.1', getApiEndPointUrls)
 
         # Now check the function returned the correct results
         self.assertIn('success', results)

@@ -9,6 +9,8 @@ Longer Term
 - Add OpenTSDB storage option
 - Add file based storage option
 - Figure out to to test client getApiEndPoint() in SubfragiumClientLib.py
+- Add additional filters for list pollers and list targets
+- Add additional testing for searching by fields in list oids
 
 TODO
 ----
@@ -22,6 +24,7 @@ TODO
 - In testSubfragiumClientLib.py the apiEndpoints passed into the failing functions is technically wrong should be apiEndPointsUrls
 - Add more validation in testSubfragiumClientLib.py on list functions to validate data is properly returne
 - Add more validation of HTTP failures in testSubfragiumClientLib.py
+- Fix printing of help for list pollers, list oid, list target
 
 COMPLETE
 --------

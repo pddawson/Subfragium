@@ -56,6 +56,13 @@ def printPoller(poller):
     print 'Error Threshold: %s' % (poller[ 'errorThreshold' ])
     print 'Error Hold Time (sec): %s' % (poller[ 'errorHoldTime' ])
 
+def printOids(oids):
+
+    print 'ID\t\t\t\t\tName'
+    print '--\t\t\t\t\t----'
+    for oid in oids:
+        print '%s\t%s' % (oid['id'], oid['name'])
+
 def actionList(type, data, apiEndPoint):
 
     if type == 'target':
@@ -93,7 +100,13 @@ def actionList(type, data, apiEndPoint):
     elif type == 'oid':
         SubfragiumClientLib.listTypeOid(data, apiEndPoint)
     elif type == 'oids':
-        SubfragiumClientLib.listTypeOids(data, apiEndPoint)
+        results = SubfragiumClientLib.listTypeOids(data, apiEndPoint)
+        if results['success']:
+            printOids(results['obj'])
+            exit(0)
+        else:
+            print 'ERROR - %s' % results['err']
+            exit(1)
     else:
         print 'Bad type input: %s' % type
 
