@@ -518,7 +518,6 @@ class TestControllerApi(unittest.TestCase):
         mockRequestResponse.return_value = requestObj
 
         results = SubfragiumClientLib.deleteTypePoller('name=poller1', getApiEndPointUrls)
-        print results
 
         # Now check the function returned the correct results
         self.assertIn('success', results)
@@ -673,13 +672,61 @@ class TestControllerApi(unittest.TestCase):
         self.assertEquals(results['success'], False)
         self.assertIn('err', results)
 
-    @mock.patch( 'SubfragiumClientLib.requests.get' )
+    @mock.patch('SubfragiumClientLib.requests.get')
     def testListOidSuccess(self, mockRequestResponse):
 
         requestObj = requestResponse('{"response": {"success": true, "obj": [ { "enabled": true, "id": "123.123.1.10:1.3.6.1.2.1.2.2.1.10.2", "name": "network.interface.IfInOctets.router1.FastEthernet0/0", "oid": "1.3.6.1.2.1.2.2.1.10.2", "poller": "poller1", "snmpString": "eur", "target": "123.123.1.10", "timeout": 200} ] } }', 200)
         mockRequestResponse.return_value = requestObj
 
         results = SubfragiumClientLib.listTypeOid('target=123.123.1.10,oid=1.3.6.1', getApiEndPointUrls)
+
+        # Now check the function returned the correct results
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], True)
+
+    def testDeleteOidHelp(self):
+
+        results = SubfragiumClientLib.deleteTypeOid('help', getApiEndpointSuccess)
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], True)
+        self.assertIn('helpMsg', results)
+
+    def testDeleteOidMissingTarget(self):
+
+        results = SubfragiumClientLib.deleteTypeOid('', getApiEndpointSuccess)
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], False)
+        self.assertIn('err', results)
+
+    def testDeleteOidMissingOid(self):
+
+        results = SubfragiumClientLib.deleteTypeOid('target=123.123.1.10', getApiEndpointSuccess)
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], False)
+        self.assertIn('err', results)
+
+    def testDeleteOidBadTarget(self):
+
+        results = SubfragiumClientLib.deleteTypeOid('target=^,oid=1.3.6.1.2', getApiEndpointSuccess)
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], False)
+        self.assertIn('err', results)
+
+    def testDeleteOidBadOid(self):
+
+        results = SubfragiumClientLib.deleteTypeOid('target=123.123.1.10,oid=abc', getApiEndpointSuccess)
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], False)
+        self.assertIn('err', results)
+
+    @mock.patch('SubfragiumClientLib.requests.delete')
+    def testDeleteOidSuccess(self, mockRequestResponse):
+
+        requestObj = requestResponse('{"response": {"success": true } }', 200)
+        mockRequestResponse.return_value = requestObj
+
+        results = SubfragiumClientLib.deleteTypeOid('target=123.132.1.10,oid=1.3.6.1.2', getApiEndPointUrls)
+        print results
 
         # Now check the function returned the correct results
         self.assertIn('success', results)

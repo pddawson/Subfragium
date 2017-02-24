@@ -686,25 +686,25 @@ def listTypeOid(data, apiEndPoint):
 def deleteTypeOid(data, apiEndPoint):
 
     if data == 'help':
-        print 'Parameter format must be:'
-        print '\tpython SubfragiumCli.py delete oid target={name|ip},oid=<oid>'
-        print
-        print '\te.g.'
-        print '\tpython SubfragiumCli.py delete oid target=host.test.com,oid=1.3.6.1.2.1'
-        print '\tpython SubfragiumCli.py delete oid target=123.123.1.10,oid=1.3.6.1.2.1'
-        exit(0)
+        helpMsg = 'Parameter format must be:\n'
+        helpMsg += '\tpython SubfragiumCli.py delete oid target={name|ip},oid=<oid>\n'
+        helpMsg += '\n'
+        helpMsg += '\te.g.\n'
+        helpMsg += '\tpython SubfragiumCli.py delete oid target=host.test.com,oid=1.3.6.1.2.1\n'
+        helpMsg += '\tpython SubfragiumCli.py delete oid target=123.123.1.10,oid=1.3.6.1.2.1\n'
+        return {'success': True, 'helpMsg': helpMsg}
 
     validInput = 'target=([\w\.]+)\,oid=([\d\.]+)'
     reValidator = re.compile(validInput)
     validatedInput = reValidator.match(data)
     if validatedInput is None:
-        print 'Error - Parameter format must be:'
-        print '\tpython SubfragiumCli.py delete oid target={name|ip},oid=<oid>'
-        print
-        print '\te.g.'
-        print '\tpython SubfragiumCli.py delete oid target=host.test.com,oid=1.3.6.1.2.1'
-        print '\tpython SubfragiumCli.py delete oid target=123.123.1.10,oid=1.3.6.1.2.1'
-        exit(1)
+        errorMsg = 'Error - Parameter format must be:\n'
+        errorMsg += '\tpython SubfragiumCli.py delete oid target={name|ip},oid=<oid>\n'
+        errorMsg += '\n'
+        errorMsg += '\te.g.\n'
+        errorMsg += '\tpython SubfragiumCli.py delete oid target=host.test.com,oid=1.3.6.1.2.1\n'
+        errorMsg += '\tpython SubfragiumCli.py delete oid target=123.123.1.10,oid=1.3.6.1.2.1\n'
+        return {'success': False, 'err': errorMsg}
 
     apiCall = apiEndPoint['urls']['oid'].replace('<string:tgt>', validatedInput.group(1))
     apiCall = apiCall.replace('<string:oidInfo>', validatedInput.group(2))
@@ -713,8 +713,8 @@ def deleteTypeOid(data, apiEndPoint):
 
     if 'response' in rJson:
         if 'success' in rJson['response'] and rJson['response']['success']:
-            print 'OK'
+            return {'success': True}
         else:
-            print 'Error: %s' % rJson['response']['err']
+            return {'success': False, 'err': 'Error: %s' % rJson['response']['err']}
     else:
-        print 'Error: Unknown response - %s' % r.text
+        return {'success': False, 'err': 'Error: Unknown response - %s' % r.text}

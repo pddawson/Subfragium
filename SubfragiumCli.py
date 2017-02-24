@@ -134,7 +134,7 @@ def actionDelete(type, data, apiEndPoint):
     elif type == 'poller':
         results = SubfragiumClientLib.deleteTypePoller(data, apiEndPoint)
     elif type == 'oid':
-        SubfragiumClientLib.deleteTypeOid(data, apiEndPoint)
+        results = SubfragiumClientLib.deleteTypeOid(data, apiEndPoint)
     else:
         return {'success': False, 'err': 'Bad type input: %s' % type}
 
