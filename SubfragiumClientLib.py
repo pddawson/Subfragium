@@ -163,25 +163,25 @@ def deleteTypeTarget(data, apiEndpoint):
 def modifyTypeTarget(data, apiEndpoint):
 
     if data == 'help':
-        print 'Parameter format must be:'
-        print '\tpython SubfragiumCli.py modify target name={name|ip},{snmpString={string}|timeout={number}'
-        print
-        print '\te.g.'
-        print '\tpython SubfragiumCli.py modify target name=123.123.1.10,snmpString=123abc'
-        print '\tpython SubfragiumCli.py modify target name=host.test.com,timeout=600'
-        exit(0)
+        helpMsg = 'Parameter format must be:\n'
+        helpMsg += '\tpython SubfragiumCli.py modify target name={name|ip},{snmpString={string}|timeout={number}\n'
+        helpMsg += '\n'
+        helpMsg += '\te.g.\n'
+        helpMsg += '\tpython SubfragiumCli.py modify target name=123.123.1.10,snmpString=123abc\n'
+        helpMsg += '\tpython SubfragiumCli.py modify target name=host.test.com,timeout=600\n'
+        return {'success': True, 'helpMsg': helpMsg}
 
     validInput = 'name=([\w\.]+)\,(snmpString=(\w+)|timeout=(\d+))'
     reValidator = re.compile(validInput)
     validatedInput = reValidator.match(data)
     if validatedInput is None:
-        print 'Error - Parameter format must be:'
-        print '\tpython SubfragiumCli.py modify target name={name|ip},{snmpString={string}|timeout={number}'
-        print
-        print '\te.g.'
-        print '\tpython SubfragiumCli.py modify target name=123.123.1.10,snmpString=123abc'
-        print '\tpython SubfragiumCli.py modify target name=host.test.com,timeout=600'
-        exit(1)
+        errorMsg = 'Error - Parameter format must be:\n'
+        errorMsg += '\tpython SubfragiumCli.py modify target name={name|ip},{snmpString={string}|timeout={number}\n'
+        errorMsg += '\n'
+        errorMsg += '\te.g.\n'
+        errorMsg += '\tpython SubfragiumCli.py modify target name=123.123.1.10,snmpString=123abc\n'
+        errorMsg += '\tpython SubfragiumCli.py modify target name=host.test.com,timeout=600\n'
+        return {'success': False, 'err': errorMsg}
 
     (field, value) = validatedInput.group(2).split('=')
 
@@ -190,16 +190,13 @@ def modifyTypeTarget(data, apiEndpoint):
     r = requests.get(apiCall)
     rJson = json.loads(r.text)
     if 'response' not in rJson:
-        print 'Error: Unknown response %s' % r.text
-        exit(1)
+        return {'success': False, 'err': 'Error: Unknown response %s' % r.text}
 
     if 'success' not in rJson['response']:
-        print 'Error: Bad response %s' % rJson['response']
-        exit(1)
+        return {'success': False, 'err': 'Error: Bad response %s' % rJson['response']}
 
     if not rJson['response']['success']:
-        print 'Error: Failed %s' % rJson['response']['err']
-        exit(1)
+        return {'success': False, 'err': 'Error: Failed %s' % rJson['response']['err']}
 
     modifiedTarget = rJson['response']['obj']
     if field == 'timeout':
@@ -216,18 +213,15 @@ def modifyTypeTarget(data, apiEndpoint):
     r = requests.put(apiCall, data=jsonCall, headers=headers)
     rJson = json.loads(r.text)
     if 'response' not in rJson:
-        print 'Error: Unknown response %s' % r.text
-        exit(1)
+        return {'success': False, 'err': 'Error: Unknown response %s' % r.text}
 
     if 'success' not in rJson['response']:
-        print 'Error: Bad response %s' % rJson['response']
-        exit(1)
+        return {'success': False, 'err': 'Error: Bad response %s' % rJson['response']}
 
     if not rJson['response']['success']:
-        print 'Error: Failed %s' % rJson['response']['err']
-        exit(1)
+        return {'success': False, 'err': 'Error: Failed %s' % rJson['response']['err']}
 
-    print 'OK'
+    return {'success': True}
 
 
 def addTypePoller(data, apiEndPoint):

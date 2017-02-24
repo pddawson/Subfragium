@@ -233,6 +233,85 @@ class TestControllerApi(unittest.TestCase):
         self.assertIn('success', results)
         self.assertEquals(results['success'], True)
 
+    def testModifyTargetHelp(self):
+
+        results = SubfragiumClientLib.modifyTypeTarget('help', getApiEndpointSuccess)
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], True)
+        self.assertIn('helpMsg', results)
+
+    def testModifyTargetMissingAttribute(self):
+
+        results = SubfragiumClientLib.modifyTypeTarget('', getApiEndpointSuccess)
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], False)
+        self.assertIn('err', results)
+
+    def testModifyTargetBadName(self):
+
+        results = SubfragiumClientLib.modifyTypeTarget('name=^', getApiEndpointSuccess)
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], False)
+        self.assertIn('err', results)
+
+    def testModifyTargetBadSnmpString(self):
+
+        results = SubfragiumClientLib.modifyTypeTarget('name=123.123.1.10,snmpString=^', getApiEndpointSuccess)
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], False)
+        self.assertIn('err', results)
+
+    def testModifyTargetBadTimeout(self):
+
+        results = SubfragiumClientLib.modifyTypeTarget('name=123.123.1.10,timeout=abc', getApiEndpointSuccess)
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], False)
+        self.assertIn('err', results)
+
+    @mock.patch( 'SubfragiumClientLib.requests.put' )
+    @mock.patch('SubfragiumClientLib.requests.get')
+    def testModifyTargetSnmpStringSuccess(self, mockRequestGetResponse, mochRequestPutResponse):
+
+        getRequestObj = requestResponse('{"response": {"success": "True", "obj": { "name": "123.123.1.10", "snmpString": "eur", "timeout": 20 } } }', 200)
+        mockRequestGetResponse.return_value = getRequestObj
+
+        putRequestObj = requestResponse('{"response": {"success": true} }', 200)
+        mochRequestPutResponse.return_value = putRequestObj
+
+        results = SubfragiumClientLib.modifyTypeTarget('name=123.123.1.10,snmpString=abc', getApiEndPointUrls )
+        reqPayload = mochRequestPutResponse.call_args[1]['data']
+
+        validJson = validateJson(SubfragiumControllerSchema.PingTarget, json.loads(reqPayload))
+
+        # First check that API requirements were satisfied
+        self.assertEquals(validJson['success'], True)
+
+        # Now check the function returned the correct results
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], True)
+
+    @mock.patch( 'SubfragiumClientLib.requests.put' )
+    @mock.patch('SubfragiumClientLib.requests.get')
+    def testModifyTargetTimeoutSuccess(self, mockRequestGetResponse, mochRequestPutResponse):
+
+        getRequestObj = requestResponse('{"response": {"success": "True", "obj": { "name": "123.123.1.10", "snmpString": "eur", "timeout": 20 } } }', 200)
+        mockRequestGetResponse.return_value = getRequestObj
+
+        putRequestObj = requestResponse('{"response": {"success": true} }', 200)
+        mochRequestPutResponse.return_value = putRequestObj
+
+        results = SubfragiumClientLib.modifyTypeTarget('name=123.123.1.10,timeout=123', getApiEndPointUrls)
+        reqPayload = mochRequestPutResponse.call_args[1]['data']
+
+        validJson = validateJson(SubfragiumControllerSchema.PingTarget, json.loads(reqPayload))
+
+        # First check that API requirements were satisfied
+        self.assertEquals(validJson['success'], True)
+
+        # Now check the function returned the correct results
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], True)
+
     ##
     ## Testing Poller API
     ##
