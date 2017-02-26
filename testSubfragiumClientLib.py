@@ -1061,7 +1061,97 @@ class TestControllerApi(unittest.TestCase):
         mockRequestResponse.return_value = requestObj
 
         results = SubfragiumClientLib.deleteTypeOid('target=123.132.1.10,oid=1.3.6.1.2', getApiEndPointUrls)
-        print results
+
+        # Now check the function returned the correct results
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], True)
+
+    def testModifyOidHelp(self):
+
+        results = SubfragiumClientLib.listTypeOid('help', getApiEndpointSuccess)
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], True)
+        self.assertIn('helpMsg', results)
+
+    def testModifyOidBadParameter(self):
+
+        inputStrings = [
+            '',
+            'target=123.123.1.10',
+            'target=123.123.1.10,oid=1.3.6.1.2',
+            'target=123.123.1.10,oid=1.3.6.1.2,poller=^',
+            'target=123.123.1.10,oid=1.3.6.1.2,name=^',
+            'target=123.123.1.10,oid=1.3.6.1.2,enabled=false'
+        ]
+
+        for inputString in inputStrings:
+            results = SubfragiumClientLib.modifyTypeOid(inputString, getApiEndpointSuccess)
+            self.assertIn('success', results, 'Failed for input string ' + inputString)
+            self.assertEquals(results['success'], False)
+            self.assertIn('err', results, 'Failed for input string ' + inputString)
+
+
+    @mock.patch('SubfragiumClientLib.requests.put')
+    @mock.patch('SubfragiumClientLib.requests.get')
+    def testModifyOidModifyPollerSuccessfully(self, mockRequestGetResponse, mochRequestPutResponse):
+
+        getRequestObj = requestResponse('{"response": {"success": "True", "obj": { "enabled": true, "id": "123.123.1.10:1.3.6.1.2.1.2.2.1.10.2", "name": "network.interface.IfInOctets.router1.FastEthernet0/0", "oid": "1.3.6.1.2.1.2.2.1.10.2", "poller": "poller1", "snmpString": "eur", "target": "123.123.1.10" } } }', 200)
+        mockRequestGetResponse.return_value = getRequestObj
+
+        putRequestObj = requestResponse('{"response": {"success": true} }', 200)
+        mochRequestPutResponse.return_value = putRequestObj
+
+        results = SubfragiumClientLib.modifyTypeOid('target=123.123.1.10,oid=1.3.6.1.2,poller=poller2', getApiEndPointUrls)
+        reqPayload = mochRequestPutResponse.call_args[1]['data']
+
+        validJson = validateJson(SubfragiumControllerSchema.Oid, json.loads(reqPayload))
+
+        # First check that API requirements were satisfied
+        self.assertEquals(validJson['success'], True)
+
+        # Now check the function returned the correct results
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], True)
+
+    @mock.patch('SubfragiumClientLib.requests.put')
+    @mock.patch('SubfragiumClientLib.requests.get')
+    def testModifyOidModifyNameSuccessfully(self, mockRequestGetResponse, mochRequestPutResponse):
+
+        getRequestObj = requestResponse('{"response": {"success": "True", "obj": { "enabled": true, "id": "123.123.1.10:1.3.6.1.2.1.2.2.1.10.2", "name": "network.interface.IfInOctets.router1.FastEthernet0/0", "oid": "1.3.6.1.2.1.2.2.1.10.2", "poller": "poller1", "snmpString": "eur", "target": "123.123.1.10" } } }', 200)
+        mockRequestGetResponse.return_value = getRequestObj
+
+        putRequestObj = requestResponse('{"response": {"success": true} }', 200)
+        mochRequestPutResponse.return_value = putRequestObj
+
+        results = SubfragiumClientLib.modifyTypeOid('target=123.123.1.10,oid=1.3.6.1.2,name=test2', getApiEndPointUrls)
+        reqPayload = mochRequestPutResponse.call_args[1]['data']
+
+        validJson = validateJson(SubfragiumControllerSchema.Oid, json.loads(reqPayload))
+
+        # First check that API requirements were satisfied
+        self.assertEquals(validJson['success'], True)
+
+        # Now check the function returned the correct results
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], True)
+
+    @mock.patch('SubfragiumClientLib.requests.put')
+    @mock.patch('SubfragiumClientLib.requests.get')
+    def testModifyOidModifyEnabledSuccessfully(self, mockRequestGetResponse, mochRequestPutResponse):
+
+        getRequestObj = requestResponse('{"response": {"success": "True", "obj": { "enabled": true, "id": "123.123.1.10:1.3.6.1.2.1.2.2.1.10.2", "name": "network.interface.IfInOctets.router1.FastEthernet0/0", "oid": "1.3.6.1.2.1.2.2.1.10.2", "poller": "poller1", "snmpString": "eur", "target": "123.123.1.10" } } }', 200)
+        mockRequestGetResponse.return_value = getRequestObj
+
+        putRequestObj = requestResponse('{"response": {"success": true} }', 200)
+        mochRequestPutResponse.return_value = putRequestObj
+
+        results = SubfragiumClientLib.modifyTypeOid('target=123.123.1.10,oid=1.3.6.1.2,enabled=False', getApiEndPointUrls)
+        reqPayload = mochRequestPutResponse.call_args[1]['data']
+
+        validJson = validateJson(SubfragiumControllerSchema.Oid, json.loads(reqPayload))
+
+        # First check that API requirements were satisfied
+        self.assertEquals(validJson['success'], True)
 
         # Now check the function returned the correct results
         self.assertIn('success', results)

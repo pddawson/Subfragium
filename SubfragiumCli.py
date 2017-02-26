@@ -147,7 +147,7 @@ def actionModify(type, data, apiEndPoint):
     elif type == 'poller':
         results = SubfragiumClientLib.modifyTypePoller(data, apiEndPoint)
     elif type == 'oid':
-        SubfragiumClientLib.modifyTypeOid(data, apiEndPoint)
+        results = SubfragiumClientLib.modifyTypeOid(data, apiEndPoint)
     else:
         return {'success': False, 'err': 'Unsupported modification of type %s' % type}
 
