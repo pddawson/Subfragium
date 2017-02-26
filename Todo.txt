@@ -14,7 +14,6 @@ Longer Term
 
 TODO
 ----
-- Add testing of the SubfragiumClientLib
 - Add testing of SubfragiumPoller
 - Split out SubfragiumPoller functions into SubfragiumPollerLib
 - Add internal statistics reporting (cycle time, num processes, failures etc)
@@ -24,7 +23,6 @@ TODO
 - In testSubfragiumClientLib.py the apiEndpoints passed into the failing functions is technically wrong should be apiEndPointsUrls
 - Add more validation in testSubfragiumClientLib.py on list functions to validate data is properly returne
 - Add more validation of HTTP failures in testSubfragiumClientLib.py
-- Fix printing of help for list pollers, list oid, list target
 - Timeout parameter of oid is not returned from GET /oid like it is in GET /oids
 - Remove redundant code from testSubfragiumClientLib.py
     - Loop over bad fields
@@ -61,6 +59,7 @@ COMPLETE
 - Move all the configuration items into config dictionary
 - Fix changes to flask sqlalchemy that make it report warnings about outputing logs of sql
     - Maybe an update to the library dependencies
+- Fix printing of help for list pollers, list oid, list target
 
 
 

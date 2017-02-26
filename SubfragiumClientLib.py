@@ -32,7 +32,7 @@ def addTypeTarget(data, apiEndpoint):
         helpMsg += '\te.g.\n'
         helpMsg += '\tpython SubfragiumCli.py add target name=123.123.11.10,snmpString=123,timeout=10\n'
         helpMsg += '\tpython SubfragiumCli.py add target name=host.test.com,snmpString=abc,timeout=25\n'
-        return {'success': True, 'help': helpMsg}
+        return {'success': True, 'helpMsg': helpMsg}
 
     validInput = 'name=([\w\.]+)\,snmpString=(\w+),timeout=(\d+)'
     reValidator = re.compile(validInput)
@@ -233,7 +233,7 @@ def addTypePoller(data, apiEndPoint):
         helpMsg += '\te.g.\n'
         helpMsg += '\tpython SubfragiumCli.py add poller name=poller1,minProcesses=1,maxProcesses=10,numProcesses=5,holdDown=20,cycleTime=60,storageType=graphite,storageLocation=pickle://graphite:5000,disabled=True,errorThreshold=3,errorHoldTime=1800\n'
         helpMsg += '\tpython SubfragiumCli.py add poller name=poller2,minProcesses=1,maxProcesses=10,numProcesses=5,holdDown=20,cycleTime=60,storageType=graphite,storageLocation=pickle://123.123.1.10:5000,disabled=False,errorThreshold=3,errorHoldTime=1800\n'
-        return {'success': True, 'help': helpMsg}
+        return {'success': True, 'helpMsg': helpMsg}
 
     validInput = 'name=([\w\.]+)\,minProcesses=(\d+)\,maxProcesses=(\d+)\,numProcesses=(\d+)\,holdDown=(\d+),cycleTime=(\d+),storageType=(\w+),storageLocation=(\w+\:\/\/[\w\-\.]+\:\d+),disabled=(True|False),errorThreshold=(\d+),errorHoldTime=(\d+)'
     reValidator = re.compile(validInput)
@@ -475,7 +475,7 @@ def addTypeOid(data, apiEndPoint):
         helpMsg += '\te.g.\n'
         helpMsg += '\tpython SubfragiumCli.py add oid target=host.test.com,oid=1.3.6.1.2.1,poller=poller1,name=network.interface.ifInHcOctets.router1.FastEthernet0/0,enabled=False\n'
         helpMsg += '\tpython SubfragiumCli.py add oid target=123.123.1.10,oid=1.3.6.1.2.1,poller=poller1,name=network.interface.ifInHcOctets.router1.FastEthernet0/0,enabled=True\n'
-        return {'success': True, 'help': helpMsg}
+        return {'success': True, 'helpMsg': helpMsg}
 
     validInput = 'target=([\w\.]+)\,oid=([\d\.]+)\,poller=(\w+)\,name=([\w\.\/\-]+)\,enabled=(True|False)'
     reValidator = re.compile(validInput)

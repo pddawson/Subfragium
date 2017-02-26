@@ -7,9 +7,6 @@ import SubfragiumUtilsLib
 
 apiServer = 'localhost:5000'
 
-# SubfragiumCli.py add target ip,name,snmpstring
-# SubfragiumCli.py <action> <type> <data>
-
 
 def actionAdd(type, data, apiEndPoint):
     if type == 'target':
@@ -78,6 +75,9 @@ def actionList(type, data, apiEndPoint):
 
     if type == 'target':
         results = SubfragiumClientLib.listTypeTarget(data, apiEndPoint)
+        if data == 'help':
+            print results['helpMsg']
+            exit(0)
         if results['success']:
             printTarget(results['obj'])
             exit(0)
@@ -86,6 +86,9 @@ def actionList(type, data, apiEndPoint):
             exit(1)
     elif type == 'targets':
         results = SubfragiumClientLib.listTypeTargets(data, apiEndPoint)
+        if data == 'help':
+            print results['helpMsg']
+            exit(0)
         if results['success']:
             printTargets(results['obj'])
             exit(0)
@@ -94,6 +97,9 @@ def actionList(type, data, apiEndPoint):
             exit(1)
     elif type == 'poller':
         results = SubfragiumClientLib.listTypePoller(data, apiEndPoint)
+        if data == 'help':
+            print results['helpMsg']
+            exit(0)
         if results['success']:
             printPoller(results['obj'])
             exit(0)
@@ -102,6 +108,9 @@ def actionList(type, data, apiEndPoint):
             exit(1)
     elif type == 'pollers':
         results = SubfragiumClientLib.listTypePollers(data, apiEndPoint)
+        if data == 'help':
+            print results['helpMsg']
+            exit(0)
         if results['success']:
             printPollers(results['obj'])
             exit(0)
@@ -110,6 +119,9 @@ def actionList(type, data, apiEndPoint):
             exit(1)
     elif type == 'oid':
         results = SubfragiumClientLib.listTypeOid(data, apiEndPoint)
+        if data == 'help':
+            print results['helpMsg']
+            exit(0)
         if results['success']:
             printOid(results['obj'])
             exit(0)
@@ -118,6 +130,9 @@ def actionList(type, data, apiEndPoint):
             exit(1)
     elif type == 'oids':
         results = SubfragiumClientLib.listTypeOids(data, apiEndPoint)
+        if data == 'help':
+            print results['helpMsg']
+            exit(0)
         if results['success']:
             printOids(results['obj'])
             exit(0)
@@ -126,6 +141,7 @@ def actionList(type, data, apiEndPoint):
             exit(1)
     else:
         print 'Bad type input: %s' % type
+        exit(1)
 
 
 def actionDelete(type, data, apiEndPoint):
@@ -174,7 +190,7 @@ if __name__ == '__main__':
     if args.action[0] == 'add':
         results = actionAdd(args.type[0], args.parameters, apiEndpoint)
         if args.parameters == 'help':
-            print results['help']
+            print results['helpMsg']
             exit(0)
         if results['success']:
             print 'OK'
@@ -185,10 +201,12 @@ if __name__ == '__main__':
             exit(1)
 
     elif args.action[0] == 'list':
-        actionList(args.type[0], args.parameters, apiEndpoint)
+        results = actionList(args.type[0], args.parameters, apiEndpoint)
 
     elif args.action[0] == 'delete':
         results = actionDelete(args.type[0], args.parameters, apiEndpoint)
+        if args.parameters == 'help':
+            print results['helpMsg']
         if results['success']:
             print 'OK'
             exit(0)
@@ -199,6 +217,8 @@ if __name__ == '__main__':
 
     elif args.action[0] == 'modify':
         results = actionModify(args.type[0], args.parameters, apiEndpoint)
+        if args.parameters == 'help':
+            print results['helpMsg']
         if results['success']:
             print 'OK'
             exit(0)
