@@ -143,13 +143,15 @@ def actionDelete(type, data, apiEndPoint):
 
 def actionModify(type, data, apiEndPoint):
     if type == 'target':
-        SubfragiumClientLib.modifyTypeTarget(data, apiEndPoint)
+        results = SubfragiumClientLib.modifyTypeTarget(data, apiEndPoint)
     elif type == 'poller':
-        SubfragiumClientLib.modifyTypePoller(data, apiEndPoint)
+        results = SubfragiumClientLib.modifyTypePoller(data, apiEndPoint)
     elif type == 'oid':
         SubfragiumClientLib.modifyTypeOid(data, apiEndPoint)
     else:
-        print 'Unsupported modification of type %s' % type
+        return {'success': False, 'err': 'Unsupported modification of type %s' % type}
+
+    return results
 
 if __name__ == '__main__':
 
@@ -196,8 +198,14 @@ if __name__ == '__main__':
             exit(1)
 
     elif args.action[0] == 'modify':
-        actionModify(args.type[0], args.parameters, apiEndpoint)
-
+        results = actionModify(args.type[0], args.parameters, apiEndpoint)
+        if results['success']:
+            print 'OK'
+            exit(0)
+        else:
+            print 'ERROR'
+            print results['err']
+            exit(1)
     else:
         print 'Bad action input'
         exit(1)

@@ -602,6 +602,262 @@ class TestControllerApi(unittest.TestCase):
         self.assertIn('success', results)
         self.assertEquals(results['success'], True)
 
+    def testModifyPollerHelp(self):
+
+        results = SubfragiumClientLib.modifyTypePoller('help', getApiEndpointSuccess)
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], True)
+        self.assertIn('helpMsg', results)
+
+    def testModifyPollerMissingName(self):
+
+        results = SubfragiumClientLib.modifyTypePoller('', getApiEndpointSuccess)
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], False)
+        self.assertIn('err', results)
+
+    def testModifyPollerBadInput(self):
+
+        inputStrings = [
+            'name=^',
+            'name=poller1,minProcesses=abc',
+            'name=poller1,maxProcesses=abc',
+            'name=poller1,numProcesses=abc',
+            'name=poller1,holdDown=abc',
+            'name=poller1,cycleTime=abc',
+            'name=poller1,storageType=^',
+            'name=poller1,storageLocation=^',
+            'name=poller1,disabled=true',
+            'name=poller1,errorThreshold=abc',
+            'name=poller1,errorHoldTime=abc',
+        ]
+
+        for inputString in inputStrings:
+            results = SubfragiumClientLib.modifyTypePoller(inputString, getApiEndpointSuccess)
+            self.assertIn('success', results, 'Failed with string' + inputString)
+            self.assertEquals(results['success'], False)
+            self.assertIn('err', results)
+
+    @mock.patch('SubfragiumClientLib.requests.put')
+    @mock.patch('SubfragiumClientLib.requests.get')
+    def testModifyPollerModifyMinProcessSuccess(self, mockRequestGetResponse, mochRequestPutResponse):
+
+        getRequestObj = requestResponse('{"response": {"success": "True", "obj": { "name": "poller1", "minProcesses": 1, "maxProcesses": 10, "numProcesses": 1, "cycleTime": 60, "holdDown": 20, "storageType": "graphite", "storageLocation": "pickle://graphite:5000", "disabled": false, "errorThreshold": 5, "errorHoldTime": 1800 } } }', 200)
+        mockRequestGetResponse.return_value = getRequestObj
+
+        putRequestObj = requestResponse('{"response": {"success": true} }', 200)
+        mochRequestPutResponse.return_value = putRequestObj
+
+        results = SubfragiumClientLib.modifyTypePoller('name=poller1,minProcesses=2', getApiEndPointUrls)
+        reqPayload = mochRequestPutResponse.call_args[1]['data']
+
+        validJson = validateJson(SubfragiumControllerSchema.Poller, json.loads(reqPayload))
+
+        # First check that API requirements were satisfied
+        self.assertEquals(validJson['success'], True)
+
+        # Now check the function returned the correct results
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], True)
+
+    @mock.patch('SubfragiumClientLib.requests.put')
+    @mock.patch('SubfragiumClientLib.requests.get')
+    def testModifyPollerModifyMaxProcessesSuccess(self, mockRequestGetResponse, mochRequestPutResponse):
+
+        getRequestObj = requestResponse('{"response": {"success": "True", "obj": { "name": "poller1", "minProcesses": 1, "maxProcesses": 10, "numProcesses": 1, "cycleTime": 60, "holdDown": 20, "storageType": "graphite", "storageLocation": "pickle://graphite:5000", "disabled": false, "errorThreshold": 5, "errorHoldTime": 1800 } } }', 200)
+        mockRequestGetResponse.return_value = getRequestObj
+
+        putRequestObj = requestResponse('{"response": {"success": true} }', 200)
+        mochRequestPutResponse.return_value = putRequestObj
+
+        results = SubfragiumClientLib.modifyTypePoller('name=poller1,maxProcesses=2', getApiEndPointUrls)
+        reqPayload = mochRequestPutResponse.call_args[1]['data']
+
+        validJson = validateJson(SubfragiumControllerSchema.Poller, json.loads(reqPayload))
+
+        # First check that API requirements were satisfied
+        self.assertEquals(validJson['success'], True)
+
+        # Now check the function returned the correct results
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], True)
+
+    @mock.patch('SubfragiumClientLib.requests.put')
+    @mock.patch('SubfragiumClientLib.requests.get')
+    def testModifyPollerModifyNumProcessesSuccess(self, mockRequestGetResponse, mochRequestPutResponse):
+
+        getRequestObj = requestResponse('{"response": {"success": "True", "obj": { "name": "poller1", "minProcesses": 1, "maxProcesses": 10, "numProcesses": 1, "cycleTime": 60, "holdDown": 20, "storageType": "graphite", "storageLocation": "pickle://graphite:5000", "disabled": false, "errorThreshold": 5, "errorHoldTime": 1800 } } }', 200)
+        mockRequestGetResponse.return_value = getRequestObj
+
+        putRequestObj = requestResponse('{"response": {"success": true} }', 200)
+        mochRequestPutResponse.return_value = putRequestObj
+
+        results = SubfragiumClientLib.modifyTypePoller('name=poller1,numProcesses=2', getApiEndPointUrls)
+        reqPayload = mochRequestPutResponse.call_args[1]['data']
+
+        validJson = validateJson(SubfragiumControllerSchema.Poller, json.loads(reqPayload))
+
+        # First check that API requirements were satisfied
+        self.assertEquals(validJson['success'], True)
+
+        # Now check the function returned the correct results
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], True)
+
+    @mock.patch('SubfragiumClientLib.requests.put')
+    @mock.patch('SubfragiumClientLib.requests.get')
+    def testModifyPollerModifyHoldDownSuccess(self, mockRequestGetResponse, mochRequestPutResponse):
+
+        getRequestObj = requestResponse('{"response": {"success": "True", "obj": { "name": "poller1", "minProcesses": 1, "maxProcesses": 10, "numProcesses": 1, "cycleTime": 60, "holdDown": 20, "storageType": "graphite", "storageLocation": "pickle://graphite:5000", "disabled": false, "errorThreshold": 5, "errorHoldTime": 1800 } } }', 200)
+        mockRequestGetResponse.return_value = getRequestObj
+
+        putRequestObj = requestResponse('{"response": {"success": true} }', 200)
+        mochRequestPutResponse.return_value = putRequestObj
+
+        results = SubfragiumClientLib.modifyTypePoller('name=poller1,numProcesses=5', getApiEndPointUrls)
+        reqPayload = mochRequestPutResponse.call_args[1]['data']
+
+        validJson = validateJson(SubfragiumControllerSchema.Poller, json.loads(reqPayload))
+
+        # First check that API requirements were satisfied
+        self.assertEquals(validJson['success'], True)
+
+        # Now check the function returned the correct results
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], True)
+
+    @mock.patch('SubfragiumClientLib.requests.put')
+    @mock.patch('SubfragiumClientLib.requests.get')
+    def testModifyPollerModifyCycleTimeSuccess(self, mockRequestGetResponse, mochRequestPutResponse):
+
+        getRequestObj = requestResponse('{"response": {"success": "True", "obj": { "name": "poller1", "minProcesses": 1, "maxProcesses": 10, "numProcesses": 1, "cycleTime": 60, "holdDown": 20, "storageType": "graphite", "storageLocation": "pickle://graphite:5000", "disabled": false, "errorThreshold": 5, "errorHoldTime": 1800 } } }', 200)
+        mockRequestGetResponse.return_value = getRequestObj
+
+        putRequestObj = requestResponse('{"response": {"success": true} }', 200)
+        mochRequestPutResponse.return_value = putRequestObj
+
+        results = SubfragiumClientLib.modifyTypePoller('name=poller1,cycleTime=30', getApiEndPointUrls)
+        reqPayload = mochRequestPutResponse.call_args[1]['data']
+
+        validJson = validateJson(SubfragiumControllerSchema.Poller, json.loads(reqPayload))
+
+        # First check that API requirements were satisfied
+        self.assertEquals(validJson['success'], True)
+
+        # Now check the function returned the correct results
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], True)
+
+    @mock.patch('SubfragiumClientLib.requests.put')
+    @mock.patch('SubfragiumClientLib.requests.get')
+    def testModifyPollerModifyStorageTypeSuccess(self, mockRequestGetResponse, mochRequestPutResponse):
+
+        getRequestObj = requestResponse('{"response": {"success": "True", "obj": { "name": "poller1", "minProcesses": 1, "maxProcesses": 10, "numProcesses": 1, "cycleTime": 60, "holdDown": 20, "storageType": "graphite", "storageLocation": "pickle://graphite:5000", "disabled": false, "errorThreshold": 5, "errorHoldTime": 1800 } } }', 200)
+        mockRequestGetResponse.return_value = getRequestObj
+
+        putRequestObj = requestResponse('{"response": {"success": true} }', 200)
+        mochRequestPutResponse.return_value = putRequestObj
+
+        results = SubfragiumClientLib.modifyTypePoller('name=poller1,storageType=graphite', getApiEndPointUrls)
+        reqPayload = mochRequestPutResponse.call_args[1]['data']
+
+        validJson = validateJson(SubfragiumControllerSchema.Poller, json.loads(reqPayload))
+
+        # First check that API requirements were satisfied
+        self.assertEquals(validJson['success'], True)
+
+        # Now check the function returned the correct results
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], True)
+
+    @mock.patch('SubfragiumClientLib.requests.put')
+    @mock.patch('SubfragiumClientLib.requests.get')
+    def testModifyPollerModifyStorageLocationSuccess(self, mockRequestGetResponse, mochRequestPutResponse):
+
+        getRequestObj = requestResponse('{"response": {"success": "True", "obj": { "name": "poller1", "minProcesses": 1, "maxProcesses": 10, "numProcesses": 1, "cycleTime": 60, "holdDown": 20, "storageType": "graphite", "storageLocation": "pickle://graphite:5000", "disabled": false, "errorThreshold": 5, "errorHoldTime": 1800 } } }', 200)
+        mockRequestGetResponse.return_value = getRequestObj
+
+        putRequestObj = requestResponse('{"response": {"success": true} }', 200)
+        mochRequestPutResponse.return_value = putRequestObj
+
+        results = SubfragiumClientLib.modifyTypePoller('name=poller1,storageLocation=pickle://graphite2:5001', getApiEndPointUrls)
+        reqPayload = mochRequestPutResponse.call_args[1]['data']
+
+        validJson = validateJson(SubfragiumControllerSchema.Poller, json.loads(reqPayload))
+
+        # First check that API requirements were satisfied
+        self.assertEquals(validJson['success'], True)
+
+        # Now check the function returned the correct results
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], True)
+
+    @mock.patch('SubfragiumClientLib.requests.put')
+    @mock.patch('SubfragiumClientLib.requests.get')
+    def testModifyPollerModifyDisabledSuccess(self, mockRequestGetResponse, mochRequestPutResponse):
+
+        getRequestObj = requestResponse('{"response": {"success": "True", "obj": { "name": "poller1", "minProcesses": 1, "maxProcesses": 10, "numProcesses": 1, "cycleTime": 60, "holdDown": 20, "storageType": "graphite", "storageLocation": "pickle://graphite:5000", "disabled": false, "errorThreshold": 5, "errorHoldTime": 1800 } } }', 200)
+        mockRequestGetResponse.return_value = getRequestObj
+
+        putRequestObj = requestResponse('{"response": {"success": true} }', 200)
+        mochRequestPutResponse.return_value = putRequestObj
+
+        results = SubfragiumClientLib.modifyTypePoller('name=poller1,disabled=True', getApiEndPointUrls)
+        reqPayload = mochRequestPutResponse.call_args[1]['data']
+
+        validJson = validateJson(SubfragiumControllerSchema.Poller, json.loads(reqPayload))
+
+        # First check that API requirements were satisfied
+        self.assertEquals(validJson['success'], True)
+
+        # Now check the function returned the correct results
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], True)
+
+    @mock.patch('SubfragiumClientLib.requests.put')
+    @mock.patch('SubfragiumClientLib.requests.get')
+    def testModifyPollerModifyErrorThresholdSuccess(self, mockRequestGetResponse, mochRequestPutResponse):
+
+        getRequestObj = requestResponse('{"response": {"success": "True", "obj": { "name": "poller1", "minProcesses": 1, "maxProcesses": 10, "numProcesses": 1, "cycleTime": 60, "holdDown": 20, "storageType": "graphite", "storageLocation": "pickle://graphite:5000", "disabled": false, "errorThreshold": 5, "errorHoldTime": 1800 } } }', 200)
+        mockRequestGetResponse.return_value = getRequestObj
+
+        putRequestObj = requestResponse('{"response": {"success": true} }', 200)
+        mochRequestPutResponse.return_value = putRequestObj
+
+        results = SubfragiumClientLib.modifyTypePoller('name=poller1,errorThreshold=10', getApiEndPointUrls)
+        reqPayload = mochRequestPutResponse.call_args[1]['data']
+
+        validJson = validateJson(SubfragiumControllerSchema.Poller, json.loads(reqPayload))
+
+        # First check that API requirements were satisfied
+        self.assertEquals(validJson['success'], True)
+
+        # Now check the function returned the correct results
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], True)
+
+    @mock.patch('SubfragiumClientLib.requests.put')
+    @mock.patch('SubfragiumClientLib.requests.get')
+    def testModifyPollerModifyErrorHoldTimeSuccess(self, mockRequestGetResponse, mochRequestPutResponse):
+
+        getRequestObj = requestResponse('{"response": {"success": "True", "obj": { "name": "poller1", "minProcesses": 1, "maxProcesses": 10, "numProcesses": 1, "cycleTime": 60, "holdDown": 20, "storageType": "graphite", "storageLocation": "pickle://graphite:5000", "disabled": false, "errorThreshold": 5, "errorHoldTime": 1800 } } }', 200)
+        mockRequestGetResponse.return_value = getRequestObj
+
+        putRequestObj = requestResponse('{"response": {"success": true} }', 200)
+        mochRequestPutResponse.return_value = putRequestObj
+
+        results = SubfragiumClientLib.modifyTypePoller('name=poller1,errorHoldTime=1800', getApiEndPointUrls)
+        reqPayload = mochRequestPutResponse.call_args[1]['data']
+
+        validJson = validateJson(SubfragiumControllerSchema.Poller, json.loads(reqPayload))
+
+        # First check that API requirements were satisfied
+        self.assertEquals(validJson['success'], True)
+
+        # Now check the function returned the correct results
+        self.assertIn('success', results)
+        self.assertEquals(results['success'], True)
+
     ##
     ## Testing OID API
     ##

@@ -382,41 +382,41 @@ def deleteTypePoller(data, apiEndPoint):
 def modifyTypePoller(data, apiEndPoint):
 
     if data == 'help':
-        print 'Parameter format must be:'
-        print '\tpython SubfragiumCli.py modify poller name={name},{minProcesses=<num>|maxProcesses=<num>|numProcesses=<num>|holdDown=<num>|cycleTime=<num>|storageType=<name>|storageLocation=<location>|disabled={True|False}|errorThreshold=<num>|errorHoldTime=<num>'
-        print
-        print '\te.g.'
-        print '\tpython SubfragiumCli.py modify poller name=poller1,minProcesses=10'
-        print '\tpython SubfragiumCli.py modify poller name=poller1,maxProcesses=50'
-        print '\tpython SubfragiumCli.py modify poller name=poller1,numProcesses=2'
-        print '\tpython SubfragiumCli.py modify poller name=poller1,holdDown=20'
-        print '\tpython SubfragiumCli.py modify poller name=poller1,cycleTime=60'
-        print '\tpython SubfragiumCli.py modify poller name=poller1,storageType=graphite'
-        print '\tpython SubfragiumCli.py modify poller name=poller1,storageType=pickle://graphite:5000'
-        print '\tpython SubfragiumCli.py modify poller name=poller1,disabled=True'
-        print '\tpython SubfragiumCli.py modify poller name=poller1,errorThreshold=4'
-        print '\tpython SubfragiumCli.py modify poller name=poller1,errorHoldTime=1800'
-        exit(0)
+        helpMsg = 'Parameter format must be:\n'
+        helpMsg += '\tpython SubfragiumCli.py modify poller name={name},{minProcesses=<num>|maxProcesses=<num>|numProcesses=<num>|holdDown=<num>|cycleTime=<num>|storageType=<name>|storageLocation=<location>|disabled={True|False}|errorThreshold=<num>|errorHoldTime=<num>\n'
+        helpMsg += '\n'
+        helpMsg += '\te.g.\n'
+        helpMsg += '\tpython SubfragiumCli.py modify poller name=poller1,minProcesses=10\n'
+        helpMsg += '\tpython SubfragiumCli.py modify poller name=poller1,maxProcesses=50\n'
+        helpMsg += '\tpython SubfragiumCli.py modify poller name=poller1,numProcesses=2\n'
+        helpMsg += '\tpython SubfragiumCli.py modify poller name=poller1,holdDown=20\n'
+        helpMsg += '\tpython SubfragiumCli.py modify poller name=poller1,cycleTime=60\n'
+        helpMsg += '\tpython SubfragiumCli.py modify poller name=poller1,storageType=graphite\n'
+        helpMsg += '\tpython SubfragiumCli.py modify poller name=poller1,storageType=pickle://graphite:5000\n'
+        helpMsg += '\tpython SubfragiumCli.py modify poller name=poller1,disabled=True\n'
+        helpMsg += '\tpython SubfragiumCli.py modify poller name=poller1,errorThreshold=4\n'
+        helpMsg += '\tpython SubfragiumCli.py modify poller name=poller1,errorHoldTime=1800\n'
+        return {'success': True, 'helpMsg': helpMsg}
 
     validInput = '^(name=([\w\.]+)),(minProcesses=\d+|maxProcesses=\d+|numProcesses=\d+|holdDown=\d+|cycleTime=\d+|storageType=\w+|storageLocation=[\w\.\:\/]+|disabled=(True|False)|errorThreshold=\d+|errorHoldTime=\d+)$'
     reValidator = re.compile(validInput)
     validatedInput = reValidator.match(data)
     if validatedInput is None:
-        print 'Error - Parameter format must be:'
-        print '\tpython SubfragiumCli.py modify poller name={name},{minProcesses=<num>|maxProcesses=<num>|numProcesses=<num>|holdDown=<num>|cycleTime=<num>|storageType=<name>|storageLocation=<location>|disabled={True|False}|errorThreshold=<num>|errorHoldTime=<num>'
-        print
-        print '\te.g.'
-        print '\tpython SubfragiumCli.py modify poller name=poller1,minProcesses=10'
-        print '\tpython SubfragiumCli.py modify poller name=poller1,maxProcesses=50'
-        print '\tpython SubfragiumCli.py modify poller name=poller1,numProcesses=2'
-        print '\tpython SubfragiumCli.py modify poller name=poller1,holdDown=20'
-        print '\tpython SubfragiumCli.py modify poller name=poller1,cycleTime=60'
-        print '\tpython SubfragiumCli.py modify poller name=poller1,storageType=graphite'
-        print '\tpython SubfragiumCli.py modify poller name=poller1,storageType=pickle://graphite:5000'
-        print '\tpython SubfragiumCli.py modify poller name=poller1,errorThreshold=4'
-        print '\tpython SubfragiumCli.py modify poller name=poller1,errorHoldTime=1800'
-        print '\tpython SubfragiumCli.py modify poller name=poller1,disabled=True'
-        exit(1)
+        errorMsg = 'Error - Parameter format must be:\n'
+        errorMsg += '\tpython SubfragiumCli.py modify poller name={name},{minProcesses=<num>|maxProcesses=<num>|numProcesses=<num>|holdDown=<num>|cycleTime=<num>|storageType=<name>|storageLocation=<location>|disabled={True|False}|errorThreshold=<num>|errorHoldTime=<num>\n'
+        errorMsg += '\n'
+        errorMsg += '\te.g.\n'
+        errorMsg += '\tpython SubfragiumCli.py modify poller name=poller1,minProcesses=10\n'
+        errorMsg += '\tpython SubfragiumCli.py modify poller name=poller1,maxProcesses=50\n'
+        errorMsg += '\tpython SubfragiumCli.py modify poller name=poller1,numProcesses=2\n'
+        errorMsg += '\tpython SubfragiumCli.py modify poller name=poller1,holdDown=20\n'
+        errorMsg += '\tpython SubfragiumCli.py modify poller name=poller1,cycleTime=60\n'
+        errorMsg += '\tpython SubfragiumCli.py modify poller name=poller1,storageType=graphite\n'
+        errorMsg += '\tpython SubfragiumCli.py modify poller name=poller1,storageType=pickle://graphite:5000\n'
+        errorMsg += '\tpython SubfragiumCli.py modify poller name=poller1,errorThreshold=4\n'
+        errorMsg += '\tpython SubfragiumCli.py modify poller name=poller1,errorHoldTime=1800\n'
+        errorMsg += '\tpython SubfragiumCli.py modify poller name=poller1,disabled=True\n'
+        return {'success': False, 'err': errorMsg}
 
     (field, value) = validatedInput.group(3).split('=')
 
@@ -425,25 +425,20 @@ def modifyTypePoller(data, apiEndPoint):
     r = requests.get(apiCall)
     rJson = json.loads(r.text)
     if 'response' not in rJson:
-        print 'Error: Unknown response %s' % r.text
-        exit(1)
+        return {'success': False, 'err': 'Error: Unknown response %s' % r.text}
 
     if 'success' not in rJson['response']:
-        print 'Error: Bad response %s' % rJson['response']
-        exit(1)
+        return {'success': False, 'err': 'Error: Bad response %s' % rJson['response']}
 
     if not rJson['response']['success']:
-        print 'Error: Failed %s' % rJson['response']['err']
-        exit(1)
+        return {'success': False, 'err': 'Error: Failed %s' % rJson['response']['err']}
 
     modifiedPoller = rJson['response']['obj']
     del(modifiedPoller['name'])
 
     if field == 'disabled' and value == 'True':
-        print 'Setting Disabled to True'
         modifiedPoller[field] = True
     elif field == 'disabled' and value == 'False':
-        print 'Setting Disabled to False'
         modifiedPoller[field] = False
     elif field != 'storageType' and field != 'storageLocation':
         modifiedPoller[field] = int(value)
@@ -458,19 +453,17 @@ def modifyTypePoller(data, apiEndPoint):
     headers = {'content-type': 'application/json'}
     r = requests.put(apiCall, data=jsonStr, headers=headers)
     if r.status_code != 200:
-        print 'Error: %s' % r.text
-        exit(1)
+        return {'success': False, 'err': 'Error: %s' % r.text}
 
     rJson = json.loads(r.text)
 
     if 'response' in rJson:
         if 'success' in rJson['response'] and rJson['response']['success']:
-            print 'OK'
+            return {'success': True}
         else:
-            print 'Error: %s' % rJson['response']['err']
+            return {'success': False, 'err': 'Error: %s' % rJson['response']['err']}
     else:
-        print 'Error: Unknown response %s' % r.text
-
+        return {'success': False, 'err': 'Error: Unknown response %s' % r.text}
 
 def addTypeOid(data, apiEndPoint):
 

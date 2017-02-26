@@ -26,6 +26,9 @@ TODO
 - Add more validation of HTTP failures in testSubfragiumClientLib.py
 - Fix printing of help for list pollers, list oid, list target
 - Timeout parameter of oid is not returned from GET /oid like it is in GET /oids
+- Remove redundant code from testSubfragiumClientLib.py
+    - Loop over bad fields
+    - Loop over missing fields
 
 COMPLETE
 --------
