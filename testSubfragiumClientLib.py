@@ -73,7 +73,7 @@ class TestControllerApi(unittest.TestCase):
         results = SubfragiumClientLib.addTypeTarget('help', getApiEndpointSuccess)
         self.assertIn('success', results)
         self.assertEquals(results['success'], True)
-        self.assertIn('help', results)
+        self.assertIn('helpMsg', results)
 
     def testAddTargetMissingName(self):
 
@@ -321,7 +321,7 @@ class TestControllerApi(unittest.TestCase):
         results = SubfragiumClientLib.addTypePoller('help', getApiEndpointSuccess)
         self.assertIn('success', results)
         self.assertEquals(results['success'], True)
-        self.assertIn('help', results)
+        self.assertIn('helpMsg', results)
 
     def testAddPollerMissingName(self):
 
@@ -867,7 +867,7 @@ class TestControllerApi(unittest.TestCase):
         results = SubfragiumClientLib.addTypeOid('help', getApiEndpointSuccess)
         self.assertIn('success', results)
         self.assertEquals(results['success'], True)
-        self.assertIn('help', results)
+        self.assertIn('helpMsg', results)
 
     def testAddOidMissingTarget(self):
 
