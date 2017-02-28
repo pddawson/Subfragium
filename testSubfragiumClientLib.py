@@ -6,7 +6,7 @@ import json
 
 import SubfragiumClientLib
 
-getApiEndpointSuccess = {
+getApiEndPointUrls = {
   "response": {
     "obj": {
       "index": "/",
@@ -70,14 +70,14 @@ class TestControllerApi(unittest.TestCase):
 
     def testAddTargetHelp(self):
 
-        results = SubfragiumClientLib.addTypeTarget('help', getApiEndpointSuccess)
+        results = SubfragiumClientLib.addTypeTarget('help', getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], True)
         self.assertIn('helpMsg', results)
 
     def testAddTargetMissingName(self):
 
-        results = SubfragiumClientLib.addTypeTarget('', getApiEndpointSuccess)
+        results = SubfragiumClientLib.addTypeTarget('', getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], False)
         self.assertIn('err', results)
@@ -85,7 +85,7 @@ class TestControllerApi(unittest.TestCase):
     def testAddTargetMissingSnmpString(self):
 
         inputString = 'name=' + poller1
-        results = SubfragiumClientLib.addTypeTarget(inputString, getApiEndpointSuccess)
+        results = SubfragiumClientLib.addTypeTarget(inputString, getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], False)
         self.assertIn('err', results)
@@ -94,7 +94,7 @@ class TestControllerApi(unittest.TestCase):
 
         inputString = 'name=' + poller1
         inputString += 'snmpString=' + poller1Data['snmpString']
-        results = SubfragiumClientLib.addTypeTarget(inputString, getApiEndpointSuccess)
+        results = SubfragiumClientLib.addTypeTarget(inputString, getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], False)
         self.assertIn('err', results)
@@ -104,7 +104,7 @@ class TestControllerApi(unittest.TestCase):
         inputString = 'name=' + '\n'
         inputString += 'snmpString=' + poller1Data['snmpString']
         inputString += 'timeout=' + poller1Data['timeout']
-        results = SubfragiumClientLib.addTypeTarget('name=\n,snmpString=eur', getApiEndpointSuccess)
+        results = SubfragiumClientLib.addTypeTarget('name=\n,snmpString=eur', getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], False)
         self.assertIn('err', results)
@@ -114,7 +114,7 @@ class TestControllerApi(unittest.TestCase):
         inputString = 'name=' + poller1
         inputString += 'snmpString=' + '\n'
         inputString += 'timeout=' + poller1Data['timeout']
-        results = SubfragiumClientLib.addTypeTarget('name=poller1,snmpString=\n', getApiEndpointSuccess)
+        results = SubfragiumClientLib.addTypeTarget('name=poller1,snmpString=\n', getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], False)
         self.assertIn('err', results)
@@ -124,7 +124,7 @@ class TestControllerApi(unittest.TestCase):
         inputString = 'name=' + poller1
         inputString += 'snmpString=' + poller1Data['snmpString']
         inputString += 'timeout=' + 'abc'
-        results = SubfragiumClientLib.addTypeTarget('name=poller1,snmpString=eur,timeout=abc', getApiEndpointSuccess)
+        results = SubfragiumClientLib.addTypeTarget('name=poller1,snmpString=eur,timeout=abc', getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], False)
         self.assertIn('err', results)
@@ -150,7 +150,7 @@ class TestControllerApi(unittest.TestCase):
 
     def testListTargetsHelp(self):
 
-        results = SubfragiumClientLib.listTypeTargets('help', getApiEndpointSuccess)
+        results = SubfragiumClientLib.listTypeTargets('help', getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], True)
         self.assertIn('helpMsg', results)
@@ -169,21 +169,21 @@ class TestControllerApi(unittest.TestCase):
 
     def testListTargetHelp(self):
 
-        results = SubfragiumClientLib.listTypeTarget('help', getApiEndpointSuccess)
+        results = SubfragiumClientLib.listTypeTarget('help', getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], True)
         self.assertIn('helpMsg', results)
 
     def testListTargetMissingName(self):
 
-        results = SubfragiumClientLib.listTypeTarget('', getApiEndpointSuccess)
+        results = SubfragiumClientLib.listTypeTarget('', getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], False)
         self.assertIn('err', results)
 
     def testListTargetBadName(self):
 
-        results = SubfragiumClientLib.listTypeTarget('name=^', getApiEndpointSuccess)
+        results = SubfragiumClientLib.listTypeTarget('name=^', getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], False)
         self.assertIn('err', results)
@@ -202,21 +202,21 @@ class TestControllerApi(unittest.TestCase):
 
     def testDeleteTargetHelp(self):
 
-        results = SubfragiumClientLib.deleteTypeTarget('help', getApiEndpointSuccess)
+        results = SubfragiumClientLib.deleteTypeTarget('help', getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], True)
         self.assertIn('helpMsg', results)
 
     def testDeleteTargetMissingName(self):
 
-        results = SubfragiumClientLib.deleteTypeTarget('', getApiEndpointSuccess)
+        results = SubfragiumClientLib.deleteTypeTarget('', getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], False)
         self.assertIn('err', results)
 
     def testDeleteTargetBadname(self):
 
-        results = SubfragiumClientLib.deleteTypeTarget('name=^', getApiEndpointSuccess)
+        results = SubfragiumClientLib.deleteTypeTarget('name=^', getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], False)
         self.assertIn('err', results)
@@ -235,35 +235,35 @@ class TestControllerApi(unittest.TestCase):
 
     def testModifyTargetHelp(self):
 
-        results = SubfragiumClientLib.modifyTypeTarget('help', getApiEndpointSuccess)
+        results = SubfragiumClientLib.modifyTypeTarget('help', getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], True)
         self.assertIn('helpMsg', results)
 
     def testModifyTargetMissingAttribute(self):
 
-        results = SubfragiumClientLib.modifyTypeTarget('', getApiEndpointSuccess)
+        results = SubfragiumClientLib.modifyTypeTarget('', getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], False)
         self.assertIn('err', results)
 
     def testModifyTargetBadName(self):
 
-        results = SubfragiumClientLib.modifyTypeTarget('name=^', getApiEndpointSuccess)
+        results = SubfragiumClientLib.modifyTypeTarget('name=^', getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], False)
         self.assertIn('err', results)
 
     def testModifyTargetBadSnmpString(self):
 
-        results = SubfragiumClientLib.modifyTypeTarget('name=123.123.1.10,snmpString=^', getApiEndpointSuccess)
+        results = SubfragiumClientLib.modifyTypeTarget('name=123.123.1.10,snmpString=^', getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], False)
         self.assertIn('err', results)
 
     def testModifyTargetBadTimeout(self):
 
-        results = SubfragiumClientLib.modifyTypeTarget('name=123.123.1.10,timeout=abc', getApiEndpointSuccess)
+        results = SubfragiumClientLib.modifyTypeTarget('name=123.123.1.10,timeout=abc', getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], False)
         self.assertIn('err', results)
@@ -318,14 +318,14 @@ class TestControllerApi(unittest.TestCase):
 
     def testAddPollerHelp(self):
 
-        results = SubfragiumClientLib.addTypePoller('help', getApiEndpointSuccess)
+        results = SubfragiumClientLib.addTypePoller('help', getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], True)
         self.assertIn('helpMsg', results)
 
     def testAddPollerMissingName(self):
 
-        results = SubfragiumClientLib.addTypePoller('', getApiEndpointSuccess)
+        results = SubfragiumClientLib.addTypePoller('', getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], False)
         self.assertIn('err', results)
@@ -333,7 +333,7 @@ class TestControllerApi(unittest.TestCase):
     def testAddPollerMissingMinProcesses(self):
 
         inputString = 'name=poller1'
-        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndpointSuccess)
+        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], False)
         self.assertIn('err', results)
@@ -341,7 +341,7 @@ class TestControllerApi(unittest.TestCase):
     def testAddPollerMissingMaxProcesses(self):
 
         inputString = 'name=poller1,minProcesses=1'
-        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndpointSuccess)
+        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], False)
         self.assertIn('err', results)
@@ -349,7 +349,7 @@ class TestControllerApi(unittest.TestCase):
     def testAddPollerMissingNumProcesses(self):
 
         inputString = 'name=poller1,minProcesses=1,maxProcesses=10'
-        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndpointSuccess)
+        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], False)
         self.assertIn('err', results)
@@ -357,7 +357,7 @@ class TestControllerApi(unittest.TestCase):
     def testAddPollerMissingHoldTime(self):
 
         inputString = 'name=poller1,minProcesses=1,maxProcesses=10,NumProcesses=1'
-        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndpointSuccess)
+        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], False)
         self.assertIn('err', results)
@@ -365,7 +365,7 @@ class TestControllerApi(unittest.TestCase):
     def testAddPollerMissingCycleTime(self):
 
         inputString = 'name=poller1,minProcesses=1,maxProcesses=10,NumProcesses=1,holdDown=20'
-        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndpointSuccess)
+        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], False)
         self.assertIn('err', results)
@@ -373,7 +373,7 @@ class TestControllerApi(unittest.TestCase):
     def testAddPollerMissingStorageType(self):
 
         inputString = 'name=poller1,minProcesses=1,maxProcesses=10,numProcesses=1,holdDown=20,cycleTime=60'
-        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndpointSuccess)
+        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], False)
         self.assertIn('err', results)
@@ -381,7 +381,7 @@ class TestControllerApi(unittest.TestCase):
     def testAddPollerMissingStorageLocation(self):
 
         inputString = 'name=poller1,minProcesses=1,maxProcesses=10,numProcesses=1,holdDown=20,cycleTime=60,storageType=graphite'
-        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndpointSuccess)
+        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], False)
         self.assertIn('err', results)
@@ -389,7 +389,7 @@ class TestControllerApi(unittest.TestCase):
     def testAddPollerMissingDisabled(self):
 
         inputString = 'name=poller1,minProcesses=1,maxProcesses=10,numProcesses=1,holdDown=20,cycleTime=60,storageType=graphite,storageLocation=pickle://123.123.1.10:5000'
-        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndpointSuccess)
+        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], False)
         self.assertIn('err', results)
@@ -397,7 +397,7 @@ class TestControllerApi(unittest.TestCase):
     def testAddPollerMissingErrorThreshold(self):
 
         inputString = 'name=poller1,minProcesses=1,maxProcesses=10,numProcesses=1,holdDown=20,cycleTime=60,storageType=graphite,storageLocation=pickle://123.123.1.10:5000,disabled=False'
-        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndpointSuccess)
+        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], False)
         self.assertIn('err', results)
@@ -405,7 +405,7 @@ class TestControllerApi(unittest.TestCase):
     def testAddPollerMissingErrorHoldTime(self):
 
         inputString = 'name=poller1,minProcesses=1,maxProcesses=10,numProcesses=1,holdDown=20,cycleTime=60,storageType=graphite,storageLocation=pickle://123.123.1.10:5000,disabled=False,errorThreshold=4'
-        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndpointSuccess)
+        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], False)
         self.assertIn('err', results)
@@ -413,7 +413,7 @@ class TestControllerApi(unittest.TestCase):
     def testAddPollerBadName(self):
 
         inputString = 'name=abc>234,minProcesses=1,maxProcesses=10,numProcesses=1,holdDown=20,cycleTime=60,storageType=graphite,storageLocation=pickle://123.123.1.10:5000,disabled=False,errorThreshold=4,errorHoldTime=1800'
-        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndpointSuccess)
+        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], False)
         self.assertIn('err', results)
@@ -421,7 +421,7 @@ class TestControllerApi(unittest.TestCase):
     def testAddPollerBadMinProcesses(self):
 
         inputString = 'name=poller1,minProcesses=a,maxProcesses=10,numProcesses=1,holdDown=20,cycleTime=60,storageType=graphite,storageLocation=pickle://123.123.1.10:5000,disabled=False,errorThreshold=4,errorHoldTime=1800'
-        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndpointSuccess)
+        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], False)
         self.assertIn('err', results)
@@ -429,7 +429,7 @@ class TestControllerApi(unittest.TestCase):
     def testAddPollerBadMaxProcesses(self):
 
         inputString = 'name=poller1,minProcesses=1,maxProcesses=a,numProcesses=1,holdDown=20,cycleTime=60,storageType=graphite,storageLocation=pickle://123.123.1.10:5000,disabled=False,errorThreshold=4,errorHoldTime=1800'
-        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndpointSuccess)
+        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], False)
         self.assertIn('err', results)
@@ -437,7 +437,7 @@ class TestControllerApi(unittest.TestCase):
     def testAddPollerBadNumProcesses(self):
 
         inputString = 'name=poller1,minProcesses=1,maxProcesses=10,numProcesses=a,holdDown=20,cycleTime=60,storageType=graphite,storageLocation=pickle://123.123.1.10:5000,disabled=False,errorThreshold=4,errorHoldTime=1800'
-        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndpointSuccess)
+        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], False)
         self.assertIn('err', results)
@@ -445,7 +445,7 @@ class TestControllerApi(unittest.TestCase):
     def testAddPollerBadHoldDown(self):
 
         inputString = 'name=poller1,minProcesses=1,maxProcesses=10,numProcesses=1,holdDown=a,cycleTime=60,storageType=graphite,storageLocation=pickle://123.123.1.10:5000,disabled=False,errorThreshold=4,errorHoldTime=1800'
-        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndpointSuccess)
+        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], False)
         self.assertIn('err', results)
@@ -453,7 +453,7 @@ class TestControllerApi(unittest.TestCase):
     def testAddPollerBadCycleTime(self):
 
         inputString = 'name=poller1,minProcesses=1,maxProcesses=10,numProcesses=1,holdDown=2,cycleTime=a,storageType=graphite,storageLocation=pickle://123.123.1.10:5000,disabled=False,errorThreshold=4,errorHoldTime=1800'
-        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndpointSuccess)
+        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], False)
         self.assertIn('err', results)
@@ -461,7 +461,7 @@ class TestControllerApi(unittest.TestCase):
     def testAddPollerBadStorageType(self):
 
         inputString = 'name=poller1,minProcesses=1,maxProcesses=10,numProcesses=1,holdDown=2,cycleTime=60,storageType=(,storageLocation=pickle://123.123.1.10:5000,disabled=False,errorThreshold=4,errorHoldTime=1800'
-        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndpointSuccess)
+        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], False)
         self.assertIn('err', results)
@@ -469,7 +469,7 @@ class TestControllerApi(unittest.TestCase):
     def testAddPollerBadStorageLocation(self):
 
         inputString = 'name=poller1,minProcesses=1,maxProcesses=10,numProcesses=1,holdDown=2,cycleTime=60,storageType=graphite,storageLocation=pickle:,disabled=False,errorThreshold=4,errorHoldTime=1800'
-        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndpointSuccess)
+        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], False)
         self.assertIn('err', results)
@@ -477,7 +477,7 @@ class TestControllerApi(unittest.TestCase):
     def testAddPollerBadDisabledStatus(self):
 
         inputString = 'name=poller1,minProcesses=1,maxProcesses=10,numProcesses=1,holdDown=2,cycleTime=60,storageType=graphite,storageLocation=pickle://123.123.1.10:5000,disabled=yes,errorThreshold=4,errorHoldTime=1800'
-        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndpointSuccess)
+        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], False)
         self.assertIn('err', results)
@@ -485,7 +485,7 @@ class TestControllerApi(unittest.TestCase):
     def testAddPollerBadErrorThreshold(self):
 
         inputString = 'name=poller1,minProcesses=1,maxProcesses=10,numProcesses=1,holdDown=2,cycleTime=60,storageType=graphite,storageLocation=pickle://123.123.1.10:5000,disabled=False,errorThreshold=a,errorHoldTime=1800'
-        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndpointSuccess)
+        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], False)
         self.assertIn('err', results)
@@ -493,7 +493,7 @@ class TestControllerApi(unittest.TestCase):
     def testAddPollerBadErrorHoldTime(self):
 
         inputString = 'name=poller1,minProcesses=1,maxProcesses=10,numProcesses=1,holdDown=2,cycleTime=60,storageType=graphite,storageLocation=pickle://123.123.1.10:5000,disabled=False,errorThreshold=3,errorHoldTime=abc'
-        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndpointSuccess)
+        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], False)
         self.assertIn('err', results)
@@ -519,7 +519,7 @@ class TestControllerApi(unittest.TestCase):
 
     def testListPollersHelp(self):
 
-        results = SubfragiumClientLib.listTypePollers('help', getApiEndpointSuccess)
+        results = SubfragiumClientLib.listTypePollers('help', getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], True)
         self.assertIn('helpMsg', results)
@@ -538,21 +538,21 @@ class TestControllerApi(unittest.TestCase):
 
     def testListPollerHelp(self):
 
-        results = SubfragiumClientLib.listTypePoller('help', getApiEndpointSuccess)
+        results = SubfragiumClientLib.listTypePoller('help', getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], True)
         self.assertIn('helpMsg', results)
 
     def testListPollerNoName(self):
 
-        results = SubfragiumClientLib.listTypePoller('', getApiEndpointSuccess)
+        results = SubfragiumClientLib.listTypePoller('', getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], False)
         self.assertIn('err', results)
 
     def testListPollerBadName(self):
 
-        results = SubfragiumClientLib.listTypePoller('name=^', getApiEndpointSuccess)
+        results = SubfragiumClientLib.listTypePoller('name=^', getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], False)
         self.assertIn('err', results)
@@ -571,21 +571,21 @@ class TestControllerApi(unittest.TestCase):
 
     def testDeletePollerHelp(self):
 
-        results = SubfragiumClientLib.deleteTypePoller('help', getApiEndpointSuccess)
+        results = SubfragiumClientLib.deleteTypePoller('help', getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], True)
         self.assertIn('helpMsg', results)
 
     def testDeletePollerMissingName(self):
 
-        results = SubfragiumClientLib.deleteTypePoller('', getApiEndpointSuccess)
+        results = SubfragiumClientLib.deleteTypePoller('', getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], False)
         self.assertIn('err', results)
 
     def testDeletePollerBadname(self):
 
-        results = SubfragiumClientLib.deleteTypePoller('name=^', getApiEndpointSuccess)
+        results = SubfragiumClientLib.deleteTypePoller('name=^', getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], False)
         self.assertIn('err', results)
@@ -604,14 +604,14 @@ class TestControllerApi(unittest.TestCase):
 
     def testModifyPollerHelp(self):
 
-        results = SubfragiumClientLib.modifyTypePoller('help', getApiEndpointSuccess)
+        results = SubfragiumClientLib.modifyTypePoller('help', getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], True)
         self.assertIn('helpMsg', results)
 
     def testModifyPollerMissingName(self):
 
-        results = SubfragiumClientLib.modifyTypePoller('', getApiEndpointSuccess)
+        results = SubfragiumClientLib.modifyTypePoller('', getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], False)
         self.assertIn('err', results)
@@ -633,7 +633,7 @@ class TestControllerApi(unittest.TestCase):
         ]
 
         for inputString in inputStrings:
-            results = SubfragiumClientLib.modifyTypePoller(inputString, getApiEndpointSuccess)
+            results = SubfragiumClientLib.modifyTypePoller(inputString, getApiEndPointUrls)
             self.assertIn('success', results, 'Failed with string' + inputString)
             self.assertEquals(results['success'], False)
             self.assertIn('err', results)
@@ -864,14 +864,14 @@ class TestControllerApi(unittest.TestCase):
 
     def testAddOidHelp(self):
 
-        results = SubfragiumClientLib.addTypeOid('help', getApiEndpointSuccess)
+        results = SubfragiumClientLib.addTypeOid('help', getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], True)
         self.assertIn('helpMsg', results)
 
     def testAddOidMissingTarget(self):
 
-        results = SubfragiumClientLib.addTypeOid('', getApiEndpointSuccess)
+        results = SubfragiumClientLib.addTypeOid('', getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], False)
         self.assertIn('err', results)
@@ -879,7 +879,7 @@ class TestControllerApi(unittest.TestCase):
     def testAddOidMissingOid(self):
 
         inputString = 'target=123.123.10.1'
-        results = SubfragiumClientLib.addTypeOid(inputString, getApiEndpointSuccess)
+        results = SubfragiumClientLib.addTypeOid(inputString, getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], False)
         self.assertIn('err', results)
@@ -887,7 +887,7 @@ class TestControllerApi(unittest.TestCase):
     def testAddOidMissingPoller(self):
 
         inputString = 'target=123.123.10.1,oid=1.3.6.1.2'
-        results = SubfragiumClientLib.addTypeOid(inputString, getApiEndpointSuccess)
+        results = SubfragiumClientLib.addTypeOid(inputString, getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], False)
         self.assertIn('err', results)
@@ -895,7 +895,7 @@ class TestControllerApi(unittest.TestCase):
     def testAddOidMissingName(self):
 
         inputString = 'target=123.123.10.1,oid=1.3.6.1.2,poller=poller1'
-        results = SubfragiumClientLib.addTypeOid(inputString, getApiEndpointSuccess)
+        results = SubfragiumClientLib.addTypeOid(inputString, getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], False)
         self.assertIn('err', results)
@@ -903,7 +903,7 @@ class TestControllerApi(unittest.TestCase):
     def testAddOidMissingEnabled(self):
 
         inputString = 'target=123.123.10.1,oid=1.3.6.1.2,poller=poller1,name=TestOid1'
-        results = SubfragiumClientLib.addTypeOid(inputString, getApiEndpointSuccess)
+        results = SubfragiumClientLib.addTypeOid(inputString, getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], False)
         self.assertIn('err', results)
@@ -911,7 +911,7 @@ class TestControllerApi(unittest.TestCase):
     def testAddOidBadTarget(self):
 
         inputString = 'target=abc,oid=1.3.6.1.2,poller=poller1,name=TestOid1'
-        results = SubfragiumClientLib.addTypeOid(inputString, getApiEndpointSuccess)
+        results = SubfragiumClientLib.addTypeOid(inputString, getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], False)
         self.assertIn('err', results)
@@ -919,7 +919,7 @@ class TestControllerApi(unittest.TestCase):
     def testAddOidBadOid(self):
 
         inputString = 'target=123.123.1.10,oid=abc,poller=poller1,name=TestOid1'
-        results = SubfragiumClientLib.addTypeOid(inputString, getApiEndpointSuccess)
+        results = SubfragiumClientLib.addTypeOid(inputString, getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], False)
         self.assertIn('err', results)
@@ -927,7 +927,7 @@ class TestControllerApi(unittest.TestCase):
     def testAddOidBadPoller(self):
 
         inputString = 'target=123.123.1.10,oid=1.3.6.1,poller=^,name=TestOid1'
-        results = SubfragiumClientLib.addTypeOid(inputString, getApiEndpointSuccess)
+        results = SubfragiumClientLib.addTypeOid(inputString, getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], False)
         self.assertIn('err', results)
@@ -935,7 +935,7 @@ class TestControllerApi(unittest.TestCase):
     def testAddOidBadName(self):
 
         inputString = 'target=123.123.1.10,oid=1.3.6.1,poller=poller1,name=^'
-        results = SubfragiumClientLib.addTypeOid(inputString, getApiEndpointSuccess)
+        results = SubfragiumClientLib.addTypeOid(inputString, getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], False)
         self.assertIn('err', results)
@@ -943,7 +943,7 @@ class TestControllerApi(unittest.TestCase):
     def testAddOidBadEnabled(self):
 
         inputString = 'target=123.123.1.10,oid=1.3.6.1,poller=poller1,name=TestOid1,enabled=Yes'
-        results = SubfragiumClientLib.addTypeOid(inputString, getApiEndpointSuccess)
+        results = SubfragiumClientLib.addTypeOid(inputString, getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], False)
         self.assertIn('err', results)
@@ -969,7 +969,7 @@ class TestControllerApi(unittest.TestCase):
 
     def testListOidsHelp(self):
 
-        results = SubfragiumClientLib.listTypeOids('help', getApiEndpointSuccess)
+        results = SubfragiumClientLib.listTypeOids('help', getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], True)
         self.assertIn('helpMsg', results)
@@ -988,21 +988,21 @@ class TestControllerApi(unittest.TestCase):
 
     def testListOidHelp(self):
 
-        results = SubfragiumClientLib.listTypeOid('help', getApiEndpointSuccess)
+        results = SubfragiumClientLib.listTypeOid('help', getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], True)
         self.assertIn('helpMsg', results)
 
     def testListOidMissingTarget(self):
 
-        results = SubfragiumClientLib.listTypeOid('', getApiEndpointSuccess)
+        results = SubfragiumClientLib.listTypeOid('', getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], False)
         self.assertIn('err', results)
 
     def testListOidMissingOid(self):
 
-        results = SubfragiumClientLib.listTypeOid('target=123.123.1.10', getApiEndpointSuccess)
+        results = SubfragiumClientLib.listTypeOid('target=123.123.1.10', getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], False)
         self.assertIn('err', results)
@@ -1021,35 +1021,35 @@ class TestControllerApi(unittest.TestCase):
 
     def testDeleteOidHelp(self):
 
-        results = SubfragiumClientLib.deleteTypeOid('help', getApiEndpointSuccess)
+        results = SubfragiumClientLib.deleteTypeOid('help', getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], True)
         self.assertIn('helpMsg', results)
 
     def testDeleteOidMissingTarget(self):
 
-        results = SubfragiumClientLib.deleteTypeOid('', getApiEndpointSuccess)
+        results = SubfragiumClientLib.deleteTypeOid('', getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], False)
         self.assertIn('err', results)
 
     def testDeleteOidMissingOid(self):
 
-        results = SubfragiumClientLib.deleteTypeOid('target=123.123.1.10', getApiEndpointSuccess)
+        results = SubfragiumClientLib.deleteTypeOid('target=123.123.1.10', getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], False)
         self.assertIn('err', results)
 
     def testDeleteOidBadTarget(self):
 
-        results = SubfragiumClientLib.deleteTypeOid('target=^,oid=1.3.6.1.2', getApiEndpointSuccess)
+        results = SubfragiumClientLib.deleteTypeOid('target=^,oid=1.3.6.1.2', getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], False)
         self.assertIn('err', results)
 
     def testDeleteOidBadOid(self):
 
-        results = SubfragiumClientLib.deleteTypeOid('target=123.123.1.10,oid=abc', getApiEndpointSuccess)
+        results = SubfragiumClientLib.deleteTypeOid('target=123.123.1.10,oid=abc', getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], False)
         self.assertIn('err', results)
@@ -1068,7 +1068,7 @@ class TestControllerApi(unittest.TestCase):
 
     def testModifyOidHelp(self):
 
-        results = SubfragiumClientLib.listTypeOid('help', getApiEndpointSuccess)
+        results = SubfragiumClientLib.listTypeOid('help', getApiEndPointUrls)
         self.assertIn('success', results)
         self.assertEquals(results['success'], True)
         self.assertIn('helpMsg', results)
@@ -1085,7 +1085,7 @@ class TestControllerApi(unittest.TestCase):
         ]
 
         for inputString in inputStrings:
-            results = SubfragiumClientLib.modifyTypeOid(inputString, getApiEndpointSuccess)
+            results = SubfragiumClientLib.modifyTypeOid(inputString, getApiEndPointUrls)
             self.assertIn('success', results, 'Failed for input string ' + inputString)
             self.assertEquals(results['success'], False)
             self.assertIn('err', results, 'Failed for input string ' + inputString)
