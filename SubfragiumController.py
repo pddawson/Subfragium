@@ -184,7 +184,19 @@ def putPoller(name, data):
     results = SubfragiumUtilsLib.validateJson(SubfragiumControllerSchema.Poller, data)
     if not results['success']:
         app.logger.info('putPoller() - Failure: %s' % results['err'])
-        return {'success': False, 'code': 404, 'err': r'putPoller() - Failure: %s' % results['err']}
+        return {'success': False, 'code': 404, 'err': 'putPoller() - Failure: %s' % results['err']}
+
+    # Check that the maxProcesses is greater than the minProcesses
+    if data['maxProcesses'] < data['minProcesses']:
+        return {'success': False, 'code': 404, 'err': 'putPoller() - minProcesses must be less than maxProcesses'}
+
+    # Check that the numProcesses is not less than the minProcesses
+    if data['numProcesses'] < data['minProcesses']:
+        return {'success': False, 'code': 404, 'err': 'putPoller() - numProcesses must be greater than minProcesses'}
+
+    # Check that the numProcesses is not greater than the maxProcesses
+    if data['numProcesses'] > data['maxProcesses']:
+        return {'success': False, 'code': 404, 'err': 'putPoller() - numProcesses must be less than maxProcesses'}
 
     existingPoller = SubfragiumDBLib.getPollerByName({'name': name})
     if not existingPoller['success']:

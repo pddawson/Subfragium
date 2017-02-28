@@ -2,6 +2,7 @@ import unittest
 import tempfile
 import os
 import json
+import copy
 import mock
 from mock import Mock
 
@@ -273,7 +274,6 @@ class TestControllerApi(unittest.TestCase):
         res = self.app.put('/target/' + target,
                            data=json.dumps(targetData),
                            content_type='application/json')
-        print res.data
         self.assertEquals(res.status_code, 200)
 
         resJson = json.loads(res.data)
@@ -719,6 +719,67 @@ class TestControllerApi(unittest.TestCase):
         }
         self.assertEquals(resJson, resRequired)
 
+    def testPutPollerMinProcessGreaterThanMaxProcessesFailure(self):
+
+        newPollerData = copy.deepcopy(pollerData)
+        newPollerData[ 'minProcesses' ] = 51
+
+        res = self.app.put('/poller/' + poller,
+                           data=json.dumps(newPollerData),
+                           content_type='application/json')
+        self.assertEquals(res.status_code, 404)
+
+        resJson = json.loads(res.data)
+        reqRequired = {
+            'response': {
+                'success': False,
+                'err': 'putPoller() - minProcesses must be less than maxProcesses'
+            }
+        }
+
+        self.assertEquals(resJson, reqRequired)
+
+    def testPutPollerNumProcessesLessThanMinProcessesFailure(self):
+
+        newPollerData = copy.deepcopy(pollerData)
+        newPollerData['minProcesses'] = 2
+        newPollerData['numProcesses'] = 1
+
+        res = self.app.put('/poller/' + poller,
+                           data=json.dumps(newPollerData),
+                           content_type='application/json')
+        self.assertEquals(res.status_code, 404)
+
+        resJson = json.loads(res.data)
+        reqRequired = {
+            'response': {
+                'success': False,
+                'err': 'putPoller() - numProcesses must be greater than minProcesses'
+            }
+        }
+
+        self.assertEquals(resJson, reqRequired)
+
+    def testPutPollerNumProcessesGreaterThanMaxProcessesFailure(self):
+
+        newPollerData = copy.deepcopy(pollerData)
+        newPollerData['numProcesses'] = 51
+
+        res = self.app.put('/poller/' + poller,
+                           data=json.dumps(newPollerData),
+                           content_type='application/json')
+        self.assertEquals(res.status_code, 404)
+
+        resJson = json.loads(res.data)
+        reqRequired = {
+            'response': {
+                'success': False,
+                'err': 'putPoller() - numProcesses must be less than maxProcesses'
+            }
+        }
+
+        self.assertEquals(resJson, reqRequired)
+
     def testPutPollerModifyExistingSuccess(self):
 
         res = self.app.put('/poller/' + poller,
@@ -738,7 +799,6 @@ class TestControllerApi(unittest.TestCase):
         res = self.app.put('/poller/' + poller,
                            data=json.dumps(pollerData),
                            content_type='application/json')
-        print res.data
         self.assertEquals(res.status_code, 200)
 
         resJson = json.loads(res.data)
@@ -754,7 +814,6 @@ class TestControllerApi(unittest.TestCase):
         res = self.app.put('/poller/' + poller,
                            data=json.dumps(pollerData),
                            content_type='application/json')
-        print res.data
         self.assertEquals(res.status_code, 200)
 
         resJson = json.loads(res.data)
@@ -804,7 +863,6 @@ class TestControllerApi(unittest.TestCase):
         res = self.app.put('/poller/' + poller,
                            data=json.dumps(pollerData),
                            content_type='application/json')
-        print res.data
         self.assertEquals(res.status_code, 200)
 
         res = self.app.get('/poller/' + poller)
@@ -1417,8 +1475,6 @@ class TestControllerApi(unittest.TestCase):
 
         resJson = json.loads(res.data)
 
-        print resJson
-
         resRequired = {
             'response': {
                 'success': True,
@@ -1514,7 +1570,6 @@ class TestControllerApi(unittest.TestCase):
         res = self.app.put('/poller/' + poller,
                            data=json.dumps(pollerData),
                            content_type='application/json')
-        print res.data
         self.assertEquals(res.status_code, 200)
 
         res = self.app.put('/target/' + target,
@@ -1546,7 +1601,6 @@ class TestControllerApi(unittest.TestCase):
         res = self.app.put('/poller/' + poller,
                            data=json.dumps(pollerData),
                            content_type='application/json')
-        print res.data
         self.assertEquals(res.status_code, 200)
 
         res = self.app.put('/target/' + target,
@@ -1560,7 +1614,6 @@ class TestControllerApi(unittest.TestCase):
         self.assertEquals(res.status_code, 200)
 
         res = self.app.delete('/oid/' + target + '/' + oid)
-        print res.data
         self.assertEquals(res.status_code, 200)
 
         resJson = json.loads(res.data)
@@ -1641,7 +1694,6 @@ class TestControllerApi(unittest.TestCase):
         TestControllerApi.addTestData(self)
 
         res = self.app.get('/oids?name=' + oidData['name'])
-        print res.data
         self.assertEquals(res.status_code, 200)
 
         resJson = json.loads(res.data)
@@ -1664,7 +1716,6 @@ class TestControllerApi(unittest.TestCase):
         TestControllerApi.addTestData(self)
 
         res = self.app.get('/oids?enabled=' + 'True')
-        print res.data
         self.assertEquals(res.status_code, 200)
 
         resJson = json.loads(res.data)
@@ -1696,8 +1747,6 @@ class TestControllerApi(unittest.TestCase):
         self.assertEquals(res.status_code, 200)
 
         resJson = json.loads(res.data)
-
-        print resJson
 
         resRequired = {
             'response': {

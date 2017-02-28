@@ -25,7 +25,6 @@ TODO
 - Remove redundant code from testSubfragiumClientLib.py
     - Loop over bad fields
     - Loop over missing fields
-- Stop the setting of numProcesses under the minProcesses in the controller
 
 COMPLETE
 --------
@@ -63,5 +62,6 @@ COMPLETE
   /home/pdd/PythonVEnv/Subfragium/local/lib/python2.7/site-packages/flask/exthook.py:71: ExtDeprecationWarning: Importing flask.ext.sqlalchemy is deprecated, use flask_sqlalchemy instead.
 - Split out SubfragiumPoller functions into SubfragiumPollerLib
 - Check using daemon setting in the process initialisation to ensure child processes shutdown
+- Stop the setting of numProcesses under the minProcesses in the controller
 
 
