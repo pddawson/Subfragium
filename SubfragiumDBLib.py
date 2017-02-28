@@ -94,17 +94,7 @@ def putPollerByName(data):
     if not result['success']:
         return {'success': False, 'err': 'DBAPI putPollerByName() invalid data: %s' % result['err']}
 
-    newPoller = models.Poller(data['name'],
-                              data['minProcesses'],
-                              data['maxProcesses'],
-                              data['numProcesses'],
-                              data['holdDown'],
-                              data['cycleTime'],
-                              data['storageType'],
-                              data['storageLocation'],
-                              data['disabled'],
-                              data['errorThreshold'],
-                              data['errorHoldTime'])
+    newPoller = models.Poller(data)
     try:
         db.session.add(newPoller)
         db.session.commit()

@@ -35,20 +35,37 @@ class Poller(db.Model):
     errorThreshold = db.Column(db.Integer)
     errorHoldTime = db.Column(db.Integer)
 
-    def __init__(self, name, minProcesses, maxProcesses, numProcesses,
-                 holdDown, cycleTime, storageType, storageLocation, disabled,
-                 errorThreshold, errorHoldTime):
-        self.name = name
-        self.minProcesses = minProcesses
-        self.maxProcesses = maxProcesses
-        self.numProcesses = numProcesses
-        self.holdDown = holdDown
-        self.cycleTime = cycleTime
-        self.storageType = storageType
-        self.storageLocation = storageLocation
-        self.disabled = disabled
-        self.errorThreshold = errorThreshold
-        self.errorHoldTime = errorHoldTime
+    def __init__(self, parameters):
+
+        requiredFields = [
+            'name',
+            'minProcesses',
+            'maxProcesses',
+            'numProcesses',
+            'holdDown',
+            'cycleTime',
+            'storageType',
+            'storageLocation',
+            'disabled',
+            'errorThreshold',
+            'errorHoldTime'
+        ]
+
+        for field in requiredFields:
+            if field not in parameters:
+                return None
+
+        self.name = parameters['name']
+        self.minProcesses = parameters['minProcesses']
+        self.maxProcesses = parameters['maxProcesses']
+        self.numProcesses = parameters['numProcesses']
+        self.holdDown = parameters['holdDown']
+        self.cycleTime = parameters['cycleTime']
+        self.storageType = parameters['storageType']
+        self.storageLocation = parameters['storageLocation']
+        self.disabled = parameters['disabled']
+        self.errorThreshold = parameters['errorThreshold']
+        self.errorHoldTime = parameters['errorHoldTime']
 
     def __str__(self):
         return 'name: %s, ' \
