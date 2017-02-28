@@ -14,8 +14,8 @@ Longer Term
 
 TODO
 ----
+- Need to fix daemon currently it exits in the daemon library when it checks if pid > 0
 - Add testing of SubfragiumPoller
-- Split out SubfragiumPoller functions into SubfragiumPollerLib
 - Add internal statistics reporting (cycle time, num processes, failures etc)
 - Turn poller fields in a dictionary as there are too many fields
 - In testSubfragiumClientLib.py the apiEndpoints passed into the failing functions is technically wrong should be apiEndPointsUrls
@@ -26,7 +26,6 @@ TODO
     - Loop over bad fields
     - Loop over missing fields
 - Stop the setting of numProcesses under the minProcesses in the controller
-- Check using daemon setting in the process initialisation to ensure child processes shutdown
 
 COMPLETE
 --------
@@ -62,5 +61,7 @@ COMPLETE
 - Fix printing of help for list pollers, list oid, list target
 - Need to get to the bottom of the following error:
   /home/pdd/PythonVEnv/Subfragium/local/lib/python2.7/site-packages/flask/exthook.py:71: ExtDeprecationWarning: Importing flask.ext.sqlalchemy is deprecated, use flask_sqlalchemy instead.
+- Split out SubfragiumPoller functions into SubfragiumPollerLib
+- Check using daemon setting in the process initialisation to ensure child processes shutdown
 
 

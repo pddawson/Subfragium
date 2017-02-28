@@ -111,19 +111,28 @@ def sendToGraphite(dataPoints):
 
 
 # Create a new process and return it
-def createProcess(pid):
+def createProcess(pid, createDaemon):
     processName = 'poller-' + str(pid)
     process = dict()
     process['queue'] = multiprocessing.Queue()
     process['sysQueue'] = multiprocessing.Queue()
     process['processName'] = processName
-    process['handle'] = multiprocessing.Process(name=processName, target=poller,
-                                                args=(process['queue'], process['sysQueue'],))
+
+    # Check if the proces has been started as a daemon
+    if createDaemon:
+        # Yes - do not set the daemon flag
+        process['handle'] = multiprocessing.Process(name=processName, target=poller,
+                                                    args=(process['queue'], process['sysQueue'],))
+    else:
+        process['handle'] = multiprocessing.Process(name=processName, target=poller,
+                                                    args=(process['queue'], process['sysQueue'],))
+        process['handle'].daemon = True
+
     process['handle'].start()
     return process
 
 
-def mainLoop(pollerName):
+def mainLoop(pollerName, isDaemon):
 
     logger = logging.getLogger('SubfragiumPoller')
 
@@ -200,7 +209,7 @@ def mainLoop(pollerName):
 
     # Initialise a set of processes to start with
     for i in range(0, int(configuration['numProcesses'])):
-        process = createProcess(i)
+        process = createProcess(i, isDaemon)
         processes.append(process)
 
     targetList = []
@@ -294,7 +303,7 @@ def mainLoop(pollerName):
                 # Check if we've reached the max number of processes
                 if configuration['numProcesses'] < configuration['maxProcesses']:
                     # Still less than our max so start a new process
-                    process = createProcess(configuration['numProcesses'] + 1)
+                    process = createProcess(configuration['numProcesses'] + 1, isDaemon)
                     processes.append(process)
                     configuration[ 'numProcesses'] += 1
                     logger.info('Added new process - previous number: %s, new number: %s',
@@ -364,7 +373,7 @@ if __name__ == '__main__':
 
     if args.foreground:
         SubfragiumPollerLib.setupLogging(False, logLevel)
-        mainLoop(args.pollerName[0])
+        mainLoop(args.pollerName[0], False)
 
 
     else:
@@ -375,4 +384,4 @@ if __name__ == '__main__':
 
         with context:
             SubfragiumPollerLib.setupLogging(True, logLevel)
-            mainLoop(args.PollerName[0])
+            mainLoop(args.PollerName[0], True)
