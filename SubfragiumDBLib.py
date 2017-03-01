@@ -247,7 +247,9 @@ def getOidsByTarget(data):
                     'name': oid.name,
                     'target': oid.target,
                     'poller': oid.poller,
-                    'enabled': oid.enabled
+                    'enabled': oid.enabled,
+                    'snmpString': oid.targetInfo.snmpString,
+                    'timeout': oid.targetInfo.timeout
                     }
             oidList.append(item)
         return {'success': True, 'obj': oidList}
@@ -274,7 +276,9 @@ def getOidsByPoller(data):
                     'name': oid.name,
                     'target': oid.target,
                     'poller': oid.poller,
-                    'enabled': oid.enabled
+                    'enabled': oid.enabled,
+                    'snmpString': oid.targetInfo.snmpString,
+                    'timeout': oid.targetInfo.timeout
                     }
             oidList.append(item)
         return {'success': True, 'obj': oidList}
@@ -302,7 +306,8 @@ def getOidByOid(data):
                 'target': existingOid.target,
                 'poller': existingOid.poller,
                 'enabled': existingOid.enabled,
-                'snmpString': existingOid.targetInfo.snmpString}]}
+                'snmpString': existingOid.targetInfo.snmpString,
+                'timeout': existingOid.targetInfo.timeout}]}
     except Exception, e:
         return {'success': False, 'err': 'DBAPI getOidByOid() Failed: %s' % e}
 

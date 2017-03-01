@@ -1485,7 +1485,8 @@ class TestControllerApi(unittest.TestCase):
                     'target': target,
                     'poller': poller,
                     'enabled': True,
-                    'snmpString': targetData['snmpString']
+                    'snmpString': targetData['snmpString'],
+                    'timeout': targetData['timeout']
                 }
             }
         }
