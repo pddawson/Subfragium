@@ -103,7 +103,7 @@ class TestControllerApi(unittest.TestCase):
         requestObj = requestResponse('{"response": {"success": "True" } }', 200)
         mockRequestResponse.return_value = requestObj
 
-        inputString = 'name=123.123.1.10,snmpString=eur,timeout=200'
+        inputString = 'name=' + target1 + ',snmpString=' + target1Data['snmpString'] + ',timeout=' + target1Data['timeout']
         results = SubfragiumClientLib.addTypeTarget(inputString, getApiEndPointUrls)
         reqPayload = mockRequestResponse.call_args[1]['data']
 
@@ -161,7 +161,8 @@ class TestControllerApi(unittest.TestCase):
         requestObj = requestResponse('{"response": {"success": "True", "obj": [ { "name": "123.123.1.10", "snmpString": "eur", "timeout": 20 } ] } }', 200)
         mockRequestResponse.return_value = requestObj
 
-        results = SubfragiumClientLib.listTypeTargets('name=123.123.1.10', getApiEndPointUrls)
+        inputString = 'name=' + target1
+        results = SubfragiumClientLib.listTypeTargets(inputString, getApiEndPointUrls)
 
         # Now check the function returned the correct results
         self.assertIn('success', results)
@@ -194,7 +195,8 @@ class TestControllerApi(unittest.TestCase):
         requestObj = requestResponse('{"response": {"success": true} }', 200)
         mockRequestResponse.return_value = requestObj
 
-        results = SubfragiumClientLib.deleteTypeTarget('name=123.123.1.10', getApiEndPointUrls)
+        inputString = 'name=' + target1
+        results = SubfragiumClientLib.deleteTypeTarget(inputString, getApiEndPointUrls)
 
         # Now check the function returned the correct results
         self.assertIn('success', results)
@@ -234,7 +236,8 @@ class TestControllerApi(unittest.TestCase):
         putRequestObj = requestResponse('{"response": {"success": true} }', 200)
         mochRequestPutResponse.return_value = putRequestObj
 
-        results = SubfragiumClientLib.modifyTypeTarget('name=123.123.1.10,snmpString=abc', getApiEndPointUrls )
+        inputString = 'name=' + target1 + ',snmpString=' + target1Data['snmpString']
+        results = SubfragiumClientLib.modifyTypeTarget(inputString, getApiEndPointUrls )
         reqPayload = mochRequestPutResponse.call_args[1]['data']
 
         validJson = validateJson(SubfragiumControllerSchema.PingTarget, json.loads(reqPayload))
@@ -256,7 +259,8 @@ class TestControllerApi(unittest.TestCase):
         putRequestObj = requestResponse('{"response": {"success": true} }', 200)
         mochRequestPutResponse.return_value = putRequestObj
 
-        results = SubfragiumClientLib.modifyTypeTarget('name=123.123.1.10,timeout=123', getApiEndPointUrls)
+        inputString = 'name=' + target1 + ',timeout=' + target1Data['timeout']
+        results = SubfragiumClientLib.modifyTypeTarget(inputString, getApiEndPointUrls)
         reqPayload = mochRequestPutResponse.call_args[1]['data']
 
         validJson = validateJson(SubfragiumControllerSchema.PingTarget, json.loads(reqPayload))
@@ -436,7 +440,18 @@ class TestControllerApi(unittest.TestCase):
         requestObj = requestResponse('{"response": {"success": "True" } }', 200)
         mockRequestResponse.return_value = requestObj
 
-        inputString = 'name=poller1,minProcesses=1,maxProcesses=10,numProcesses=1,holdDown=20,cycleTime=60,storageType=graphite,storageLocation=pickle://123.123.1.10:5000,disabled=False,errorThreshold=4,errorHoldTime=300'
+        inputString = 'name=' + poller1 + \
+                      ',minProcesses=' + str(poller1Data['minProcesses']) + \
+                      ',maxProcesses=' + str(poller1Data['maxProcesses']) + \
+                      ',numProcesses=' + str(poller1Data['numProcesses']) + \
+                      ',holdDown=' + str(poller1Data['holdDown']) + \
+                      ',cycleTime=' + str(poller1Data['cycleTime']) + \
+                      ',storageType=' + poller1Data['storageType'] + \
+                      ',storageLocation=' + poller1Data['storageLocation'] + \
+                      ',disabled=' + str(poller1Data['disabled']) + \
+                      ',errorThreshold=' + str(poller1Data['errorThreshold']) + \
+                      ',errorHoldTime=' + str(poller1Data['errorHoldTime'])
+
         results = SubfragiumClientLib.addTypePoller(inputString, getApiEndPointUrls)
         reqPayload = mockRequestResponse.call_args[1]['data']
 
@@ -494,7 +509,8 @@ class TestControllerApi(unittest.TestCase):
         requestObj = requestResponse('{"response": {"success": "True", "obj": [ { "cycleTime": 3, "disable": false, "errorHoldTime": 60, "errorThreshold": 10, "holdDown": 20, "maxProcesses": 10, "minProcesses": 1, "name": "poller1", "numProcesses": 1, "storageLocation": "pickle://graphite:5000", "storageType": "graphite"} ] } }', 200)
         mockRequestResponse.return_value = requestObj
 
-        results = SubfragiumClientLib.listTypePoller('name=poller1', getApiEndPointUrls)
+        inputString = 'name=' + poller1
+        results = SubfragiumClientLib.listTypePoller(inputString, getApiEndPointUrls)
 
         # Now check the function returned the correct results
         self.assertIn('success', results )
@@ -526,7 +542,8 @@ class TestControllerApi(unittest.TestCase):
         requestObj = requestResponse('{"response": {"success": "True" } }', 200)
         mockRequestResponse.return_value = requestObj
 
-        results = SubfragiumClientLib.deleteTypePoller('name=poller1', getApiEndPointUrls)
+        inputString = 'name=' + poller1
+        results = SubfragiumClientLib.deleteTypePoller(inputString, getApiEndPointUrls)
 
         # Now check the function returned the correct results
         self.assertIn('success', results)
@@ -539,16 +556,10 @@ class TestControllerApi(unittest.TestCase):
         self.assertEquals(results['success'], True)
         self.assertIn('helpMsg', results)
 
-    def testModifyPollerMissingName(self):
-
-        results = SubfragiumClientLib.modifyTypePoller('', getApiEndPointUrls)
-        self.assertIn('success', results)
-        self.assertEquals(results['success'], False)
-        self.assertIn('err', results)
-
     def testModifyPollerBadInput(self):
 
         inputStrings = [
+            '',
             'name=^',
             'name=poller1,minProcesses=abc',
             'name=poller1,maxProcesses=abc',
@@ -578,7 +589,8 @@ class TestControllerApi(unittest.TestCase):
         putRequestObj = requestResponse('{"response": {"success": true} }', 200)
         mochRequestPutResponse.return_value = putRequestObj
 
-        results = SubfragiumClientLib.modifyTypePoller('name=poller1,minProcesses=2', getApiEndPointUrls)
+        inputString = 'name=' + poller1 + ',minProcesses=' + str(poller1Data['minProcesses'])
+        results = SubfragiumClientLib.modifyTypePoller(inputString, getApiEndPointUrls)
         reqPayload = mochRequestPutResponse.call_args[1]['data']
 
         validJson = validateJson(SubfragiumControllerSchema.Poller, json.loads(reqPayload))
@@ -600,7 +612,8 @@ class TestControllerApi(unittest.TestCase):
         putRequestObj = requestResponse('{"response": {"success": true} }', 200)
         mochRequestPutResponse.return_value = putRequestObj
 
-        results = SubfragiumClientLib.modifyTypePoller('name=poller1,maxProcesses=2', getApiEndPointUrls)
+        inputString = 'name=' + poller1 + ',maxProcesses=' + str(poller1Data['maxProcesses'])
+        results = SubfragiumClientLib.modifyTypePoller(inputString, getApiEndPointUrls)
         reqPayload = mochRequestPutResponse.call_args[1]['data']
 
         validJson = validateJson(SubfragiumControllerSchema.Poller, json.loads(reqPayload))
@@ -622,7 +635,8 @@ class TestControllerApi(unittest.TestCase):
         putRequestObj = requestResponse('{"response": {"success": true} }', 200)
         mochRequestPutResponse.return_value = putRequestObj
 
-        results = SubfragiumClientLib.modifyTypePoller('name=poller1,numProcesses=2', getApiEndPointUrls)
+        inputString = 'name=' + poller1 + ',numProcesses=' + str(poller1Data['numProcesses'])
+        results = SubfragiumClientLib.modifyTypePoller(inputString, getApiEndPointUrls)
         reqPayload = mochRequestPutResponse.call_args[1]['data']
 
         validJson = validateJson(SubfragiumControllerSchema.Poller, json.loads(reqPayload))
@@ -644,7 +658,8 @@ class TestControllerApi(unittest.TestCase):
         putRequestObj = requestResponse('{"response": {"success": true} }', 200)
         mochRequestPutResponse.return_value = putRequestObj
 
-        results = SubfragiumClientLib.modifyTypePoller('name=poller1,numProcesses=5', getApiEndPointUrls)
+        inputString = 'name=' + poller1 + ',holdDown=' + str(poller1Data['holdDown'])
+        results = SubfragiumClientLib.modifyTypePoller(inputString, getApiEndPointUrls)
         reqPayload = mochRequestPutResponse.call_args[1]['data']
 
         validJson = validateJson(SubfragiumControllerSchema.Poller, json.loads(reqPayload))
@@ -666,7 +681,8 @@ class TestControllerApi(unittest.TestCase):
         putRequestObj = requestResponse('{"response": {"success": true} }', 200)
         mochRequestPutResponse.return_value = putRequestObj
 
-        results = SubfragiumClientLib.modifyTypePoller('name=poller1,cycleTime=30', getApiEndPointUrls)
+        inputString = 'name=' + poller1 + ',cycleTime=' + str(poller1Data['cycleTime'])
+        results = SubfragiumClientLib.modifyTypePoller(inputString, getApiEndPointUrls)
         reqPayload = mochRequestPutResponse.call_args[1]['data']
 
         validJson = validateJson(SubfragiumControllerSchema.Poller, json.loads(reqPayload))
@@ -688,7 +704,8 @@ class TestControllerApi(unittest.TestCase):
         putRequestObj = requestResponse('{"response": {"success": true} }', 200)
         mochRequestPutResponse.return_value = putRequestObj
 
-        results = SubfragiumClientLib.modifyTypePoller('name=poller1,storageType=graphite', getApiEndPointUrls)
+        inputString = 'name=' + poller1 + ',storageType=' + str(poller1Data['storageType'])
+        results = SubfragiumClientLib.modifyTypePoller(inputString, getApiEndPointUrls)
         reqPayload = mochRequestPutResponse.call_args[1]['data']
 
         validJson = validateJson(SubfragiumControllerSchema.Poller, json.loads(reqPayload))
@@ -710,7 +727,8 @@ class TestControllerApi(unittest.TestCase):
         putRequestObj = requestResponse('{"response": {"success": true} }', 200)
         mochRequestPutResponse.return_value = putRequestObj
 
-        results = SubfragiumClientLib.modifyTypePoller('name=poller1,storageLocation=pickle://graphite2:5001', getApiEndPointUrls)
+        inputString = 'name=' + poller1 + ',storageLocation=' + str( poller1Data['storageLocation'])
+        results = SubfragiumClientLib.modifyTypePoller(inputString, getApiEndPointUrls)
         reqPayload = mochRequestPutResponse.call_args[1]['data']
 
         validJson = validateJson(SubfragiumControllerSchema.Poller, json.loads(reqPayload))
@@ -732,7 +750,8 @@ class TestControllerApi(unittest.TestCase):
         putRequestObj = requestResponse('{"response": {"success": true} }', 200)
         mochRequestPutResponse.return_value = putRequestObj
 
-        results = SubfragiumClientLib.modifyTypePoller('name=poller1,disabled=True', getApiEndPointUrls)
+        inputString = 'name=' + poller1 + ',disabled=' + str(poller1Data['disabled'])
+        results = SubfragiumClientLib.modifyTypePoller(inputString, getApiEndPointUrls)
         reqPayload = mochRequestPutResponse.call_args[1]['data']
 
         validJson = validateJson(SubfragiumControllerSchema.Poller, json.loads(reqPayload))
@@ -754,7 +773,8 @@ class TestControllerApi(unittest.TestCase):
         putRequestObj = requestResponse('{"response": {"success": true} }', 200)
         mochRequestPutResponse.return_value = putRequestObj
 
-        results = SubfragiumClientLib.modifyTypePoller('name=poller1,errorThreshold=10', getApiEndPointUrls)
+        inputString = 'name=' + poller1 + ',errorThreshold=' + str(poller1Data['errorThreshold'])
+        results = SubfragiumClientLib.modifyTypePoller(inputString, getApiEndPointUrls)
         reqPayload = mochRequestPutResponse.call_args[1]['data']
 
         validJson = validateJson(SubfragiumControllerSchema.Poller, json.loads(reqPayload))
@@ -776,7 +796,8 @@ class TestControllerApi(unittest.TestCase):
         putRequestObj = requestResponse('{"response": {"success": true} }', 200)
         mochRequestPutResponse.return_value = putRequestObj
 
-        results = SubfragiumClientLib.modifyTypePoller('name=poller1,errorHoldTime=1800', getApiEndPointUrls)
+        inputString = 'name=' + poller1 + ',errorHoldTime=' + str(poller1Data['errorHoldTime'])
+        results = SubfragiumClientLib.modifyTypePoller(inputString, getApiEndPointUrls)
         reqPayload = mochRequestPutResponse.call_args[1]['data']
 
         validJson = validateJson(SubfragiumControllerSchema.Poller, json.loads(reqPayload))
@@ -825,7 +846,11 @@ class TestControllerApi(unittest.TestCase):
         requestObj = requestResponse('{"response": {"success": "True" } }', 200)
         mockRequestResponse.return_value = requestObj
 
-        inputString = 'target=123.123.1.10,oid=1.3.6.1,poller=poller1,name=TestOid1,enabled=True'
+        inputString = 'target=' + poller1 + \
+                      ',oid=' + oid1 + \
+                      ',poller=' + oid1Data['poller'] + \
+                      ',name=' + oid1Data['name'] + \
+                      ',enabled=' + str(oid1Data['enabled'])
         results = SubfragiumClientLib.addTypeOid(inputString, getApiEndPointUrls)
         reqPayload = mockRequestResponse.call_args[1]['data']
 
@@ -885,7 +910,8 @@ class TestControllerApi(unittest.TestCase):
         requestObj = requestResponse('{"response": {"success": true, "obj": [ { "enabled": true, "id": "123.123.1.10:1.3.6.1.2.1.2.2.1.10.2", "name": "network.interface.IfInOctets.router1.FastEthernet0/0", "oid": "1.3.6.1.2.1.2.2.1.10.2", "poller": "poller1", "snmpString": "eur", "target": "123.123.1.10", "timeout": 200} ] } }', 200)
         mockRequestResponse.return_value = requestObj
 
-        results = SubfragiumClientLib.listTypeOid('target=123.123.1.10,oid=1.3.6.1', getApiEndPointUrls)
+        inputString = 'target=' + target1 + ',oid=' + oid1
+        results = SubfragiumClientLib.listTypeOid(inputString, getApiEndPointUrls)
 
         # Now check the function returned the correct results
         self.assertIn('success', results)
@@ -918,7 +944,8 @@ class TestControllerApi(unittest.TestCase):
         requestObj = requestResponse('{"response": {"success": true } }', 200)
         mockRequestResponse.return_value = requestObj
 
-        results = SubfragiumClientLib.deleteTypeOid('target=123.132.1.10,oid=1.3.6.1.2', getApiEndPointUrls)
+        inputString = 'target=' + target1 + ',oid=' + oid1
+        results = SubfragiumClientLib.deleteTypeOid(inputString, getApiEndPointUrls)
 
         # Now check the function returned the correct results
         self.assertIn('success', results)
@@ -959,7 +986,8 @@ class TestControllerApi(unittest.TestCase):
         putRequestObj = requestResponse('{"response": {"success": true} }', 200)
         mochRequestPutResponse.return_value = putRequestObj
 
-        results = SubfragiumClientLib.modifyTypeOid('target=123.123.1.10,oid=1.3.6.1.2,poller=poller2', getApiEndPointUrls)
+        inputString = 'target=' + target1 + ',oid=' + oid1 + ',poller=' + oid1Data['poller']
+        results = SubfragiumClientLib.modifyTypeOid(inputString, getApiEndPointUrls)
         reqPayload = mochRequestPutResponse.call_args[1]['data']
 
         validJson = validateJson(SubfragiumControllerSchema.Oid, json.loads(reqPayload))
@@ -981,7 +1009,8 @@ class TestControllerApi(unittest.TestCase):
         putRequestObj = requestResponse('{"response": {"success": true} }', 200)
         mochRequestPutResponse.return_value = putRequestObj
 
-        results = SubfragiumClientLib.modifyTypeOid('target=123.123.1.10,oid=1.3.6.1.2,name=test2', getApiEndPointUrls)
+        inputString = 'target=' + target1 + ',oid=' + oid1 + ',name=' + oid1Data['name']
+        results = SubfragiumClientLib.modifyTypeOid(inputString, getApiEndPointUrls)
         reqPayload = mochRequestPutResponse.call_args[1]['data']
 
         validJson = validateJson(SubfragiumControllerSchema.Oid, json.loads(reqPayload))
@@ -1003,6 +1032,7 @@ class TestControllerApi(unittest.TestCase):
         putRequestObj = requestResponse('{"response": {"success": true} }', 200)
         mochRequestPutResponse.return_value = putRequestObj
 
+        inputString = 'target=' + target1 + ',oid=' + oid1 + ',enabled=' + str(oid1Data['enabled'])
         results = SubfragiumClientLib.modifyTypeOid('target=123.123.1.10,oid=1.3.6.1.2,enabled=False', getApiEndPointUrls)
         reqPayload = mochRequestPutResponse.call_args[1]['data']
 

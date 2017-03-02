@@ -19,7 +19,6 @@ TODO
 - Add internal statistics reporting (cycle time, num processes, failures etc)
 - Add more validation in testSubfragiumClientLib.py on list functions to validate data is properly returne
 - Add more validation of HTTP failures in testSubfragiumClientLib.py
-- In testSubfragiumClientLib.py use predefined input data for everything and validate against that
 
 COMPLETE
 --------
@@ -64,3 +63,4 @@ COMPLETE
 - Remove redundant code from testSubfragiumClientLib.py
     - Loop over bad fields
     - Loop over missing fields
+- In testSubfragiumClientLib.py use predefined input data for everything and validate against that
