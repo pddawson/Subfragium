@@ -7,8 +7,7 @@ import json
 import SubfragiumClientLib
 
 getApiEndPointUrls = {
-  "response": {
-    "obj": {
+    "urls": {
       "index": "/",
       "oid": "/oid/<string:target>/<string:oid>",
       "oids": "/oids",
@@ -17,15 +16,34 @@ getApiEndPointUrls = {
       "static": "/static/<path:filename>",
       "target": "/target/<string:name>",
       "targets": "/targets"
-    },
-    "success": 'true'
-  }
+    }
+}
+
+target1 = '123.123.1.10'
+target1Data = {
+    'snmpString': 'eur',
+    'timeout': '200'
 }
 
 poller1 = 'poller1'
 poller1Data = {
-    'snmpString': 'eur',
-    'timeout': '200'
+    'minProcesses': 1,
+    'maxProcesses': 50,
+    'numProcesses': 1,
+    'holdDown': 20,
+    'cycleTime': 5,
+    'storageType': 'graphite',
+    'storageLocation': 'pickle://graphite:5000',
+    'disabled': False,
+    'errorThreshold': 3,
+    'errorHoldTime': 60
+}
+
+oid1 = '1.3.6.1.2.1'
+oid1Data = {
+    'poller': 'poller1',
+    'name': 'network.interface.ifInHcOctets.GigabitEthernet0/0',
+    'enabled': True
 }
 
 
@@ -48,19 +66,6 @@ class requestResponse():
         self.text = text
         self.status_code = statusCode
 
-getApiEndPointUrls = {
-    'urls': {
-        "index": "/",
-         "oid": "/oid/<string:target>/<string:oid>",
-         "oids": "/oids",
-         "poller": "/poller/<string:name>",
-         "pollers": "/pollers",
-         "static": "/static/<path:filename>",
-         "target": "/target/<string:name>",
-         "targets": "/targets"
-    }
-}
-
 
 class TestControllerApi(unittest.TestCase):
 
@@ -75,59 +80,22 @@ class TestControllerApi(unittest.TestCase):
         self.assertEquals(results['success'], True)
         self.assertIn('helpMsg', results)
 
-    def testAddTargetMissingName(self):
+    def testAddTargetBadInput(self):
 
-        results = SubfragiumClientLib.addTypeTarget('', getApiEndPointUrls)
-        self.assertIn('success', results)
-        self.assertEquals(results['success'], False)
-        self.assertIn('err', results)
+        inputStrings = [
+            '',
+            'name=^',
+            'name=' + target1,
+            'name=' + target1 + 'snmpString=^',
+            'name=' + target1 + 'snmpString=' + target1Data['snmpString'],
+            'name=' + target1 + 'snmpString=' + target1Data['snmpString'] + 'timeout=abc'
+        ]
 
-    def testAddTargetMissingSnmpString(self):
-
-        inputString = 'name=' + poller1
-        results = SubfragiumClientLib.addTypeTarget(inputString, getApiEndPointUrls)
-        self.assertIn('success', results)
-        self.assertEquals(results['success'], False)
-        self.assertIn('err', results)
-
-    def testAddTargetMissingTimeout(self):
-
-        inputString = 'name=' + poller1
-        inputString += 'snmpString=' + poller1Data['snmpString']
-        results = SubfragiumClientLib.addTypeTarget(inputString, getApiEndPointUrls)
-        self.assertIn('success', results)
-        self.assertEquals(results['success'], False)
-        self.assertIn('err', results)
-
-    def testAddTargetBadName(self):
-
-        inputString = 'name=' + '\n'
-        inputString += 'snmpString=' + poller1Data['snmpString']
-        inputString += 'timeout=' + poller1Data['timeout']
-        results = SubfragiumClientLib.addTypeTarget('name=\n,snmpString=eur', getApiEndPointUrls)
-        self.assertIn('success', results)
-        self.assertEquals(results['success'], False)
-        self.assertIn('err', results)
-
-    def testAddTargetSnmpString(self):
-
-        inputString = 'name=' + poller1
-        inputString += 'snmpString=' + '\n'
-        inputString += 'timeout=' + poller1Data['timeout']
-        results = SubfragiumClientLib.addTypeTarget('name=poller1,snmpString=\n', getApiEndPointUrls)
-        self.assertIn('success', results)
-        self.assertEquals(results['success'], False)
-        self.assertIn('err', results)
-
-    def testAddTargetTimeout(self):
-
-        inputString = 'name=' + poller1
-        inputString += 'snmpString=' + poller1Data['snmpString']
-        inputString += 'timeout=' + 'abc'
-        results = SubfragiumClientLib.addTypeTarget('name=poller1,snmpString=eur,timeout=abc', getApiEndPointUrls)
-        self.assertIn('success', results)
-        self.assertEquals(results['success'], False)
-        self.assertIn('err', results)
+        for inputString in inputStrings:
+            results = SubfragiumClientLib.addTypeTarget(inputString, getApiEndPointUrls )
+            self.assertIn('success', results)
+            self.assertEquals(results['success'], False)
+            self.assertIn('err', results)
 
     @mock.patch('SubfragiumClientLib.requests.put')
     def testAddTargetSuccess(self, mockRequestResponse):
@@ -174,19 +142,18 @@ class TestControllerApi(unittest.TestCase):
         self.assertEquals(results['success'], True)
         self.assertIn('helpMsg', results)
 
-    def testListTargetMissingName(self):
+    def testListTargetBadInput(self):
 
-        results = SubfragiumClientLib.listTypeTarget('', getApiEndPointUrls)
-        self.assertIn('success', results)
-        self.assertEquals(results['success'], False)
-        self.assertIn('err', results)
+        inputStrings = [
+            '',
+            'name=^'
+        ]
 
-    def testListTargetBadName(self):
-
-        results = SubfragiumClientLib.listTypeTarget('name=^', getApiEndPointUrls)
-        self.assertIn('success', results)
-        self.assertEquals(results['success'], False)
-        self.assertIn('err', results)
+        for inputString in inputStrings:
+            results = SubfragiumClientLib.listTypeTarget(inputString, getApiEndPointUrls)
+            self.assertIn('success', results)
+            self.assertEquals(results['success'], False)
+            self.assertIn('err', results)
 
     @mock.patch('SubfragiumClientLib.requests.get')
     def testListTargetSuccess(self, mockRequestResponse):
@@ -207,19 +174,19 @@ class TestControllerApi(unittest.TestCase):
         self.assertEquals(results['success'], True)
         self.assertIn('helpMsg', results)
 
-    def testDeleteTargetMissingName(self):
+    def testListTargetBadInput(self):
 
-        results = SubfragiumClientLib.deleteTypeTarget('', getApiEndPointUrls)
-        self.assertIn('success', results)
-        self.assertEquals(results['success'], False)
-        self.assertIn('err', results)
+        inputStrings = [
+            '',
+            'name=^'
+        ]
 
-    def testDeleteTargetBadname(self):
+        for inputString in inputStrings:
+            results = SubfragiumClientLib.deleteTypeTarget(inputString, getApiEndPointUrls)
+            self.assertIn('success', results)
+            self.assertEquals(results['success'], False)
+            self.assertIn('err', results)
 
-        results = SubfragiumClientLib.deleteTypeTarget('name=^', getApiEndPointUrls)
-        self.assertIn('success', results)
-        self.assertEquals(results['success'], False)
-        self.assertIn('err', results)
 
     @mock.patch('SubfragiumClientLib.requests.delete')
     def testDeleteTargetSuccess(self, mockRequestResponse):
@@ -240,33 +207,22 @@ class TestControllerApi(unittest.TestCase):
         self.assertEquals(results['success'], True)
         self.assertIn('helpMsg', results)
 
-    def testModifyTargetMissingAttribute(self):
+    def testModifyTargetBadInput(self):
 
-        results = SubfragiumClientLib.modifyTypeTarget('', getApiEndPointUrls)
-        self.assertIn('success', results)
-        self.assertEquals(results['success'], False)
-        self.assertIn('err', results)
+        inputStrings = [
+            '',
+            'name=^',
+            'name=' + target1,
+            'name=' + target1 + 'snmpString=^'
+            'name=' + target1 + 'timeout=abc'
 
-    def testModifyTargetBadName(self):
+        ]
 
-        results = SubfragiumClientLib.modifyTypeTarget('name=^', getApiEndPointUrls)
-        self.assertIn('success', results)
-        self.assertEquals(results['success'], False)
-        self.assertIn('err', results)
-
-    def testModifyTargetBadSnmpString(self):
-
-        results = SubfragiumClientLib.modifyTypeTarget('name=123.123.1.10,snmpString=^', getApiEndPointUrls)
-        self.assertIn('success', results)
-        self.assertEquals(results['success'], False)
-        self.assertIn('err', results)
-
-    def testModifyTargetBadTimeout(self):
-
-        results = SubfragiumClientLib.modifyTypeTarget('name=123.123.1.10,timeout=abc', getApiEndPointUrls)
-        self.assertIn('success', results)
-        self.assertEquals(results['success'], False)
-        self.assertIn('err', results)
+        for inputString in inputStrings:
+            results = SubfragiumClientLib.modifyTypeTarget(inputString, getApiEndPointUrls)
+            self.assertIn('success', results)
+            self.assertEquals(results['success'], False)
+            self.assertIn('err', results)
 
     @mock.patch( 'SubfragiumClientLib.requests.put' )
     @mock.patch('SubfragiumClientLib.requests.get')
@@ -323,180 +279,156 @@ class TestControllerApi(unittest.TestCase):
         self.assertEquals(results['success'], True)
         self.assertIn('helpMsg', results)
 
-    def testAddPollerMissingName(self):
+    def testAddPollerBadInput(self):
 
-        results = SubfragiumClientLib.addTypePoller('', getApiEndPointUrls)
-        self.assertIn('success', results)
-        self.assertEquals(results['success'], False)
-        self.assertIn('err', results)
+        inputStrings = [
+            '',
+            'name=^',
+            'name=' + poller1,
+            'name=' + poller1 +
+            ',minProcesses=abc',
 
-    def testAddPollerMissingMinProcesses(self):
+            'name=' + poller1 +
+            ',minProcesses=' + str(poller1Data['minProcesses']),
 
-        inputString = 'name=poller1'
-        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndPointUrls)
-        self.assertIn('success', results)
-        self.assertEquals(results['success'], False)
-        self.assertIn('err', results)
+            'name=' + poller1 +
+            ',minProcesses=' + str(poller1Data['minProcesses']) +
+            ',maxProcesses=' + str(poller1Data['maxProcesses']),
 
-    def testAddPollerMissingMaxProcesses(self):
+            'name=' + poller1 +
+            ',minProcesses=' + str(poller1Data['minProcesses']) +
+            ',maxProcesses=abc',
 
-        inputString = 'name=poller1,minProcesses=1'
-        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndPointUrls)
-        self.assertIn('success', results)
-        self.assertEquals(results['success'], False)
-        self.assertIn('err', results)
+            'name=' + poller1 +
+            ',minProcesses=' + str(poller1Data['minProcesses']) +
+            ',maxProcesses=' + str(poller1Data['maxProcesses']) +
+            ',numProcesses=abc',
 
-    def testAddPollerMissingNumProcesses(self):
+            'name=' + poller1 +
+            ',minProcesses=' + str(poller1Data['minProcesses']) +
+            ',maxProcesses=' + str(poller1Data['maxProcesses']) +
+            ',numProcesses=' + str(poller1Data['numProcesses']),
 
-        inputString = 'name=poller1,minProcesses=1,maxProcesses=10'
-        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndPointUrls)
-        self.assertIn('success', results)
-        self.assertEquals(results['success'], False)
-        self.assertIn('err', results)
+            'name=' + poller1 +
+            ',minProcesses=' + str( poller1Data[ 'minProcesses' ] ) +
+            ',maxProcesses=' + str( poller1Data[ 'maxProcesses' ] ) +
+            ',numProcesses=' + str( poller1Data[ 'numProcesses' ] ) +
+            ',holdDown=abc',
 
-    def testAddPollerMissingHoldTime(self):
+            'name=' + poller1 +
+            ',minProcesses=' + str( poller1Data[ 'minProcesses' ] ) +
+            ',maxProcesses=' + str( poller1Data[ 'maxProcesses' ] ) +
+            ',numProcesses=' + str( poller1Data[ 'numProcesses' ] ) +
+            ',holdDown='  + str( poller1Data[ 'holdDown' ] ),
 
-        inputString = 'name=poller1,minProcesses=1,maxProcesses=10,NumProcesses=1'
-        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndPointUrls)
-        self.assertIn('success', results)
-        self.assertEquals(results['success'], False)
-        self.assertIn('err', results)
+            'name=' + poller1 +
+            ',minProcesses=' + str( poller1Data[ 'minProcesses' ] ) +
+            ',maxProcesses=' + str( poller1Data[ 'maxProcesses' ] ) +
+            ',numProcesses=' + str( poller1Data[ 'numProcesses' ] ) +
+            ',h,ldDown=' + str( poller1Data[ 'holdDown' ] ) +
+            ',cycleTime=abc',
 
-    def testAddPollerMissingCycleTime(self):
+            'name=' + poller1 +
+            ',minProcesses=' + str( poller1Data[ 'minProcesses' ] ) +
+            ',maxProcesses=' + str( poller1Data[ 'maxProcesses' ] ) +
+            ',numProcesses=' + str( poller1Data[ 'numProcesses' ] ) +
+            ',holdDown=' + str( poller1Data[ 'holdDown' ] ) +
+            ',cycleTime=' + str( poller1Data[ 'cycleTime' ] ),
 
-        inputString = 'name=poller1,minProcesses=1,maxProcesses=10,NumProcesses=1,holdDown=20'
-        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndPointUrls)
-        self.assertIn('success', results)
-        self.assertEquals(results['success'], False)
-        self.assertIn('err', results)
+            'name=' + poller1 +
+            ',minProcesses=' + str( poller1Data[ 'minProcesses' ] ) +
+            ',maxProcesses=' + str( poller1Data[ 'maxProcesses' ] ) +
+            ',numProcesses=' + str( poller1Data[ 'numProcesses' ] ) +
+            ',holdDown=' + str( poller1Data[ 'holdDown' ] ) +
+            ',cycleTime=' + str( poller1Data[ 'cycleTime' ] ) +
+            ',storageType=^',
 
-    def testAddPollerMissingStorageType(self):
+            'name=' + poller1 +
+            ',minProcesses=' + str( poller1Data[ 'minProcesses' ] ) +
+            ',maxProcesses=' + str( poller1Data[ 'maxProcesses' ] ) +
+            ',numProcesses=' + str( poller1Data[ 'numProcesses' ] ) +
+            ',holdDown=' + str( poller1Data[ 'holdDown' ] ) +
+            ',cycleTime=' + str( poller1Data[ 'cycleTime' ] ) +
+            ',storageType=' + str( poller1Data[ 'storageType' ] ),
 
-        inputString = 'name=poller1,minProcesses=1,maxProcesses=10,numProcesses=1,holdDown=20,cycleTime=60'
-        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndPointUrls)
-        self.assertIn('success', results)
-        self.assertEquals(results['success'], False)
-        self.assertIn('err', results)
+            'name=' + poller1 +
+            ',minProcesses=' + str( poller1Data[ 'minProcesses' ] ) +
+            ',maxProcesses=' + str( poller1Data[ 'maxProcesses' ] ) +
+            ',numProcesses=' + str( poller1Data[ 'numProcesses' ] ) +
+            ',holdDown=' + str( poller1Data[ 'holdDown' ] ) +
+            ',cycleTime=' + str( poller1Data[ 'cycleTime' ] ) +
+            ',storageType=' + str( poller1Data[ 'storageType' ] ) +
+            ',storageLocation=^',
 
-    def testAddPollerMissingStorageLocation(self):
+            'name=' + poller1 +
+            ',minProcesses=' + str( poller1Data[ 'minProcesses' ] ) +
+            ',maxProcesses=' + str( poller1Data[ 'maxProcesses' ] ) +
+            ',numProcesses=' + str( poller1Data[ 'numProcesses' ] ) +
+            ',holdDown=' + str( poller1Data[ 'holdDown' ] ) +
+            ',cycleTime=' + str( poller1Data[ 'cycleTime' ] ) +
+            ',storageType=' + str( poller1Data[ 'storageType' ] ) +
+            ',storageLocation=' + str( poller1Data[ 'storageLocation' ] ),
 
-        inputString = 'name=poller1,minProcesses=1,maxProcesses=10,numProcesses=1,holdDown=20,cycleTime=60,storageType=graphite'
-        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndPointUrls)
-        self.assertIn('success', results)
-        self.assertEquals(results['success'], False)
-        self.assertIn('err', results)
+            'name=' + poller1 +
+            ',minProcesses=' + str( poller1Data[ 'minProcesses' ] ) +
+            ',maxProcesses=' + str( poller1Data[ 'maxProcesses' ] ) +
+            ',numProcesses=' + str( poller1Data[ 'numProcesses' ] ) +
+            ',holdDown=' + str( poller1Data[ 'holdDown' ] ) +
+            ',cycleTime=' + str( poller1Data[ 'cycleTime' ] ) +
+            ',storageType=' + str( poller1Data[ 'storageType' ] ) +
+            ',storageType=' + str( poller1Data[ 'storageType' ] ) +
+            ',disabled=abc',
 
-    def testAddPollerMissingDisabled(self):
+            'name=' + poller1 +
+            ',minProcesses=' + str( poller1Data[ 'minProcesses' ] ) +
+            ',maxProcesses=' + str( poller1Data[ 'maxProcesses' ] ) +
+            ',numProcesses=' + str( poller1Data[ 'numProcesses' ] ) +
+            ',holdDown=' + str( poller1Data[ 'holdDown' ] ) +
+            ',cycleTime=' + str( poller1Data[ 'cycleTime' ] ) +
+            ',storageType=' + poller1Data['storageType'] +
+            ',storageType=' + poller1Data['storageType'] +
+            ',disabled=' + str(poller1Data[ 'disabled']),
 
-        inputString = 'name=poller1,minProcesses=1,maxProcesses=10,numProcesses=1,holdDown=20,cycleTime=60,storageType=graphite,storageLocation=pickle://123.123.1.10:5000'
-        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndPointUrls)
-        self.assertIn('success', results)
-        self.assertEquals(results['success'], False)
-        self.assertIn('err', results)
+            'name=' + poller1 +
+            ',minProcesses=' + str( poller1Data[ 'minProcesses' ] ) +
+            ',maxProcesses=' + str( poller1Data[ 'maxProcesses' ] ) +
+            ',numProcesses=' + str( poller1Data[ 'numProcesses' ] ) +
+            ',holdDown=' + str( poller1Data[ 'holdDown' ] ) +
+            ',cycleTime=' + str( poller1Data[ 'cycleTime' ] ) +
+            ',storageType=' + poller1Data[ 'storageType' ] +
+            ',storageType=' + poller1Data[ 'storageType' ] +
+            ',disabled=' + str( poller1Data[ 'disabled' ] ) +
+            ',errorThreshold=abc',
 
-    def testAddPollerMissingErrorThreshold(self):
+            'name=' + poller1 +
+            ',minProcesses=' + str( poller1Data[ 'minProcesses' ] ) +
+            ',maxProcesses=' + str( poller1Data[ 'maxProcesses' ] ) +
+            ',numProcesses=' + str( poller1Data[ 'numProcesses' ] ) +
+            ',holdDown=' + str( poller1Data[ 'holdDown' ] ) +
+            ',cycleTime=' + str( poller1Data[ 'cycleTime' ] ) +
+            ',storageType=' + poller1Data[ 'storageType' ] +
+            ',storageType=' + poller1Data[ 'storageType' ] +
+            ',disabled=' + str( poller1Data[ 'disabled' ] ) +
+            ',errorThreshold=' + str( poller1Data[ 'errorThreshold' ] ),
 
-        inputString = 'name=poller1,minProcesses=1,maxProcesses=10,numProcesses=1,holdDown=20,cycleTime=60,storageType=graphite,storageLocation=pickle://123.123.1.10:5000,disabled=False'
-        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndPointUrls)
-        self.assertIn('success', results)
-        self.assertEquals(results['success'], False)
-        self.assertIn('err', results)
+            'name=' + poller1 +
+            ',minProcesses=' + str( poller1Data[ 'minProcesses' ] ) +
+            ',maxProcesses=' + str( poller1Data[ 'maxProcesses' ] ) +
+            ',numProcesses=' + str( poller1Data[ 'numProcesses' ] ) +
+            ',holdDown=' + str( poller1Data[ 'holdDown' ] ) +
+            ',cycleTime=' + str( poller1Data[ 'cycleTime' ] ) +
+            ',storageType=' + poller1Data[ 'storageType' ] +
+            ',storageType=' + poller1Data[ 'storageType' ] +
+            ',disabled=' + str( poller1Data[ 'disabled' ] ) +
+            ',errorThreshold=' + str( poller1Data[ 'errorThreshold' ] ) +
+            ',errorHoldDown=abc'
+        ]
 
-    def testAddPollerMissingErrorHoldTime(self):
-
-        inputString = 'name=poller1,minProcesses=1,maxProcesses=10,numProcesses=1,holdDown=20,cycleTime=60,storageType=graphite,storageLocation=pickle://123.123.1.10:5000,disabled=False,errorThreshold=4'
-        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndPointUrls)
-        self.assertIn('success', results)
-        self.assertEquals(results['success'], False)
-        self.assertIn('err', results)
-
-    def testAddPollerBadName(self):
-
-        inputString = 'name=abc>234,minProcesses=1,maxProcesses=10,numProcesses=1,holdDown=20,cycleTime=60,storageType=graphite,storageLocation=pickle://123.123.1.10:5000,disabled=False,errorThreshold=4,errorHoldTime=1800'
-        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndPointUrls)
-        self.assertIn('success', results)
-        self.assertEquals(results['success'], False)
-        self.assertIn('err', results)
-
-    def testAddPollerBadMinProcesses(self):
-
-        inputString = 'name=poller1,minProcesses=a,maxProcesses=10,numProcesses=1,holdDown=20,cycleTime=60,storageType=graphite,storageLocation=pickle://123.123.1.10:5000,disabled=False,errorThreshold=4,errorHoldTime=1800'
-        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndPointUrls)
-        self.assertIn('success', results)
-        self.assertEquals(results['success'], False)
-        self.assertIn('err', results)
-
-    def testAddPollerBadMaxProcesses(self):
-
-        inputString = 'name=poller1,minProcesses=1,maxProcesses=a,numProcesses=1,holdDown=20,cycleTime=60,storageType=graphite,storageLocation=pickle://123.123.1.10:5000,disabled=False,errorThreshold=4,errorHoldTime=1800'
-        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndPointUrls)
-        self.assertIn('success', results)
-        self.assertEquals(results['success'], False)
-        self.assertIn('err', results)
-
-    def testAddPollerBadNumProcesses(self):
-
-        inputString = 'name=poller1,minProcesses=1,maxProcesses=10,numProcesses=a,holdDown=20,cycleTime=60,storageType=graphite,storageLocation=pickle://123.123.1.10:5000,disabled=False,errorThreshold=4,errorHoldTime=1800'
-        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndPointUrls)
-        self.assertIn('success', results)
-        self.assertEquals(results['success'], False)
-        self.assertIn('err', results)
-
-    def testAddPollerBadHoldDown(self):
-
-        inputString = 'name=poller1,minProcesses=1,maxProcesses=10,numProcesses=1,holdDown=a,cycleTime=60,storageType=graphite,storageLocation=pickle://123.123.1.10:5000,disabled=False,errorThreshold=4,errorHoldTime=1800'
-        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndPointUrls)
-        self.assertIn('success', results)
-        self.assertEquals(results['success'], False)
-        self.assertIn('err', results)
-
-    def testAddPollerBadCycleTime(self):
-
-        inputString = 'name=poller1,minProcesses=1,maxProcesses=10,numProcesses=1,holdDown=2,cycleTime=a,storageType=graphite,storageLocation=pickle://123.123.1.10:5000,disabled=False,errorThreshold=4,errorHoldTime=1800'
-        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndPointUrls)
-        self.assertIn('success', results)
-        self.assertEquals(results['success'], False)
-        self.assertIn('err', results)
-
-    def testAddPollerBadStorageType(self):
-
-        inputString = 'name=poller1,minProcesses=1,maxProcesses=10,numProcesses=1,holdDown=2,cycleTime=60,storageType=(,storageLocation=pickle://123.123.1.10:5000,disabled=False,errorThreshold=4,errorHoldTime=1800'
-        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndPointUrls)
-        self.assertIn('success', results)
-        self.assertEquals(results['success'], False)
-        self.assertIn('err', results)
-
-    def testAddPollerBadStorageLocation(self):
-
-        inputString = 'name=poller1,minProcesses=1,maxProcesses=10,numProcesses=1,holdDown=2,cycleTime=60,storageType=graphite,storageLocation=pickle:,disabled=False,errorThreshold=4,errorHoldTime=1800'
-        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndPointUrls)
-        self.assertIn('success', results)
-        self.assertEquals(results['success'], False)
-        self.assertIn('err', results)
-
-    def testAddPollerBadDisabledStatus(self):
-
-        inputString = 'name=poller1,minProcesses=1,maxProcesses=10,numProcesses=1,holdDown=2,cycleTime=60,storageType=graphite,storageLocation=pickle://123.123.1.10:5000,disabled=yes,errorThreshold=4,errorHoldTime=1800'
-        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndPointUrls)
-        self.assertIn('success', results)
-        self.assertEquals(results['success'], False)
-        self.assertIn('err', results)
-
-    def testAddPollerBadErrorThreshold(self):
-
-        inputString = 'name=poller1,minProcesses=1,maxProcesses=10,numProcesses=1,holdDown=2,cycleTime=60,storageType=graphite,storageLocation=pickle://123.123.1.10:5000,disabled=False,errorThreshold=a,errorHoldTime=1800'
-        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndPointUrls)
-        self.assertIn('success', results)
-        self.assertEquals(results['success'], False)
-        self.assertIn('err', results)
-
-    def testAddPollerBadErrorHoldTime(self):
-
-        inputString = 'name=poller1,minProcesses=1,maxProcesses=10,numProcesses=1,holdDown=2,cycleTime=60,storageType=graphite,storageLocation=pickle://123.123.1.10:5000,disabled=False,errorThreshold=3,errorHoldTime=abc'
-        results = SubfragiumClientLib.addTypePoller(inputString, getApiEndPointUrls)
-        self.assertIn('success', results)
-        self.assertEquals(results['success'], False)
-        self.assertIn('err', results)
+        for inputString in inputStrings:
+            results = SubfragiumClientLib.addTypePoller(inputString, getApiEndPointUrls)
+            self.assertIn('success', results)
+            self.assertEquals(results['success'], False)
+            self.assertIn('err', results)
 
     @mock.patch('SubfragiumClientLib.requests.put')
     def testAddPollerSuccess(self, mockRequestResponse):
@@ -543,19 +475,18 @@ class TestControllerApi(unittest.TestCase):
         self.assertEquals(results['success'], True)
         self.assertIn('helpMsg', results)
 
-    def testListPollerNoName(self):
+    def testListPollerBadInput(self):
 
-        results = SubfragiumClientLib.listTypePoller('', getApiEndPointUrls)
-        self.assertIn('success', results)
-        self.assertEquals(results['success'], False)
-        self.assertIn('err', results)
+        inputStrings = [
+            '',
+            'name=^',
+        ]
 
-    def testListPollerBadName(self):
-
-        results = SubfragiumClientLib.listTypePoller('name=^', getApiEndPointUrls)
-        self.assertIn('success', results)
-        self.assertEquals(results['success'], False)
-        self.assertIn('err', results)
+        for inputstring in inputStrings:
+            results = SubfragiumClientLib.listTypePoller(inputstring, getApiEndPointUrls)
+            self.assertIn('success', results)
+            self.assertEquals(results['success'], False)
+            self.assertIn('err', results)
 
     @mock.patch('SubfragiumClientLib.requests.get')
     def testListPollerSuccess(self, mockRequestResponse):
@@ -576,19 +507,18 @@ class TestControllerApi(unittest.TestCase):
         self.assertEquals(results['success'], True)
         self.assertIn('helpMsg', results)
 
-    def testDeletePollerMissingName(self):
+    def testDeletePollerBadInput(self):
 
-        results = SubfragiumClientLib.deleteTypePoller('', getApiEndPointUrls)
-        self.assertIn('success', results)
-        self.assertEquals(results['success'], False)
-        self.assertIn('err', results)
+        inputStrings = [
+            '',
+            'name=^'
+        ]
 
-    def testDeletePollerBadname(self):
-
-        results = SubfragiumClientLib.deleteTypePoller('name=^', getApiEndPointUrls)
-        self.assertIn('success', results)
-        self.assertEquals(results['success'], False)
-        self.assertIn('err', results)
+        for inputString in inputStrings:
+            results = SubfragiumClientLib.deleteTypePoller(inputString, getApiEndPointUrls)
+            self.assertIn('success', results)
+            self.assertEquals(results['success'], False)
+            self.assertIn('err', results)
 
     @mock.patch('SubfragiumClientLib.requests.delete')
     def testDeletePollerSuccess(self, mockRequestResponse):
@@ -869,84 +799,25 @@ class TestControllerApi(unittest.TestCase):
         self.assertEquals(results['success'], True)
         self.assertIn('helpMsg', results)
 
-    def testAddOidMissingTarget(self):
+    def testAddOidBadInput(self):
 
-        results = SubfragiumClientLib.addTypeOid('', getApiEndPointUrls)
-        self.assertIn('success', results)
-        self.assertEquals(results['success'], False)
-        self.assertIn('err', results)
+        inputStrings = [
+            '',
+            'target=^',
+            'target=' + target1 + 'oid=abc',
+            'target=' + target1 + 'oid=' + oid1,
+            'target=' + target1 + 'oid=' + oid1 + 'poller=^',
+            'target=' + target1 + 'oid=' + oid1 + 'poller=' + oid1Data['poller'],
+            'target=' + target1 + 'oid=' + oid1 + 'poller=' + oid1Data['poller'] + 'name=^',
+            'target=' + target1 + 'oid=' + oid1 + 'poller=' + oid1Data['poller'] + 'name=' + oid1Data['name'],
+            'target=' + target1 + 'oid=' + oid1 + 'poller=' + oid1Data['poller'] + 'name=' + oid1Data['name'] + 'enabled=yes',
+        ]
 
-    def testAddOidMissingOid(self):
-
-        inputString = 'target=123.123.10.1'
-        results = SubfragiumClientLib.addTypeOid(inputString, getApiEndPointUrls)
-        self.assertIn('success', results)
-        self.assertEquals(results['success'], False)
-        self.assertIn('err', results)
-
-    def testAddOidMissingPoller(self):
-
-        inputString = 'target=123.123.10.1,oid=1.3.6.1.2'
-        results = SubfragiumClientLib.addTypeOid(inputString, getApiEndPointUrls)
-        self.assertIn('success', results)
-        self.assertEquals(results['success'], False)
-        self.assertIn('err', results)
-
-    def testAddOidMissingName(self):
-
-        inputString = 'target=123.123.10.1,oid=1.3.6.1.2,poller=poller1'
-        results = SubfragiumClientLib.addTypeOid(inputString, getApiEndPointUrls)
-        self.assertIn('success', results)
-        self.assertEquals(results['success'], False)
-        self.assertIn('err', results)
-
-    def testAddOidMissingEnabled(self):
-
-        inputString = 'target=123.123.10.1,oid=1.3.6.1.2,poller=poller1,name=TestOid1'
-        results = SubfragiumClientLib.addTypeOid(inputString, getApiEndPointUrls)
-        self.assertIn('success', results)
-        self.assertEquals(results['success'], False)
-        self.assertIn('err', results)
-
-    def testAddOidBadTarget(self):
-
-        inputString = 'target=abc,oid=1.3.6.1.2,poller=poller1,name=TestOid1'
-        results = SubfragiumClientLib.addTypeOid(inputString, getApiEndPointUrls)
-        self.assertIn('success', results)
-        self.assertEquals(results['success'], False)
-        self.assertIn('err', results)
-
-    def testAddOidBadOid(self):
-
-        inputString = 'target=123.123.1.10,oid=abc,poller=poller1,name=TestOid1'
-        results = SubfragiumClientLib.addTypeOid(inputString, getApiEndPointUrls)
-        self.assertIn('success', results)
-        self.assertEquals(results['success'], False)
-        self.assertIn('err', results)
-
-    def testAddOidBadPoller(self):
-
-        inputString = 'target=123.123.1.10,oid=1.3.6.1,poller=^,name=TestOid1'
-        results = SubfragiumClientLib.addTypeOid(inputString, getApiEndPointUrls)
-        self.assertIn('success', results)
-        self.assertEquals(results['success'], False)
-        self.assertIn('err', results)
-
-    def testAddOidBadName(self):
-
-        inputString = 'target=123.123.1.10,oid=1.3.6.1,poller=poller1,name=^'
-        results = SubfragiumClientLib.addTypeOid(inputString, getApiEndPointUrls)
-        self.assertIn('success', results)
-        self.assertEquals(results['success'], False)
-        self.assertIn('err', results)
-
-    def testAddOidBadEnabled(self):
-
-        inputString = 'target=123.123.1.10,oid=1.3.6.1,poller=poller1,name=TestOid1,enabled=Yes'
-        results = SubfragiumClientLib.addTypeOid(inputString, getApiEndPointUrls)
-        self.assertIn('success', results)
-        self.assertEquals(results['success'], False)
-        self.assertIn('err', results)
+        for inputString in inputStrings:
+            results = SubfragiumClientLib.addTypeOid(inputString, getApiEndPointUrls)
+            self.assertIn('success', results)
+            self.assertEquals(results[ 'success'], False)
+            self.assertIn('err', results)
 
     @mock.patch('SubfragiumClientLib.requests.put')
     def testAddOidSuccess(self, mockRequestResponse):
@@ -993,19 +864,20 @@ class TestControllerApi(unittest.TestCase):
         self.assertEquals(results['success'], True)
         self.assertIn('helpMsg', results)
 
-    def testListOidMissingTarget(self):
+    def testListOidBadInput(self):
 
-        results = SubfragiumClientLib.listTypeOid('', getApiEndPointUrls)
-        self.assertIn('success', results)
-        self.assertEquals(results['success'], False)
-        self.assertIn('err', results)
+        inputStrings = [
+            ''
+            'target=^',
+            'target=' + target1,
+            'target=' + target1 + 'oid=abc'
+        ]
 
-    def testListOidMissingOid(self):
-
-        results = SubfragiumClientLib.listTypeOid('target=123.123.1.10', getApiEndPointUrls)
-        self.assertIn('success', results)
-        self.assertEquals(results['success'], False)
-        self.assertIn('err', results)
+        for inputString in inputStrings:
+            results = SubfragiumClientLib.listTypeOid(inputString, getApiEndPointUrls)
+            self.assertIn('success', results)
+            self.assertEquals(results['success'], False)
+            self.assertIn('err', results)
 
     @mock.patch('SubfragiumClientLib.requests.get')
     def testListOidSuccess(self, mockRequestResponse):
@@ -1026,33 +898,19 @@ class TestControllerApi(unittest.TestCase):
         self.assertEquals(results['success'], True)
         self.assertIn('helpMsg', results)
 
-    def testDeleteOidMissingTarget(self):
+    def testDeleteOidBadInput(self):
 
-        results = SubfragiumClientLib.deleteTypeOid('', getApiEndPointUrls)
-        self.assertIn('success', results)
-        self.assertEquals(results['success'], False)
-        self.assertIn('err', results)
+        inputStrings = [
+            '',
+            'target=^',
+            'target=' + target1 + 'oid=abc'
+        ]
 
-    def testDeleteOidMissingOid(self):
-
-        results = SubfragiumClientLib.deleteTypeOid('target=123.123.1.10', getApiEndPointUrls)
-        self.assertIn('success', results)
-        self.assertEquals(results['success'], False)
-        self.assertIn('err', results)
-
-    def testDeleteOidBadTarget(self):
-
-        results = SubfragiumClientLib.deleteTypeOid('target=^,oid=1.3.6.1.2', getApiEndPointUrls)
-        self.assertIn('success', results)
-        self.assertEquals(results['success'], False)
-        self.assertIn('err', results)
-
-    def testDeleteOidBadOid(self):
-
-        results = SubfragiumClientLib.deleteTypeOid('target=123.123.1.10,oid=abc', getApiEndPointUrls)
-        self.assertIn('success', results)
-        self.assertEquals(results['success'], False)
-        self.assertIn('err', results)
+        for inputString in inputStrings:
+            results = SubfragiumClientLib.deleteTypeOid(inputString, getApiEndPointUrls)
+            self.assertIn('success', results)
+            self.assertEquals(results['success'], False)
+            self.assertIn('err', results)
 
     @mock.patch('SubfragiumClientLib.requests.delete')
     def testDeleteOidSuccess(self, mockRequestResponse):

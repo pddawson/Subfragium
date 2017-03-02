@@ -722,7 +722,7 @@ class TestControllerApi(unittest.TestCase):
     def testPutPollerMinProcessGreaterThanMaxProcessesFailure(self):
 
         newPollerData = copy.deepcopy(pollerData)
-        newPollerData[ 'minProcesses' ] = 51
+        newPollerData['minProcesses'] = 51
 
         res = self.app.put('/poller/' + poller,
                            data=json.dumps(newPollerData),
