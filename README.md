@@ -1,6 +1,9 @@
-# H1 Subfragium
+# Subfragium
 
-# H2 Components
+The motivation for writing Subfragium was the lack of simple API based SNMP poller for network 
+engineers. 
+
+## Components
 
 1. SubfragiumController
 2. SubfragiumPoller
