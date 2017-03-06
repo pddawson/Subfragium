@@ -11,14 +11,16 @@ Longer Term
 - Figure out to to test client getApiEndPoint() in SubfragiumClientLib.py
 - Add additional filters for list pollers and list targets
 - Add additional testing for searching by fields in list oids
+- Should we use HTTP error codes in SubfragiumClientLib to check status of API response
+- Add audit log for changes through API
 
 TODO
 ----
 - Need to fix daemon currently it exits in the daemon library when it checks if pid > 0
 - Add testing of SubfragiumPoller
 - Add internal statistics reporting (cycle time, num processes, failures etc)
-- Add more validation in testSubfragiumClientLib.py on list functions to validate data is properly returne
 - Add more validation of HTTP failures in testSubfragiumClientLib.py
+- Specify where to find controller in poller and cli
 
 COMPLETE
 --------

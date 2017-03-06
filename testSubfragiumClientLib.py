@@ -60,7 +60,7 @@ def validateJson(jsonSchema, jsonInput):
         return {'success': False, 'err': 'Invalid Json Schema: %s' % e}
 
 
-class requestResponse():
+class requestResponse:
 
     def __init__(self, text, statusCode):
         self.text = text
@@ -68,6 +68,50 @@ class requestResponse():
 
 
 class TestControllerApi(unittest.TestCase):
+
+    ##
+    ## Testing response validation function
+    ##
+
+    def testValidateResponseNothing(self):
+
+        results = SubfragiumClientLib.validateResponse('')
+        self.assertEquals(results['success'], False)
+        self.assertEquals(results['err'], 'Error: No text in response')
+
+    def testValidateResponseNoResponseField(self):
+
+        res = requestResponse('{}', 404)
+        results = SubfragiumClientLib.validateResponse(res)
+        self.assertEquals(results['success'], False)
+        self.assertEquals(results['err'], 'Error: Unknown response - {}')
+
+    def testValidateResponseNoSuccessField(self):
+
+        res = requestResponse('{"response":{}}', 404)
+        results = SubfragiumClientLib.validateResponse(res)
+        self.assertEquals(results['success'], False)
+        self.assertEquals(results['err'], 'Error: Missing success/err field - {u\'response\': {}}')
+
+    def testValidateResponseSuccessResponse(self):
+
+        res = requestResponse('{"response":{"success": true}}', 400)
+        results = SubfragiumClientLib.validateResponse(res)
+        self.assertEquals(results['success'], True)
+
+    def testValidateResponseBadErrorResponse(self):
+
+        res = requestResponse('{"response":{"success": false}}', 404)
+        results = SubfragiumClientLib.validateResponse(res)
+        self.assertEquals(results['success'], False)
+        self.assertEquals(results['err'], 'Error: Missing success/err field - {u\'response\': {u\'success\': False}}')
+
+    def testValidateResponseGoodErrorResponse(self):
+
+        res = requestResponse('{"response":{"success": false, "err": "abc"}}', 404)
+        results = SubfragiumClientLib.validateResponse(res)
+        self.assertEquals(results['success'], False)
+        self.assertEquals(results['err'], 'abc')
 
     ##
     ## Testing Target API

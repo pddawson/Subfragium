@@ -22,6 +22,25 @@ def getApiEndPoint(apiServer):
         return {'success': False, 'err': 'Could not get API End Points'}
 
 
+def validateResponse(response):
+
+    try:
+        payload = response.text
+    except AttributeError:
+        return {'success': False, 'err': 'Error: No text in response'}
+
+    rJson = json.loads(payload)
+    if 'response' in rJson:
+        if 'success' in rJson['response'] and rJson['response']['success']:
+            return {'success': True}
+        elif 'success' in rJson['response'] and 'err' in rJson['response']:
+            return {'success': False, 'err': rJson['response']['err']}
+        else:
+            return {'success': False, 'err': 'Error: Missing success/err field - %s' % rJson}
+    else:
+        return {'success': False, 'err': 'Error: Unknown response - %s' % response.text}
+
+
 def addTypeTarget(data, apiEndpoint):
 
     if data == 'help':
@@ -53,14 +72,7 @@ def addTypeTarget(data, apiEndpoint):
     apiCall = apiEndpoint['urls']['target'].replace('<string:name>', '')
     apiCall += validatedInput.group(1)
     r = requests.put(apiCall, data=jsonCall, headers=headers)
-    rJson = json.loads(r.text)
-    if 'response' in rJson:
-        if 'success' in rJson['response'] and rJson['response']['success']:
-            return {'success': True}
-        else:
-            return {'success': False, 'err': 'Error: %s' % rJson['response']['err']}
-    else:
-        return {'success': False, 'err': 'Error: Unknown response - %s' % r.text}
+    return validateResponse(r)
 
 
 def listTypeTargets(data, apiEndpoint):
