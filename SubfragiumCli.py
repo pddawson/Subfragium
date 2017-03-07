@@ -5,7 +5,7 @@ import re
 import SubfragiumClientLib
 import SubfragiumUtilsLib
 
-apiServer = 'localhost:5000'
+#apiServer = 'localhost:5000'
 
 
 def actionAdd(type, data, apiEndPoint):
@@ -171,21 +171,22 @@ def actionModify(type, data, apiEndPoint):
 
 if __name__ == '__main__':
 
-    apiEndpoint = SubfragiumClientLib.getApiEndPoint(apiServer)
-    if not apiEndpoint['success']:
-        print 'Error: Can not get API endpoints from server'
-        exit(1)
-
     parser = argparse.ArgumentParser()
 
     actions = ['add', 'list', 'delete', 'modify']
     types = ['target', 'targets', 'poller', 'pollers', 'oid', 'oids']
 
+    parser.add_argument('controller', action='store', nargs=1, help='Define controller')
     parser.add_argument('action', action='store', nargs=1, choices=actions, help='Action to take on controller')
     parser.add_argument('type', action='store', nargs=1, choices=types, help='Type of item to apply action to')
     parser.add_argument('parameters', action='store', default='', help='Parameters for item e.g. help')
 
     args = parser.parse_args()
+
+    apiEndpoint = SubfragiumClientLib.getApiEndPoint(args.controller[0])
+    if not apiEndpoint['success']:
+        print 'Error: %s' % apiEndpoint['err']
+        exit(1)
 
     if args.action[0] == 'add':
         results = actionAdd(args.type[0], args.parameters, apiEndpoint)

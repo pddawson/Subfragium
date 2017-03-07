@@ -16,7 +16,7 @@ import Queue
 import SubfragiumPollerLib
 
 # API Base
-apiServer = 'localhost:5000'
+#apiServer = 'localhost:5000'
 
 configuration = dict()
 
@@ -132,13 +132,13 @@ def createProcess(pid, createDaemon):
     return process
 
 
-def mainLoop(pollerName, isDaemon):
+def mainLoop(pollerName, isDaemon, controller):
 
     logger = logging.getLogger('SubfragiumPoller')
 
     logger.info('SubfragiumPoller starting')
 
-    apiEndpoint = SubfragiumUtilsLib.getApiEndPoint(apiServer)
+    apiEndpoint = SubfragiumUtilsLib.getApiEndPoint(controller)
     if not apiEndpoint['success']:
         print 'Could not get Api Endpoints: %s' % apiEndpoint['err']
         exit(1)
@@ -153,6 +153,9 @@ def mainLoop(pollerName, isDaemon):
 
     # List of poller processes
     processes = []
+
+    # Configure the location of the controller
+    configuration['controller'] = controller
 
     # Current number of poller processes
     configuration['numProcesses'] = pollerInfo['obj']['numProcesses']
@@ -195,6 +198,7 @@ def mainLoop(pollerName, isDaemon):
     # The hold down period (set to the current time i.e. no hold down)
     holdDown = time.time()
 
+    logger.info('Configuration - controller: %s' % configuration['controller'])
     logger.info('Configuration - pollerName: %s' % pollerName)
     logger.info('Configuration - minProcesses: %s' % configuration['minProcesses'])
     logger.info('Configuration - maxProcesses: %s' % configuration['maxProcesses'])
@@ -219,7 +223,7 @@ def mainLoop(pollerName, isDaemon):
 
         # Get the API base
 
-        apiEndpoint = SubfragiumUtilsLib.getApiEndPoint(apiServer)
+        apiEndpoint = SubfragiumUtilsLib.getApiEndPoint(configuration['controller'])
         if not apiEndpoint['success']:
             logger.error(apiEndpoint['err'])
         else:
@@ -359,6 +363,7 @@ if __name__ == '__main__':
     levels = ['debug', 'info', 'warning', 'error', 'critical']
 
     parser.add_argument('pollerName', action='store', nargs=1, help='Defines name of poller')
+    parser.add_argument('controller', action='store', nargs=1, help='Defines controller')
     parser.add_argument('-f', dest='foreground', action='store_true', help='Run process in foreground')
     parser.add_argument('-l', dest='logLevel', action='store', choices=levels, help='Logging level')
 
@@ -373,7 +378,7 @@ if __name__ == '__main__':
 
     if args.foreground:
         SubfragiumPollerLib.setupLogging(False, logLevel)
-        mainLoop(args.pollerName[0], False)
+        mainLoop(args.pollerName[0], False, args.controller[0])
 
 
     else:
@@ -384,4 +389,4 @@ if __name__ == '__main__':
 
         with context:
             SubfragiumPollerLib.setupLogging(True, logLevel)
-            mainLoop(args.PollerName[0], True)
+            mainLoop(args.PollerName[0], True, args.controller[0])

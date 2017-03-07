@@ -19,7 +19,7 @@ def getApiEndPoint(apiServer):
             api[apiEndpoint] = url
         return {'success': True, 'urls': api}
     except urllib2.URLError:
-        return {'success': False, 'err': 'Could not get API End Points'}
+        return {'success': False, 'err': 'Could not get API End Points from %s' % apiServer}
 
 
 def validateResponse(response):
