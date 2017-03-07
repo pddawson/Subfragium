@@ -389,4 +389,4 @@ if __name__ == '__main__':
 
         with context:
             SubfragiumPollerLib.setupLogging(True, logLevel)
-            mainLoop(args.PollerName[0], True, args.controller[0])
+            mainLoop(args.pollerName[0], True, args.controller[0])
