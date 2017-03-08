@@ -12,6 +12,7 @@ import argparse
 import daemon
 import os
 import Queue
+import ConfigParser
 
 import SubfragiumPollerLib
 
@@ -131,6 +132,51 @@ def createProcess(pid, createDaemon):
 
     process['handle'].start()
     return process
+
+
+def parseConfigFile(filePath):
+
+    config = ConfigParser.SafeConfigParser()
+    config.read(filePath)
+    if config.sections() == []:
+        print 'Config file not found: %s' % filePath
+        exit(1)
+
+    if 'general' not in config.sections():
+        print 'Config file missing [general] section'
+        exit(1)
+
+    global configuration
+
+    try:
+
+        parameters = ('controller', 'logLevel', 'pollerName')
+        for parameter in parameters:
+            configuration[parameter] = config.get('general', parameter)
+    except ConfigParser.NoOptionError:
+        print 'No %s definition under [general] section' % parameter
+        exit(1)
+
+
+def cliControllerOverride(controller):
+
+    global configuration
+
+    configuration['controller'] = controller
+
+
+def cliLogLevelOverride(logLevel):
+
+    global configuration
+
+    configuration['logLevel'] = logLevel
+
+
+def cliPollerOverride(name):
+
+    global configuration
+
+    configuration['pollerName'] = name
 
 
 def mainLoop(pollerName, isDaemon, controller):
@@ -363,23 +409,31 @@ if __name__ == '__main__':
 
     levels = ['debug', 'info', 'warning', 'error', 'critical']
 
-    parser.add_argument('pollerName', action='store', nargs=1, help='Defines name of poller')
-    parser.add_argument('controller', action='store', nargs=1, help='Defines controller')
+    parser.add_argument('-c', dest='cfgFile', action='store', help='Configuration file')
+    parser.add_argument('-C', dest='controller', action='store', help='Defines controller')
     parser.add_argument('-f', dest='foreground', action='store_true', help='Run process in foreground')
     parser.add_argument('-l', dest='logLevel', action='store', choices=levels, help='Logging level')
+    parser.add_argument('-p', dest='pollerName', action='store', help='Defines name of poller')
 
     args = parser.parse_args()
 
-    if not args.logLevel:
-        logLevel = 'debug'
-    else:
-        logLevel = args.logLevel
+    if args.cfgFile:
+        parseConfigFile(args.cfgFile)
+
+    if args.logLevel:
+        cliLogLevelOverride(args.logLevel)
+
+    if args.pollerName:
+        cliPollerOverride(args.pollerName)
+
+    if args.controller:
+        cliControllerOverride(args.controller)
 
     path = os.getcwd()
 
     if args.foreground:
-        SubfragiumPollerLib.setupLogging(False, logLevel)
-        mainLoop(args.pollerName[0], False, args.controller[0])
+        SubfragiumPollerLib.setupLogging(False, configuration['logLevel'])
+        mainLoop(configuration['pollerName'], False, configuration['controller'])
 
     else:
 
@@ -388,5 +442,5 @@ if __name__ == '__main__':
         )
 
         with context:
-            SubfragiumPollerLib.setupLogging(True, logLevel)
-            mainLoop(args.pollerName[0], True, args.controller[0])
+            SubfragiumPollerLib.setupLogging(True, configuration['logLevel'])
+            mainLoop(configuration['pollerName'], True, configuration['controller'])

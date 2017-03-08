@@ -50,7 +50,6 @@ def parseStorage(stype, location):
         return {'success': False, 'err': 'Unsupported storage type: %s' % stype}
 
     storage = re.match('([\w]+)://([\w.]+):(\d+)', location)
-    print storage
     if storage is None:
         return {'success': False, 'err': 'Could not parse storage location: %s' % location}
 
