@@ -7,8 +7,10 @@ import time
 import datetime
 import Queue
 
+logLevels = ['debug', 'info', 'warning', 'error', 'critical']
 
-def setupLogging(daemonStatus, loggingLevel):
+
+def setupLogging(daemonStatus, loggingLevel, logFile):
 
     logger = logging.getLogger('SubfragiumPoller')
     logger.setLevel(loggingLevel.upper())
@@ -16,7 +18,7 @@ def setupLogging(daemonStatus, loggingLevel):
 
     if daemonStatus:
         # Setup logging as a daemon to a file
-        handler = logging.FileHandler(filename='SubfragiumPoller.log')
+        handler = logging.FileHandler(filename=logFile)
 
     else:
         # Setup logging as a foreground process to the console
@@ -276,3 +278,12 @@ def getSysMessages(process):
             checkMessages = False
 
     return messages
+
+
+def validateLogLevel(level):
+
+    if level not in logLevels:
+        return {'success': False, 'err': 'Log level \'%s\' is not one of %s' % (level, logLevels)}
+
+    return {'success': True}
+

@@ -150,11 +150,17 @@ def parseConfigFile(filePath):
 
     try:
 
-        parameters = ('controller', 'logLevel', 'pollerName')
+        parameters = ('controller', 'logLevel', 'pollerName', 'logFile')
         for parameter in parameters:
             configuration[parameter] = config.get('general', parameter)
     except ConfigParser.NoOptionError:
         print 'No %s definition under [general] section' % parameter
+        exit(1)
+
+    results = SubfragiumPollerLib.validateLogLevel(configuration['logLevel'])
+    if not results['success']:
+        print 'Error in config file: %s' % filePath[0]
+        print results['err']
         exit(1)
 
 
@@ -407,18 +413,17 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
 
-    levels = ['debug', 'info', 'warning', 'error', 'critical']
-
-    parser.add_argument('-c', dest='cfgFile', action='store', help='Configuration file')
-    parser.add_argument('-C', dest='controller', action='store', help='Defines controller')
+    parser.add_argument('cfgFile', action='store', nargs=1, help='Define configuration file')
+    parser.add_argument('-c', dest='controller', action='store', help='Defines controller')
     parser.add_argument('-f', dest='foreground', action='store_true', help='Run process in foreground')
-    parser.add_argument('-l', dest='logLevel', action='store', choices=levels, help='Logging level')
+    parser.add_argument('-l', dest='logLevel', action='store', choices=SubfragiumPollerLib.logLevels,
+                        help='Logging level')
+    parser.add_argument('-L', dest='logFile', action='store', help='Defines log file name')
     parser.add_argument('-p', dest='pollerName', action='store', help='Defines name of poller')
 
     args = parser.parse_args()
 
-    if args.cfgFile:
-        parseConfigFile(args.cfgFile)
+    parseConfigFile(args.cfgFile)
 
     if args.logLevel:
         cliLogLevelOverride(args.logLevel)
@@ -432,7 +437,7 @@ if __name__ == '__main__':
     path = os.getcwd()
 
     if args.foreground:
-        SubfragiumPollerLib.setupLogging(False, configuration['logLevel'])
+        SubfragiumPollerLib.setupLogging(False, configuration['logLevel'], 'SubfragiumPoller.log')
         mainLoop(configuration['pollerName'], False, configuration['controller'])
 
     else:
@@ -442,5 +447,5 @@ if __name__ == '__main__':
         )
 
         with context:
-            SubfragiumPollerLib.setupLogging(True, configuration['logLevel'])
+            SubfragiumPollerLib.setupLogging(True, configuration['logLevel'], 'SubfragiumPoller.log')
             mainLoop(configuration['pollerName'], True, configuration['controller'])
