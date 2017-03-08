@@ -1,5 +1,5 @@
 ##
-## Target Schema
+# Target Schema
 ##
 
 from schema import Optional
@@ -31,7 +31,7 @@ modifyTargetByName = {
 }
 
 ##
-## Poller Schema
+# Poller Schema
 ##
 
 putPollerByName = {
@@ -71,7 +71,7 @@ modifyPollerByName = {
 }
 
 ##
-## Oid Schema
+# Oid Schema
 ##
 
 putOidByOid = {

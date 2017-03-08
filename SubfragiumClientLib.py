@@ -58,7 +58,7 @@ def addTypeTarget(data, apiEndpoint):
     validatedInput = reValidator.match(data)
     if validatedInput is None:
         errMsg = 'Parameter format must be:\n'
-        errMsg +='\tpython SubfragiumCli.py add target name={name|ip},snmpString=<string>,timeout=<int>\n'
+        errMsg += '\tpython SubfragiumCli.py add target name={name|ip},snmpString=<string>,timeout=<int>\n'
         errMsg += '\n'
         errMsg += '\te.g.\n'
         errMsg += '\tpython SubfragiumCli.py add target name=123.123.11.10,snmpString=123,timeout=10\n'

@@ -15,9 +15,7 @@ import Queue
 
 import SubfragiumPollerLib
 
-# API Base
-#apiServer = 'localhost:5000'
-
+# Global configuration dictionary for reference by many processes
 configuration = dict()
 
 
@@ -40,20 +38,23 @@ def poller(q, sQ):
             for t in targets:
                 logger.debug('Putting %s', str(t['id']))
         except Queue.Empty:
-            None
+            logger.debug('Poller Data Queue Empty')
         for target in targets:
             disabledTarget = SubfragiumPollerLib.checkTarget(target['target'], target['oid'], failures)
             if not disabledTarget:
-                d = SubfragiumPollerLib.snmpQuery(target['target'], target['snmpString'], target['oid'], target['name'], target['timeout'])
+                d = SubfragiumPollerLib.snmpQuery(target['target'], target['snmpString'], target['oid'],
+                                                  target['name'], target['timeout'])
                 if d['success']:
                     t = time.time()
                     intTime = re.search('(\d+)\.(\d)', str(t))
-                    escapedName = re.sub('\/', '-', target['name'])
+                    escapedName = re.sub('/', '-', target['name'])
                     dataItem = [(escapedName, (int(intTime.group(1)), int(d['data']['value'])))]
                     data.append(dataItem)
                 else:
                     logger.info('SNMP Failure for %s' % target['target'])
-                    failures = SubfragiumPollerLib.disableTarget(target['target'], target['oid'], failures, configuration['errorThreshold'], configuration['errorThreshold'])
+                    failures = SubfragiumPollerLib.disableTarget(target['target'], target['oid'], failures,
+                                                                 configuration['errorThreshold'],
+                                                                 configuration['errorThreshold'])
             else:
                 logger.debug('Ignoring %s:%s as its currently disabled' % (target['target'],
                                                                            target['oid']))
@@ -309,10 +310,10 @@ def mainLoop(pollerName, isDaemon, controller):
                     # Still less than our max so start a new process
                     process = createProcess(configuration['numProcesses'] + 1, isDaemon)
                     processes.append(process)
-                    configuration[ 'numProcesses'] += 1
+                    configuration['numProcesses'] += 1
                     logger.info('Added new process - previous number: %s, new number: %s',
                                 configuration['numProcesses'] - 1,
-                                configuration[ 'numProcesses'])
+                                configuration['numProcesses'])
                     logger.info('Entering number of processes hold for 20 seconds')
                 else:
                     # Reached our maximum so log error
@@ -331,7 +332,7 @@ def mainLoop(pollerName, isDaemon, controller):
                     # Still more than the minimum so destroy a process
                     SubfragiumPollerLib.deleteProcess(processes[configuration['numProcesses'] - 1])
                     processes.pop(configuration['numProcesses'] - 1)
-                    configuration[ 'numProcesses' ] -= 1
+                    configuration['numProcesses'] -= 1
                     logger.info('Removed process - previous number: %s, new number: %s',
                                 configuration['numProcesses'] + 1, configuration['numProcesses'])
                     logger.info('Entering number of process hold for 20 seconds')
@@ -342,14 +343,14 @@ def mainLoop(pollerName, isDaemon, controller):
 
             # loopCounter indicates no capacity issues
             else:
-                None
+                logger.debug('Number of processes ok')
 
         # Sleep for 5 seconds before repeating the management cycle
         time.sleep(5)
 
     # Stop the processes
-    for i in range(0, numProcesses):
-        processes[i]['handle'].join()
+    # for i in range(0, numProcesses):
+    #    processes[i]['handle'].join()
 
 
 #######################
@@ -379,7 +380,6 @@ if __name__ == '__main__':
     if args.foreground:
         SubfragiumPollerLib.setupLogging(False, logLevel)
         mainLoop(args.pollerName[0], False, args.controller[0])
-
 
     else:
 

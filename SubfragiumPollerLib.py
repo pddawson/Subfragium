@@ -49,7 +49,8 @@ def parseStorage(stype, location):
     if stype != 'graphite':
         return {'success': False, 'err': 'Unsupported storage type: %s' % stype}
 
-    storage = re.match('([\w]+)\:\/\/([\w\.]+)\:(\d+)', location)
+    storage = re.match('([\w]+)://([\w.]+):(\d+)', location)
+    print storage
     if storage is None:
         return {'success': False, 'err': 'Could not parse storage location: %s' % location}
 
@@ -66,6 +67,7 @@ def parseStorage(stype, location):
             'storageHost': storageHost,
             'storagePort': storagePort}
 
+
 # This function gets the list of targets from the server
 def getTargets(url):
 
@@ -77,6 +79,7 @@ def getTargets(url):
         return {'success': True, 'data': targetList}
     except urllib2.URLError, e:
         return {'success': False, 'err': 'Target List Server Down: %s' % e}
+
 
 def snmpQuery(target, snmpString, oid, name, timeout):
 
@@ -158,6 +161,7 @@ def disableTarget(target, oid, failures, failureThreshold, disableTime):
     # Return the failure object for future reference
     return failures
 
+
 def checkTarget(target, oid, failure):
 
     # Form the pollId index used to track oids
@@ -170,6 +174,7 @@ def checkTarget(target, oid, failure):
 
     # It isn't so return false
     return False
+
 
 def enableTarget(target, oid, failures):
 
@@ -193,7 +198,7 @@ def enableTarget(target, oid, failures):
                 currTimeObj = datetime.datetime.fromtimestamp(int(currTime))
                 currTimeStr = currTimeObj.strftime('%Y-%m-%d %H:%M:%S')
                 enableTime = datetime.datetime.fromtimestamp(int(failures[pollId]['reenable']))
-                enableTimeStr = enableTime.strftime( '%Y-%m-%d %H:%M:%S' )
+                enableTimeStr = enableTime.strftime('%Y-%m-%d %H:%M:%S')
                 logger.debug('Enabling %s:%s as %s is later than %s' % (target,
                                                                         oid,
                                                                         currTimeStr,
@@ -229,6 +234,7 @@ def initPollerLists(numProcesses):
         targets.append([])
 
     return targets
+
 
 # Iterates through the target list creating an array of targets for each poller
 def distributePollers(targetList, targets):
