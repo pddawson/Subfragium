@@ -12,12 +12,30 @@ import daemon
 import os
 import Queue
 import ConfigParser
+import signal
 
 import SubfragiumPollerLib
 import SubfragiumUtilsLib
 
 # Global configuration dictionary for reference by many processes
 configuration = dict()
+
+# Global processes list
+processes = []
+
+
+def shutdownSignal(sigNum, frame):
+
+    logger = logging.getLogger('SubfragiumPoller')
+
+    logger.warn('Shutting down pollers after signal SIGINT')
+
+    for process in processes:
+        logger.warn('Shutting down process %s (pid: %s)' % (process['processName'], process['pid']))
+        SubfragiumPollerLib.deleteProcess(process)
+
+    logger.warn('Shutdown complete')
+    exit(1)
 
 
 def poller(q, sQ):
@@ -131,6 +149,7 @@ def createProcess(pid, createDaemon):
         process['handle'].daemon = True
 
     process['handle'].start()
+    process['pid'] = process['handle'].pid
     return process
 
 
@@ -204,8 +223,8 @@ def mainLoop(pollerName, isDaemon, controller):
     # Global dictionary for configuration information
     global configuration
 
-    # List of poller processes
-    processes = []
+    # Global list of processes
+    global processes
 
     # Configure the location of the controller
     configuration['controller'] = controller
@@ -442,8 +461,15 @@ if __name__ == '__main__':
 
     else:
 
+        signal.signal(signal.SIGINT, shutdownSignal)
+
+        signalMap = {
+            'signal.SIGINT': shutdownSignal
+        }
+
         context = daemon.DaemonContext(
             working_directory=path,
+            signal_map={signal.SIGINT: shutdownSignal}
         )
 
         with context:
