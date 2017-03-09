@@ -3,7 +3,6 @@
 import multiprocessing
 import time
 import logging
-import SubfragiumUtilsLib
 import pickle
 import struct
 import socket
@@ -15,6 +14,7 @@ import Queue
 import ConfigParser
 
 import SubfragiumPollerLib
+import SubfragiumUtilsLib
 
 # Global configuration dictionary for reference by many processes
 configuration = dict()
