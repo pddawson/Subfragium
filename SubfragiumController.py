@@ -5,6 +5,8 @@ import SubfragiumUtilsLib
 from flask import jsonify
 from flask import request
 import werkzeug
+from gevent.wsgi import WSGIServer
+
 import SubfragiumControllerSchema
 
 app = app.create_app()
@@ -519,4 +521,7 @@ if __name__ == '__main__':
 
     app.logger.info('Subfragium Controller Starting')
 
-    app.run(host='0.0.0.0', debug=True)
+    http_server = WSGIServer(('', 5000), app)
+    http_server.serve_forever()
+
+    #app.run(host='0.0.0.0', debug=True)

@@ -456,12 +456,13 @@ if __name__ == '__main__':
     path = os.getcwd()
 
     if args.foreground:
+
+        signal.signal( signal.SIGINT, shutdownSignal )
+
         SubfragiumPollerLib.setupLogging(False, configuration['logLevel'], 'SubfragiumPoller.log')
         mainLoop(configuration['pollerName'], False, configuration['controller'])
 
     else:
-
-        signal.signal(signal.SIGINT, shutdownSignal)
 
         signalMap = {
             'signal.SIGINT': shutdownSignal
