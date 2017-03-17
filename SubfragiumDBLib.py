@@ -1,5 +1,5 @@
-from app import models
-from app import db
+from SubfragiumControllerApp import models
+from SubfragiumControllerApp import db
 import SubfragiumUtilsLib
 import SubfragiumDBLibSchema
 

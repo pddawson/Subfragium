@@ -69,14 +69,14 @@ class TestControllerApi(unittest.TestCase):
     def setUp(self):
 
         (fd, fileName) = tempfile.mkstemp()
-        SubfragiumController.app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + fileName
-        SubfragiumController.app.config['SQLALCHEMY_DATABASE_PATH'] = fileName
-        SubfragiumController.app.config['TESTING'] = True
-        self.app = SubfragiumController.app.test_client()
+        SubfragiumController.app.config[ 'SQLALCHEMY_DATABASE_URI' ] = 'sqlite:///' + fileName
+        SubfragiumController.app.config[ 'SQLALCHEMY_DATABASE_PATH' ] = fileName
+        SubfragiumController.app.config[ 'TESTING' ] = True
+        self.app = SubfragiumController.app.test_client( )
         self.maxDiff = None
 
     def tearDown(self):
-        os.unlink(SubfragiumController.app.config['SQLALCHEMY_DATABASE_PATH'])
+        os.unlink(SubfragiumController.app.config[ 'SQLALCHEMY_DATABASE_PATH' ])
 
     def addTestData(self):
         res = self.app.put('/target/' + target,

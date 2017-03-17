@@ -20,7 +20,7 @@ Longer Term
 
 TODO
 ----
-- Figure out where to configure working directory (config file?)
+
 - Need to use a WSGI container for the controller process
 
 COMPLETE
@@ -70,3 +70,4 @@ COMPLETE
 - Add more validation of HTTP failures in testSubfragiumClientLib.py
 - Specify where to find controller in poller and cli
 - Need to fix daemon currently it exits in the daemon library when it checks if pid > 0
+- Figure out where to configure working directory (config file?)

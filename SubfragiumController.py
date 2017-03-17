@@ -1,15 +1,17 @@
-from app import db
-import app
+from SubfragiumControllerApp import db
+import SubfragiumControllerApp
 import SubfragiumDBLib
 import SubfragiumUtilsLib
 from flask import jsonify
 from flask import request
 import werkzeug
 from gevent.wsgi import WSGIServer
+import argparse
+import ConfigParser
 
 import SubfragiumControllerSchema
 
-app = app.create_app()
+app = SubfragiumControllerApp.create_app( )
 db.init_app(app)
 
 
@@ -41,15 +43,15 @@ def error503(msg):
 
 def getTarget(name):
 
-    app.logger.info('getTarget() %s request from %s' % (name, request.remote_addr))
+    app.logger.info( 'getTarget() %s request from %s' % (name, request.remote_addr) )
 
     tgt = SubfragiumDBLib.getTargetByName({'name': name})
     if not tgt['success']:
-        app.logger.error('getTarget() - Failed: %s' % tgt['err'])
+        app.logger.error( 'getTarget() - Failed: %s' % tgt[ 'err' ] )
         return {'success': False, 'code': 503, 'err': 'getTarget() - Failed: %s' % tgt['err']}
 
     if not tgt['obj']:
-        app.logger.info('getTarget() - No target %s found in DB' % name)
+        app.logger.info( 'getTarget() - No target %s found in DB' % name )
         return {'success': False, 'code': 404, 'err': 'No target %s found in DB' % name}
 
     return {'success': True, 'code': 200, 'obj': tgt['obj'][0]}
@@ -57,25 +59,25 @@ def getTarget(name):
 
 def putTarget(name, data):
 
-    app.logger.info('putTarget() %s request from %s' % (name, request.remote_addr))
+    app.logger.info( 'putTarget() %s request from %s' % (name, request.remote_addr) )
 
     if data is None:
-        app.logger.info('putTarget() - No JSON provided')
+        app.logger.info( 'putTarget() - No JSON provided' )
         return {'success': False, 'code': 404, 'err': 'putTarget() - No JSON provided'}
 
     results = SubfragiumUtilsLib.validateJson(SubfragiumControllerSchema.PingTarget, data)
     if not results['success']:
-        app.logger.error('putTarget() - Failed : %s' % results['err'])
+        app.logger.error( 'putTarget() - Failed : %s' % results[ 'err' ] )
         return {'success': False, 'code': 404, 'err': results['err']}
 
     # Check if the target is already defined
     existingTarget = SubfragiumDBLib.getTargetByName({'name': name})
     if not existingTarget['success']:
-        app.logger.error('putTarget() - Failed : %s' % existingTarget['err'])
+        app.logger.error( 'putTarget() - Failed : %s' % existingTarget[ 'err' ] )
         return {'success': False, 'code': 503, 'err': 'putTarget() Failure: %s' % existingTarget['err']}
 
     if existingTarget['obj']:
-        app.logger.info('putTarget() %s update' % name)
+        app.logger.info( 'putTarget() %s update' % name )
         result = SubfragiumDBLib.updateTargetByName({'name': name,
                                                      'snmpString': data['snmpString'],
                                                      'timeout': data['timeout']})
@@ -88,7 +90,7 @@ def putTarget(name, data):
                                                'snmpString': data['snmpString'],
                                                'timeout': data['timeout']})
     if not results['success']:
-        app.logger.error('putTarget() - Failed : %s' % results['err'])
+        app.logger.error( 'putTarget() - Failed : %s' % results[ 'err' ] )
         return {'success': False, 'code': 503, 'err': 'putTarget() Failed: %s ' % results['err']}
 
     return {'success': True, 'code': 200}
@@ -96,29 +98,29 @@ def putTarget(name, data):
 
 def deleteTarget(name):
 
-    app.logger.info('deleteTarget() %s request from %s' % (name, request.remote_addr))
+    app.logger.info( 'deleteTarget() %s request from %s' % (name, request.remote_addr) )
 
     existingTarget = SubfragiumDBLib.getTargetByName({'name': name})
     if not existingTarget['success']:
-        app.logger.error('deleteTarget() - Failed : %s' % existingTarget['err'])
+        app.logger.error( 'deleteTarget() - Failed : %s' % existingTarget[ 'err' ] )
         return {'success': False, 'code': 503, 'err': 'deleteTarget() Failed: %s' % existingTarget['err']}
 
     if not existingTarget['obj']:
-        app.logger.info('deleteTarget() - Target %s not found' % name)
+        app.logger.info( 'deleteTarget() - Target %s not found' % name )
         return {'success': False, 'code': 404, 'err': 'Target %s not found' % name}
 
     existingOids = SubfragiumDBLib.getOidsByTarget({'target': name})
     if not existingOids['success']:
-        app.logger.error('deleteTarget() - Failed : %s' % existingOids['err'])
+        app.logger.error( 'deleteTarget() - Failed : %s' % existingOids[ 'err' ] )
         return {'success': False, 'code': 503, 'err': 'deleteTarget() Failed: %s' % existingOids['err']}
 
     if len(existingOids['obj']) > 0:
-        app.logger.info('deleteTarget() - Target %s in use for oids' % name)
+        app.logger.info( 'deleteTarget() - Target %s in use for oids' % name )
         return {'success': False, 'code': 404, 'err': 'deleteTarget() Failed: Target %s in use for oids' % name}
 
     result = SubfragiumDBLib.deleteTargetByName({'name': name})
     if not result['success']:
-        app.logger.error('deleteTarget() Failed: %s' % result['err'])
+        app.logger.error( 'deleteTarget() Failed: %s' % result[ 'err' ] )
         return{'success': False, 'code': 503, 'err': 'deleteTarget() Failed: %s' % result['err']}
 
     return {'success': True, 'code': 200}
@@ -161,19 +163,19 @@ def target(name):
             else:
                 return error503(result['err'])
     else:
-        app.logger.info('Unsupported HTTP method in request')
+        app.logger.info( 'Unsupported HTTP method in request' )
         return error404('Unsupported HTTP method')
 
 
 @app.route('/targets', methods=['GET'])
 def targets():
 
-    app.logger.info('getAllTargets() request from %s' % request.remote_addr)
+    app.logger.info( 'getAllTargets() request from %s' % request.remote_addr )
 
     targetList = SubfragiumDBLib.getTargetsAll()
     if not targetList['success']:
         error = 'getTargetsAll() - Failed: %s' % targetList['err']
-        app.logger.error('getTargetsAll() - Failed %s' % targetList['err'])
+        app.logger.error( 'getTargetsAll() - Failed %s' % targetList[ 'err' ] )
         return error503(error)
 
     return jsonify(response={'success': True, 'obj': targetList['obj']})
@@ -181,11 +183,11 @@ def targets():
 
 def putPoller(name, data):
 
-    app.logger.info('putPoller() %s request from %s' % (name, request.remote_addr))
+    app.logger.info( 'putPoller() %s request from %s' % (name, request.remote_addr) )
 
     results = SubfragiumUtilsLib.validateJson(SubfragiumControllerSchema.Poller, data)
     if not results['success']:
-        app.logger.info('putPoller() - Failure: %s' % results['err'])
+        app.logger.info( 'putPoller() - Failure: %s' % results[ 'err' ] )
         return {'success': False, 'code': 404, 'err': 'putPoller() - Failure: %s' % results['err']}
 
     # Check that the maxProcesses is greater than the minProcesses
@@ -202,11 +204,11 @@ def putPoller(name, data):
 
     existingPoller = SubfragiumDBLib.getPollerByName({'name': name})
     if not existingPoller['success']:
-        app.logger.error('putPoller() - Failure:  %s' % existingPoller['err'])
+        app.logger.error( 'putPoller() - Failure:  %s' % existingPoller[ 'err' ] )
         return {'success': False, 'code': 503, 'err': 'putPoller() - Failure: %s' % existingPoller['err']}
 
     if existingPoller['obj']:
-        app.logger.info('putPoller() %s update' % name)
+        app.logger.info( 'putPoller() %s update' % name )
         data['name'] = name
         print data
         result = SubfragiumDBLib.modifyPollerByName(data)
@@ -218,7 +220,7 @@ def putPoller(name, data):
     data['name'] = name
     results = SubfragiumDBLib.putPollerByName(data)
     if not results['success']:
-        app.logger.error('putPoller() - Failed %s' % results['err'])
+        app.logger.error( 'putPoller() - Failed %s' % results[ 'err' ] )
         return {'success': False, 'code': 503, 'err': 'putPoller() Failed: %s' % results['err']}
 
     return {'success': True, 'code': 200}
@@ -226,15 +228,15 @@ def putPoller(name, data):
 
 def getPoller(name):
 
-    app.logger.info('getPoller() %s request from %s' % (name, request.remote_addr))
+    app.logger.info( 'getPoller() %s request from %s' % (name, request.remote_addr) )
 
     existingPoller = SubfragiumDBLib.getPollerByName({'name': name})
     if not existingPoller['success']:
-        app.logger.error('getPoller() - Failed %s' % existingPoller['err'])
+        app.logger.error( 'getPoller() - Failed %s' % existingPoller[ 'err' ] )
         return {'success': False, 'code': 503, 'err': 'getPoller() - Failed: %s' % existingPoller['err']}
 
     if not existingPoller['obj']:
-        app.logger.info('getPoller() - No poller %s found in DB' % name)
+        app.logger.info( 'getPoller() - No poller %s found in DB' % name )
         return {'success': False, 'code': 404, 'err': 'No poller %s found in DB' % name}
 
     return {'success': True, 'code': 200, 'obj': existingPoller['obj'][0]}
@@ -242,29 +244,29 @@ def getPoller(name):
 
 def deletePoller(name):
 
-    app.logger.info('deletePoller() %s request from %s' % (name, request.remote_addr))
+    app.logger.info( 'deletePoller() %s request from %s' % (name, request.remote_addr) )
 
     existingPoller = SubfragiumDBLib.getPollerByName({'name': name})
     if not existingPoller['success']:
-        app.logger.error('deletePoller() - Failed %s' % existingPoller['err'])
+        app.logger.error( 'deletePoller() - Failed %s' % existingPoller[ 'err' ] )
         return {'success': False, 'code': 503, 'err': 'deletePoller() Failed: %s' % existingPoller['err']}
 
     if not existingPoller['obj']:
-        app.logger.info('deletePoller() - Poller %s not found' % name)
+        app.logger.info( 'deletePoller() - Poller %s not found' % name )
         return {'success': False, 'code': 404, 'err': 'Poller %s not found' % name}
 
     existingOids = SubfragiumDBLib.getOidsByPoller({'poller': name})
     if not existingOids['success']:
-        app.logger.error('deletePoller() - Failed %s' % existingOids['err'])
+        app.logger.error( 'deletePoller() - Failed %s' % existingOids[ 'err' ] )
         return {'success': False, 'code': 503, 'err': 'deletePoller() Failed: %s' % existingOids['err']}
 
     if len(existingOids['obj']) > 0:
-        app.logger.info('deletePoller() - Poller %s in use for oids' % name)
+        app.logger.info( 'deletePoller() - Poller %s in use for oids' % name )
         return {'success': False, 'code': 404, 'err': 'Poller %s in use for oids' % name}
 
     result = SubfragiumDBLib.deletePollerByName({'name': name})
     if not result['success']:
-        app.logger.error('deletePoller() Failed: %s' % result['err'])
+        app.logger.error( 'deletePoller() Failed: %s' % result[ 'err' ] )
         return {'success': False, 'code': 503, 'err': 'deletePoller() Failed: %s' % result['err']}
 
     return {'success': True, 'code': 200}
@@ -305,18 +307,18 @@ def poller(name):
                 return error503(result['err'])
 
     else:
-        app.logger.info('Unsupported HTTP method in request')
+        app.logger.info( 'Unsupported HTTP method in request' )
         return error404('Unsupported HTTP method')
 
 
 @app.route('/pollers', methods=['GET'])
 def pollers():
 
-    app.logger.info('getPollersAll() request from %s' % request.remote_addr)
+    app.logger.info( 'getPollersAll() request from %s' % request.remote_addr )
 
     pollerList = SubfragiumDBLib.getPollersAll()
     if not pollerList['success']:
-        app.logger.error('getPollersAll() Failed: %s' % pollerList['err'])
+        app.logger.error( 'getPollersAll() Failed: %s' % pollerList[ 'err' ] )
         error = 'getPollersAll() Failed: %s' % pollerList['err']
         return error503(error)
 
@@ -325,21 +327,21 @@ def pollers():
 
 def putOid(tgt, oidInfo, data):
 
-    app.logger.info('putOid() %s:%s request from %s' % (tgt, oidInfo, request.remote_addr))
+    app.logger.info( 'putOid() %s:%s request from %s' % (tgt, oidInfo, request.remote_addr) )
 
     results = SubfragiumUtilsLib.validateJson(SubfragiumControllerSchema.Oid, data)
     if not results['success']:
-        app.logger.error('putOid() Failed: %s' % results['err'])
+        app.logger.error( 'putOid() Failed: %s' % results[ 'err' ] )
         return {'success': False, 'code': 404, 'err': results['err']}
 
     # Check for existence of poller
     resPoller = SubfragiumDBLib.getPollerByName({'name': data['poller']})
     if not resPoller['success']:
-        app.logger.error('putOid() Failure: %s ' % resPoller['err'])
+        app.logger.error( 'putOid() Failure: %s ' % resPoller[ 'err' ] )
         return {'success': False, 'code': 503, 'err': 'putOid() Failure: %s' % resPoller['err']}
 
     if not resPoller['obj']:
-        app.logger.info('putOid() - Poller %s does not exist' % data['poller'])
+        app.logger.info( 'putOid() - Poller %s does not exist' % data[ 'poller' ] )
         return {'success': False, 'code': 404, 'err': 'Poller %s does not exist' % data['poller']}
 
     # Check the poller isn't disabled
@@ -349,11 +351,11 @@ def putOid(tgt, oidInfo, data):
     # Check for existence of - Separate SubfragiumCli into a CLI tool and a SubfragiumClientLib.pytarget
     resTarget = SubfragiumDBLib.getTargetByName({'name': tgt})
     if not resTarget['success']:
-        app.logger.error('putOid() Failure: %s ' % resTarget['err'])
+        app.logger.error( 'putOid() Failure: %s ' % resTarget[ 'err' ] )
         return {'success': False, 'code': 503, 'err': 'putOid() Failure: %s' % resTarget['err']}
 
     if not resTarget['obj']:
-        app.logger.info('putOid() - Target %s does not exist' % target)
+        app.logger.info( 'putOid() - Target %s does not exist' % target )
         return {'success': False, 'code': 404, 'err': 'Target %s does not exist' % tgt}
 
     data['target'] = tgt
@@ -362,11 +364,11 @@ def putOid(tgt, oidInfo, data):
     # Check for existence of oid
     existingOid = SubfragiumDBLib.getOidByOid({'target': tgt, 'oid': oidInfo})
     if not existingOid['success']:
-        app.logger.error('putOid() Failure: %s ' % existingOid['err'])
+        app.logger.error( 'putOid() Failure: %s ' % existingOid[ 'err' ] )
         return {'success': False, 'code': 503, 'err': 'putOid() Failure: %s' % existingOid['err']}
 
     if not existingOid['obj'] == []:
-        app.logger.info('putOid() %s:%s update' % (tgt, oidInfo))
+        app.logger.info( 'putOid() %s:%s update' % (tgt, oidInfo) )
         result = SubfragiumDBLib.modifyOidByOid(data)
         if not result['success']:
             return {'success': False, 'code': 503, 'err': 'putOid() - Failed: %s' % result['err']}
@@ -375,7 +377,7 @@ def putOid(tgt, oidInfo, data):
 
     results = SubfragiumDBLib.putOidByOid(data)
     if not results['success']:
-        app.logger.error('addOid() Failure: %s ' % results['err'])
+        app.logger.error( 'addOid() Failure: %s ' % results[ 'err' ] )
         return {'success': False, 'code': 503, 'err': 'putPoller() Failed: %s' % results['err']}
 
     return {'success': True, 'code': 200}
@@ -383,20 +385,20 @@ def putOid(tgt, oidInfo, data):
 
 def deleteOid(tgt, oidInfo):
 
-    app.logger.info('deleteOid() %s:%s request from %s' % (tgt, oidInfo, request.remote_addr))
+    app.logger.info( 'deleteOid() %s:%s request from %s' % (tgt, oidInfo, request.remote_addr) )
 
     existingOid = SubfragiumDBLib.getOidByOid({'target': tgt, 'oid': oidInfo})
     if not existingOid['success']:
-        app.logger.error('deleteOid() Failure: %s ' % existingOid['err'])
+        app.logger.error( 'deleteOid() Failure: %s ' % existingOid[ 'err' ] )
         return {'success': False, 'code': 503, 'err': 'deleteOid() Failure: %s' % existingOid['err']}
 
     if len(existingOid['obj']) == 0:
-        app.logger.info('deleteOid() - No such OID %s:%s' % (tgt, oidInfo))
+        app.logger.info( 'deleteOid() - No such OID %s:%s' % (tgt, oidInfo) )
         return {'success': False, 'code': 404, 'err': 'deleteOid() - No such OID %s:%s' % (tgt, oidInfo)}
 
     results = SubfragiumDBLib.deleteOidByOid({'target': tgt, 'oid': oidInfo})
     if not results['success']:
-        app.logger.error('deleteOid() Failure: %s ' % results['err'])
+        app.logger.error( 'deleteOid() Failure: %s ' % results[ 'err' ] )
         return {'success': False, 'code': 503, 'err': 'deleteOid() Failed: %s' % results['err']}
 
     return {'success': True, 'code': 200}
@@ -404,15 +406,15 @@ def deleteOid(tgt, oidInfo):
 
 def getOid(tgt, oidInfo):
 
-    app.logger.info('getOid() %s:%s request from %s' % (tgt, oidInfo, request.remote_addr))
+    app.logger.info( 'getOid() %s:%s request from %s' % (tgt, oidInfo, request.remote_addr) )
 
     existingOid = SubfragiumDBLib.getOidByOid({'target': tgt, 'oid': oidInfo})
     if not existingOid['success']:
-        app.logger.error('getOid() Failure: %s ' % existingOid['err'])
+        app.logger.error( 'getOid() Failure: %s ' % existingOid[ 'err' ] )
         return {'success': False, 'code': 503, 'err': 'getOid() Failure: %s' % existingOid['err']}
 
     if len(existingOid['obj']) == 0:
-        app.logger.info('deleteOid() - No such OID %s:%s' % (target, oidInfo))
+        app.logger.info( 'deleteOid() - No such OID %s:%s' % (target, oidInfo) )
         return {'success': False, 'code': 404, 'err': 'getOid() - No such OID %s:%s' % (tgt, oidInfo)}
 
     return {'success': True, 'code': 200, 'obj': existingOid['obj'][0]}
@@ -452,7 +454,7 @@ def oid(tgt, oidInfo):
                 return error503(result['err'])
 
     else:
-        app.logger.info('Unsupported HTTP method in request')
+        app.logger.info( 'Unsupported HTTP method in request' )
         return error404('Unsupported HTTP method')
 
 
@@ -460,7 +462,7 @@ def oid(tgt, oidInfo):
 def oids():
 
     if len(request.args) == 0:
-        app.logger.info('getOidsQuery() request from %s' % request.remote_addr)
+        app.logger.info( 'getOidsQuery() request from %s' % request.remote_addr )
         oidList = SubfragiumDBLib.getOidsAll()
 
     else:
@@ -493,12 +495,12 @@ def oids():
                 queryParameters['enabled'] = False
             # Otherwise leave out so we don't search on it
 
-        app.logger.info('getOidsQuery() request from %s' % request.remote_addr)
+        app.logger.info( 'getOidsQuery() request from %s' % request.remote_addr )
         oidList = SubfragiumDBLib.getOidsQuery(queryParameters)
 
     if not oidList['success']:
         error = 'getOids..() Failed: %s' % oidList['err']
-        app.logger.error(error)
+        app.logger.error( error )
         return error503(error)
 
     return jsonify(response={'success': True, 'obj': oidList['obj']})
@@ -507,21 +509,67 @@ def oids():
 @app.route('/', methods=['GET'])
 def index():
 
-    app.logger.info('getIndex() request from %s' % request.remote_addr)
+    app.logger.info( 'getIndex() request from %s' % request.remote_addr )
 
     indexList = {}
 
-    urls = app.url_map.iter_rules()
+    urls = app.url_map.iter_rules( )
     for url in urls:
         indexList[url.endpoint] = '%s' % url
 
     return jsonify(response={'success': True, 'obj': indexList})
 
+
+def parseConfigFile(cfgFile):
+
+    config = ConfigParser.SafeConfigParser()
+    config.read(cfgFile)
+    if config.sections() == []:
+        print 'Config file not found: %s' % cfgFile
+        exit(1)
+
+    if 'general' not in config.sections():
+        print 'Config file missing [general] section'
+        exit(1)
+
+    try:
+        dbPath = config.get('general', 'dbpath')
+        port = config.get('general', 'port')
+        logLevel = config.get('general', 'logLevel')
+        logFile = config.get('general', 'logFile')
+    except ConfigParser.NoOptionError, e:
+        return {'success': False, 'err': 'Bad config file: %s ' % str(e)}
+
+    cfg = dict()
+    cfg['general'] = dict()
+    cfg['general']['dbPath'] = dbPath
+    cfg['general']['port'] = port
+    cfg['general']['logLevel'] = logLevel
+    cfg['general']['logFile'] = logFile
+
+    return {'success': True, 'cfg': cfg}
+
+
 if __name__ == '__main__':
 
     app.logger.info('Subfragium Controller Starting')
 
-    http_server = WSGIServer(('', 5000), app)
-    http_server.serve_forever()
+    parser = argparse.ArgumentParser()
 
-    #app.run(host='0.0.0.0', debug=True)
+    parser.add_argument('cfgFile', action='store', nargs=1, help='Define configuration file')
+
+    args = parser.parse_args()
+
+    results = parseConfigFile(args.cfgFile)
+
+    if not results['success']:
+        print results['err']
+        exit(1)
+
+    configs = results['cfg']
+    SubfragiumControllerApp.configureApp(app, results['cfg'])
+
+    #http_server = WSGIServer(('', configs['general']['app']), app)
+    #http_server.serve_forever()
+
+    app.run(host='0.0.0.0', port=int(configs['general']['port']), debug=True)

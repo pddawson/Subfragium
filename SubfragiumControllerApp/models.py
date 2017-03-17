@@ -1,4 +1,4 @@
-from app import db
+from SubfragiumControllerApp import db
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship, backref
 
