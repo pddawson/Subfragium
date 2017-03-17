@@ -17,6 +17,7 @@ Longer Term
 - Add checking of configuration file for cli (possibly the poller too)
 - Add internal statistics reporting (cycle time, num processes, failures etc)
 - Add testing of SubfragiumPoller
+- Need to figure out how to require 'err' field if 'success' field is false in validation
 
 TODO
 ----

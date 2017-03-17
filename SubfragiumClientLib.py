@@ -88,14 +88,7 @@ def listTypeTargets(data, apiEndpoint):
 
     apiCall = apiEndpoint['urls']['targets']
     r = requests.get(apiCall)
-    rJson = json.loads(r.text)
-    if 'response' in rJson:
-        if 'success' in rJson['response'] and rJson['response']['success']:
-            return {'success': True, 'obj': rJson['response']['obj']}
-        else:
-            return {'success': False, 'err': 'Error: %s' % rJson['response']['err']}
-    else:
-        return {'success': False, 'err': 'Error: Unknown response - %s ' % r.text}
+    return validateResponse(r)
 
 
 def listTypeTarget(data, apiEndpoint):
@@ -124,15 +117,7 @@ def listTypeTarget(data, apiEndpoint):
     apiCall = apiEndpoint['urls']['target'].replace('<string:name>', '')
     apiCall += validatedInput.group(1)
     r = requests.get(apiCall)
-    rJson = json.loads(r.text)
-
-    if 'response' in rJson:
-        if 'success' in rJson['response'] and rJson['response']['success']:
-            return {'success': True, 'obj': rJson['response']['obj']}
-        else:
-            return {'success': False, 'err': 'Error: %s' % rJson['response']['err']}
-    else:
-        return {'success': False, 'err': 'Error: Unknown response - %s ' % r.text}
+    return validateResponse(r)
 
 
 def deleteTypeTarget(data, apiEndpoint):
@@ -161,15 +146,7 @@ def deleteTypeTarget(data, apiEndpoint):
     apiCall = apiEndpoint['urls']['target'].replace('<string:name>', '')
     apiCall += validatedInput.group(1)
     r = requests.delete(apiCall)
-    rJson = json.loads(r.text)
-
-    if 'response' in rJson:
-        if 'success' in rJson['response'] and rJson['response']['success']:
-            return {'success': True}
-        else:
-            return {'success': True, 'err': 'Error: %s' % rJson['response']['err']}
-    else:
-        return {'success': True, 'err': 'Error: Unknown response - %s' % r.text}
+    return validateResponse(r)
 
 
 def modifyTypeTarget(data, apiEndpoint):
@@ -223,17 +200,7 @@ def modifyTypeTarget(data, apiEndpoint):
     apiCall = apiEndpoint['urls']['target'].replace('<string:name>', '')
     apiCall += validatedInput.group(1)
     r = requests.put(apiCall, data=jsonCall, headers=headers)
-    rJson = json.loads(r.text)
-    if 'response' not in rJson:
-        return {'success': False, 'err': 'Error: Unknown response %s' % r.text}
-
-    if 'success' not in rJson['response']:
-        return {'success': False, 'err': 'Error: Bad response %s' % rJson['response']}
-
-    if not rJson['response']['success']:
-        return {'success': False, 'err': 'Error: Failed %s' % rJson['response']['err']}
-
-    return {'success': True}
+    return validateResponse(r)
 
 
 def addTypePoller(data, apiEndPoint):
@@ -283,18 +250,7 @@ def addTypePoller(data, apiEndPoint):
 
     headers = {'content-type': 'application/json'}
     r = requests.put(apiCall, data=jsonStr, headers=headers)
-    if r.status_code == 500:
-        return {'success': False, 'err': 'Error: %s' % r.text}
-
-    rJson = json.loads(r.text)
-
-    if 'response' in rJson:
-        if 'success' in rJson['response'] and rJson['response']['success']:
-            return {'success': True}
-        else:
-            return {'success': False, 'err': 'Error: %s' % rJson['response']['err']}
-    else:
-        return {'success': False, 'err': 'Error: Unknown response %s' % r.text}
+    return validateResponse(r)
 
 
 def listTypePollers(data, apiEndPoint):
@@ -310,14 +266,7 @@ def listTypePollers(data, apiEndPoint):
 
     apiCall = apiEndPoint['urls']['pollers']
     r = requests.get(apiCall)
-    rJson = json.loads(r.text)
-    if 'response' in rJson:
-        if 'success' in rJson['response'] and rJson['response']['success']:
-            return {'success': True, 'obj': rJson['response']['obj']}
-        else:
-            return {'success': False, 'err': 'Error: %s' % rJson['response']['err']}
-    else:
-        return {'success': False, 'err': 'Error: Unknown response - %s ' % r.text}
+    return validateResponse(r)
 
 
 def listTypePoller(data, apiEndPoint):
@@ -344,16 +293,7 @@ def listTypePoller(data, apiEndPoint):
     apiCall = apiEndPoint['urls']['poller'].replace('<string:name>', '')
     apiCall += validatedInput.group(1)
     r = requests.get(apiCall)
-    rJson = json.loads(r.text)
-
-    if 'response' in rJson:
-        if 'success' in rJson['response'] and rJson['response']['success']:
-            res = rJson['response']['obj']
-            return {'success': True, 'obj': res}
-        else:
-            return {'success': False, 'err': 'Error: %s' % rJson['response']['err']}
-    else:
-        return {'success': False, 'err': 'Error: Unknown response - %s ' % r.text}
+    return validateResponse(r)
 
 
 def deleteTypePoller(data, apiEndPoint):
@@ -380,15 +320,7 @@ def deleteTypePoller(data, apiEndPoint):
     apiCall = apiEndPoint['urls']['poller'].replace('<string:name>', '')
     apiCall += validatedInput.group(1)
     r = requests.delete(apiCall)
-    rJson = json.loads(r.text)
-
-    if 'response' in rJson:
-        if 'success' in rJson['response'] and rJson['response']['success']:
-            return {'success': True}
-        else:
-            return {'success': False, 'err': 'Error: %s' % rJson['response']['err']}
-    else:
-        return {'success': False, 'err': 'Error: Unknown response - %s' % r.text}
+    return validateResponse(r)
 
 
 def modifyTypePoller(data, apiEndPoint):
@@ -464,18 +396,7 @@ def modifyTypePoller(data, apiEndPoint):
 
     headers = {'content-type': 'application/json'}
     r = requests.put(apiCall, data=jsonStr, headers=headers)
-    if r.status_code != 200:
-        return {'success': False, 'err': 'Error: %s' % r.text}
-
-    rJson = json.loads(r.text)
-
-    if 'response' in rJson:
-        if 'success' in rJson['response'] and rJson['response']['success']:
-            return {'success': True}
-        else:
-            return {'success': False, 'err': 'Error: %s' % rJson['response']['err']}
-    else:
-        return {'success': False, 'err': 'Error: Unknown response %s' % r.text}
+    return validateResponse(r)
 
 
 def addTypeOid(data, apiEndPoint):
@@ -513,18 +434,7 @@ def addTypeOid(data, apiEndPoint):
     apiCall = apiCall.replace('<string:oidInfo>', validatedInput.group(2))
     headers = {'content-type': 'application/json'}
     r = requests.put(apiCall, data=jsonStr, headers=headers)
-    if r.status_code == 500:
-        return {'success': False, 'err': 'Error: %s' % r.text}
-
-    rJson = json.loads(r.text)
-
-    if 'response' in rJson:
-        if 'success' in rJson['response'] and rJson['response']['success']:
-            return {'success': True}
-        else:
-            return {'success': False, 'err': 'Error: %s' % rJson['response']['err']}
-    else:
-        return {'success': False, 'err': 'Error: Unknown response %s' % r.text}
+    return validateResponse(r)
 
 
 def modifyTypeOid(data, apiEndPoint):
@@ -585,18 +495,7 @@ def modifyTypeOid(data, apiEndPoint):
 
     headers = {'content-type': 'application/json'}
     r = requests.put(apiCall, data=jsonStr, headers=headers)
-    if r.status_code != 200:
-        return {'success': False, 'err': 'Error: %s' % r.text}
-
-    rJson = json.loads(r.text)
-
-    if 'response' in rJson:
-        if 'success' in rJson['response'] and rJson['response']['success']:
-            return {'success': True}
-        else:
-            return {'success': False, 'err': 'Error: %s' % rJson['response']['err']}
-    else:
-        return {'success': False, 'err': 'Error: Unknown response %s' % r.text}
+    return validateResponse(r)
 
 
 def listTypeOids(data, apiEndPoint):
@@ -631,15 +530,7 @@ def listTypeOids(data, apiEndPoint):
         apiCall += '?%s=%s' % (field, value)
 
     r = requests.get(apiCall)
-    rJson = json.loads(r.text)
-
-    if 'response' in rJson:
-        if 'success' in rJson['response'] and rJson['response']['success']:
-            return {'success': True, 'obj': rJson['response']['obj']}
-        else:
-            return {'success': False, 'err': 'Error: %s' % rJson['response']['err']}
-    else:
-        return {'success': False, 'err': 'Error: Unknown response - %s ' % r.text}
+    return validateResponse(r)
 
 
 def listTypeOid(data, apiEndPoint):
@@ -668,15 +559,7 @@ def listTypeOid(data, apiEndPoint):
     apiCall = apiEndPoint['urls']['oid'].replace('<string:tgt>', validatedInput.group(1))
     apiCall = apiCall.replace('<string:oidInfo>', validatedInput.group(2))
     r = requests.get(apiCall)
-    rJson = json.loads(r.text)
-
-    if 'response' in rJson:
-        if 'success' in rJson['response'] and rJson['response']['success']:
-            return {'success': True, 'obj': rJson['response']['obj']}
-        else:
-            return {'success': False, 'err': 'Error: %s' % rJson['response']['err']}
-    else:
-        return {'success': False, 'err': 'Error: Unknown response - %s ' % r.text}
+    return validateResponse(r)
 
 
 def deleteTypeOid(data, apiEndPoint):
@@ -705,12 +588,4 @@ def deleteTypeOid(data, apiEndPoint):
     apiCall = apiEndPoint['urls']['oid'].replace('<string:tgt>', validatedInput.group(1))
     apiCall = apiCall.replace('<string:oidInfo>', validatedInput.group(2))
     r = requests.delete(apiCall)
-    rJson = json.loads(r.text)
-
-    if 'response' in rJson:
-        if 'success' in rJson['response'] and rJson['response']['success']:
-            return {'success': True}
-        else:
-            return {'success': False, 'err': 'Error: %s' % rJson['response']['err']}
-    else:
-        return {'success': False, 'err': 'Error: Unknown response - %s' % r.text}
+    return validateResponse(r)
