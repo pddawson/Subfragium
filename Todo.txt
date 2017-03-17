@@ -21,6 +21,7 @@ Longer Term
 TODO
 ----
 
+- Fix SubfragiumPoller.py now we've added a configuration file (daemon fails to start)
 - Need to use a WSGI container for the controller process
 
 COMPLETE

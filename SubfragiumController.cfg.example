@@ -1,0 +1,5 @@
+[general]
+dbPath = sqlite:////home/pdd/Subfragium-Dev/SubfragiumDB-Dev.sqlite
+port = 9999
+logFile = /home/pdd/Subfragium-Dev/SubfragiumController.log
+logLevel = info

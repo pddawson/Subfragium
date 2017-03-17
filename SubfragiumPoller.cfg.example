@@ -1,0 +1,5 @@
+[general]
+controller = localhost:9999
+logLevel = debug
+pollerName = poller1
+logFile = SubfragiumPoller.log
