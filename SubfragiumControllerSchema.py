@@ -1,5 +1,4 @@
-
-PingTarget = {
+Target = {
   'type': 'object',
   'properties': {
     'snmpString': {

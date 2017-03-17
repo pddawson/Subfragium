@@ -65,7 +65,7 @@ def putTarget(name, data):
         app.logger.info( 'putTarget() - No JSON provided' )
         return {'success': False, 'code': 404, 'err': 'putTarget() - No JSON provided'}
 
-    results = SubfragiumUtilsLib.validateJson(SubfragiumControllerSchema.PingTarget, data)
+    results = SubfragiumUtilsLib.validateJson(SubfragiumControllerSchema.Target, data)
     if not results['success']:
         app.logger.error( 'putTarget() - Failed : %s' % results[ 'err' ] )
         return {'success': False, 'code': 404, 'err': results['err']}

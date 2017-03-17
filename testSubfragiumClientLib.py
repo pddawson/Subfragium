@@ -151,7 +151,7 @@ class TestControllerApi(unittest.TestCase):
         results = SubfragiumClientLib.addTypeTarget(inputString, getApiEndPointUrls)
         reqPayload = mockRequestResponse.call_args[1]['data']
 
-        validJson = validateJson(SubfragiumControllerSchema.PingTarget, json.loads(reqPayload))
+        validJson = validateJson(SubfragiumControllerSchema.Target, json.loads(reqPayload))
 
         # First check that API requirements were satisfied
         self.assertEquals(validJson['success'], True)
@@ -284,7 +284,7 @@ class TestControllerApi(unittest.TestCase):
         results = SubfragiumClientLib.modifyTypeTarget(inputString, getApiEndPointUrls )
         reqPayload = mochRequestPutResponse.call_args[1]['data']
 
-        validJson = validateJson(SubfragiumControllerSchema.PingTarget, json.loads(reqPayload))
+        validJson = validateJson(SubfragiumControllerSchema.Target, json.loads(reqPayload))
 
         # First check that API requirements were satisfied
         self.assertEquals(validJson['success'], True)
@@ -307,7 +307,7 @@ class TestControllerApi(unittest.TestCase):
         results = SubfragiumClientLib.modifyTypeTarget(inputString, getApiEndPointUrls)
         reqPayload = mochRequestPutResponse.call_args[1]['data']
 
-        validJson = validateJson(SubfragiumControllerSchema.PingTarget, json.loads(reqPayload))
+        validJson = validateJson(SubfragiumControllerSchema.Target, json.loads(reqPayload))
 
         # First check that API requirements were satisfied
         self.assertEquals(validJson['success'], True)
