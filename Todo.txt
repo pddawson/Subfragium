@@ -18,6 +18,8 @@ Longer Term
 - Add internal statistics reporting (cycle time, num processes, failures etc)
 - Add testing of SubfragiumPoller
 - Need to figure out how to require 'err' field if 'success' field is false in validation
+- Add version to API
+    Make sure the getIndex function has a current and then previous versions
 
 TODO
 ----

@@ -13,6 +13,7 @@ import os
 import Queue
 import ConfigParser
 import signal
+import lockfile
 
 import SubfragiumPollerLib
 import SubfragiumUtilsLib
@@ -169,9 +170,10 @@ def parseConfigFile(filePath):
 
     try:
 
-        parameters = ('controller', 'logLevel', 'pollerName', 'logFile')
+        parameters = ('controller', 'logLevel', 'pollerName', 'logFile', 'pidFile', 'workingDir')
         for parameter in parameters:
             configuration[parameter] = config.get('general', parameter)
+            print parameter + ' ' + config.get('general', parameter)
     except ConfigParser.NoOptionError:
         print 'No %s definition under [general] section' % parameter
         exit(1)
@@ -453,11 +455,9 @@ if __name__ == '__main__':
     if args.controller:
         cliControllerOverride(args.controller)
 
-    path = os.getcwd()
-
     if args.foreground:
 
-        signal.signal( signal.SIGINT, shutdownSignal )
+        signal.signal(signal.SIGINT, shutdownSignal)
 
         SubfragiumPollerLib.setupLogging(False, configuration['logLevel'], 'SubfragiumPoller.log')
         mainLoop(configuration['pollerName'], False, configuration['controller'])
@@ -468,11 +468,21 @@ if __name__ == '__main__':
             'signal.SIGINT': shutdownSignal
         }
 
+        print
+        print configuration['workingDir']
+        print configuration['pidFile']
+        print configuration['logLevel']
+        print configuration['logFile']
+        print configuration['pollerName']
+        print configuration['controller']
+        print 'Entering Daemon Mode'
+
         context = daemon.DaemonContext(
-            working_directory=path,
+            working_directory=configuration['workingDir'],
+            pidfile=lockfile.FileLock(configuration['pidFile']),
             signal_map={signal.SIGINT: shutdownSignal}
         )
 
         with context:
-            SubfragiumPollerLib.setupLogging(True, configuration['logLevel'], 'SubfragiumPoller.log')
+            SubfragiumPollerLib.setupLogging(True, configuration['logLevel'], configuration['logFile'])
             mainLoop(configuration['pollerName'], True, configuration['controller'])

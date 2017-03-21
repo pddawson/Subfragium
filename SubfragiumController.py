@@ -8,6 +8,7 @@ import werkzeug
 from gevent.wsgi import WSGIServer
 import argparse
 import ConfigParser
+import daemon
 
 import SubfragiumControllerSchema
 
@@ -534,7 +535,7 @@ def parseConfigFile(cfgFile):
 
     try:
         dbPath = config.get('general', 'dbpath')
-        port = config.get('general', 'port')
+        port = int(config.get('general', 'port'))
         logLevel = config.get('general', 'logLevel')
         logFile = config.get('general', 'logFile')
     except ConfigParser.NoOptionError, e:
@@ -557,7 +558,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
     parser.add_argument('cfgFile', action='store', nargs=1, help='Define configuration file')
-
+    parser.add_argument('-f', dest='foreground', action='store_true', help='Run process in foreground')
     args = parser.parse_args()
 
     results = parseConfigFile(args.cfgFile)
@@ -567,9 +568,16 @@ if __name__ == '__main__':
         exit(1)
 
     configs = results['cfg']
+    print configs
     SubfragiumControllerApp.configureApp(app, results['cfg'])
 
-    #http_server = WSGIServer(('', configs['general']['app']), app)
-    #http_server.serve_forever()
+    if args.foreground:
+        app.run(host='0.0.0.0', port=int(configs['general']['port']), debug=True)
 
-    app.run(host='0.0.0.0', port=int(configs['general']['port']), debug=True)
+    stdOut = open('Debug.stdout', mode='w')
+    stdErr = open( 'Debug.stderr', mode='w' )
+    context = daemon.DaemonContext(stdout=stdOut, stderr=stdErr)
+
+    with context:
+        http_server = WSGIServer(('', configs['general']['port']), app)
+        http_server.serve_forever()
