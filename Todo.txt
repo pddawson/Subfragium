@@ -20,6 +20,16 @@ Longer Term
 - Need to figure out how to require 'err' field if 'success' field is false in validation
 - Add version to API
     Make sure the getIndex function has a current and then previous versions
+- Add testing of add/delete api validation vs get api validation
+- Add config check period for poller
+- Change poller configuration (not oids) dynamically
+    - Remember that new numProcesses needs to be checked against max/minProcesses
+- Revalidate all logging statements
+    - Debug: For most
+    - Info: For things like changing processes, initial start up
+    - Warning: For things that went wrong but won't kill eveything
+    - Error: For things that are likely to cause problems soon
+    - Critical: Just before it dies...
 
 TODO
 ----

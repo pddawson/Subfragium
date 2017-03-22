@@ -75,41 +75,41 @@ class TestControllerApi(unittest.TestCase):
 
     def testValidateResponseNothing(self):
 
-        results = SubfragiumClientLib.validateResponse('')
+        results = SubfragiumClientLib.validateResponse('', False)
         self.assertEquals(results['success'], False)
         self.assertEquals(results['err'], 'Error: No text in response')
 
     def testValidateResponseNoResponseField(self):
 
         res = requestResponse('{}', 404)
-        results = SubfragiumClientLib.validateResponse(res)
+        results = SubfragiumClientLib.validateResponse(res, False)
         self.assertEquals(results['success'], False)
         self.assertEquals(results['err'], 'Error: Unknown response - {}')
 
     def testValidateResponseNoSuccessField(self):
 
         res = requestResponse('{"response":{}}', 404)
-        results = SubfragiumClientLib.validateResponse(res)
+        results = SubfragiumClientLib.validateResponse(res, False)
         self.assertEquals(results['success'], False)
         self.assertEquals(results['err'], 'Error: Missing success/err field - {u\'response\': {}}')
 
     def testValidateResponseSuccessResponse(self):
 
         res = requestResponse('{"response":{"success": true}}', 400)
-        results = SubfragiumClientLib.validateResponse(res)
+        results = SubfragiumClientLib.validateResponse(res, False)
         self.assertEquals(results['success'], True)
 
     def testValidateResponseBadErrorResponse(self):
 
         res = requestResponse('{"response":{"success": false}}', 404)
-        results = SubfragiumClientLib.validateResponse(res)
+        results = SubfragiumClientLib.validateResponse(res, False)
         self.assertEquals(results['success'], False)
         self.assertEquals(results['err'], 'Error: Missing success/err field - {u\'response\': {u\'success\': False}}')
 
     def testValidateResponseGoodErrorResponse(self):
 
         res = requestResponse('{"response":{"success": false, "err": "abc"}}', 404)
-        results = SubfragiumClientLib.validateResponse(res)
+        results = SubfragiumClientLib.validateResponse(res, False)
         self.assertEquals(results['success'], False)
         self.assertEquals(results['err'], 'abc')
 

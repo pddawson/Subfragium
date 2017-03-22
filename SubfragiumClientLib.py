@@ -22,21 +22,24 @@ def getApiEndPoint(apiServer):
         return {'success': False, 'err': 'Could not get API End Points from %s' % apiServer}
 
 
-def validateResponse(response):
+def validateResponse(response, getResponse):
 
     try:
-        payload = response.text
+      payload = response.text
     except AttributeError:
-        return {'success': False, 'err': 'Error: No text in response'}
-
+      return {'success': False, 'err': 'Error: No text in response'}
+  
     rJson = json.loads(payload)
     if 'response' in rJson:
-        if 'success' in rJson['response'] and rJson['response']['success']:
-            return {'success': True}
+        if 'success' in rJson['response'] and rJson['response' ]['success']:
+            if getResponse:
+                return {'success': True, 'obj': rJson['response']['obj']}
+            else:
+                return {'success': True}
         elif 'success' in rJson['response'] and 'err' in rJson['response']:
             return {'success': False, 'err': rJson['response']['err']}
         else:
-            return {'success': False, 'err': 'Error: Missing success/err field - %s' % rJson}
+          return {'success': False, 'err': 'Error: Missing success/err field - %s' % rJson}
     else:
         return {'success': False, 'err': 'Error: Unknown response - %s' % response.text}
 
@@ -72,7 +75,7 @@ def addTypeTarget(data, apiEndpoint):
     apiCall = apiEndpoint['urls']['target'].replace('<string:name>', '')
     apiCall += validatedInput.group(1)
     r = requests.put(apiCall, data=jsonCall, headers=headers)
-    return validateResponse(r)
+    return validateResponse(r, False)
 
 
 def listTypeTargets(data, apiEndpoint):
@@ -88,7 +91,7 @@ def listTypeTargets(data, apiEndpoint):
 
     apiCall = apiEndpoint['urls']['targets']
     r = requests.get(apiCall)
-    return validateResponse(r)
+    return validateResponse(r, True)
 
 
 def listTypeTarget(data, apiEndpoint):
@@ -117,7 +120,7 @@ def listTypeTarget(data, apiEndpoint):
     apiCall = apiEndpoint['urls']['target'].replace('<string:name>', '')
     apiCall += validatedInput.group(1)
     r = requests.get(apiCall)
-    return validateResponse(r)
+    return validateResponse(r, True)
 
 
 def deleteTypeTarget(data, apiEndpoint):
@@ -146,7 +149,7 @@ def deleteTypeTarget(data, apiEndpoint):
     apiCall = apiEndpoint['urls']['target'].replace('<string:name>', '')
     apiCall += validatedInput.group(1)
     r = requests.delete(apiCall)
-    return validateResponse(r)
+    return validateResponse(r, False)
 
 
 def modifyTypeTarget(data, apiEndpoint):
@@ -200,7 +203,7 @@ def modifyTypeTarget(data, apiEndpoint):
     apiCall = apiEndpoint['urls']['target'].replace('<string:name>', '')
     apiCall += validatedInput.group(1)
     r = requests.put(apiCall, data=jsonCall, headers=headers)
-    return validateResponse(r)
+    return validateResponse(r, False)
 
 
 def addTypePoller(data, apiEndPoint):
@@ -250,7 +253,7 @@ def addTypePoller(data, apiEndPoint):
 
     headers = {'content-type': 'application/json'}
     r = requests.put(apiCall, data=jsonStr, headers=headers)
-    return validateResponse(r)
+    return validateResponse(r, False)
 
 
 def listTypePollers(data, apiEndPoint):
@@ -266,7 +269,7 @@ def listTypePollers(data, apiEndPoint):
 
     apiCall = apiEndPoint['urls']['pollers']
     r = requests.get(apiCall)
-    return validateResponse(r)
+    return validateResponse(r, True)
 
 
 def listTypePoller(data, apiEndPoint):
@@ -293,7 +296,7 @@ def listTypePoller(data, apiEndPoint):
     apiCall = apiEndPoint['urls']['poller'].replace('<string:name>', '')
     apiCall += validatedInput.group(1)
     r = requests.get(apiCall)
-    return validateResponse(r)
+    return validateResponse(r, True)
 
 
 def deleteTypePoller(data, apiEndPoint):
@@ -320,7 +323,7 @@ def deleteTypePoller(data, apiEndPoint):
     apiCall = apiEndPoint['urls']['poller'].replace('<string:name>', '')
     apiCall += validatedInput.group(1)
     r = requests.delete(apiCall)
-    return validateResponse(r)
+    return validateResponse(r, False)
 
 
 def modifyTypePoller(data, apiEndPoint):
@@ -396,7 +399,7 @@ def modifyTypePoller(data, apiEndPoint):
 
     headers = {'content-type': 'application/json'}
     r = requests.put(apiCall, data=jsonStr, headers=headers)
-    return validateResponse(r)
+    return validateResponse(r, False)
 
 
 def addTypeOid(data, apiEndPoint):
@@ -434,7 +437,7 @@ def addTypeOid(data, apiEndPoint):
     apiCall = apiCall.replace('<string:oidInfo>', validatedInput.group(2))
     headers = {'content-type': 'application/json'}
     r = requests.put(apiCall, data=jsonStr, headers=headers)
-    return validateResponse(r)
+    return validateResponse(r, False)
 
 
 def modifyTypeOid(data, apiEndPoint):
@@ -495,7 +498,7 @@ def modifyTypeOid(data, apiEndPoint):
 
     headers = {'content-type': 'application/json'}
     r = requests.put(apiCall, data=jsonStr, headers=headers)
-    return validateResponse(r)
+    return validateResponse(r, False)
 
 
 def listTypeOids(data, apiEndPoint):
@@ -530,7 +533,7 @@ def listTypeOids(data, apiEndPoint):
         apiCall += '?%s=%s' % (field, value)
 
     r = requests.get(apiCall)
-    return validateResponse(r)
+    return validateResponse(r, True)
 
 
 def listTypeOid(data, apiEndPoint):
@@ -559,7 +562,7 @@ def listTypeOid(data, apiEndPoint):
     apiCall = apiEndPoint['urls']['oid'].replace('<string:tgt>', validatedInput.group(1))
     apiCall = apiCall.replace('<string:oidInfo>', validatedInput.group(2))
     r = requests.get(apiCall)
-    return validateResponse(r)
+    return validateResponse(r, True)
 
 
 def deleteTypeOid(data, apiEndPoint):
@@ -588,4 +591,4 @@ def deleteTypeOid(data, apiEndPoint):
     apiCall = apiEndPoint['urls']['oid'].replace('<string:tgt>', validatedInput.group(1))
     apiCall = apiCall.replace('<string:oidInfo>', validatedInput.group(2))
     r = requests.delete(apiCall)
-    return validateResponse(r)
+    return validateResponse(r, False)

@@ -112,6 +112,7 @@ def actionList(type, data, apiEndPoint):
             print results['helpMsg']
             exit(0)
         if results['success']:
+            print results
             printPollers(results['obj'])
             exit(0)
         else:
