@@ -113,6 +113,13 @@ class TestControllerApi(unittest.TestCase):
         self.assertEquals(results['success'], False)
         self.assertEquals(results['err'], 'abc')
 
+    def testValidateResponseGoodGetResponse(self):
+
+        res = requestResponse('{"response":{"success": true, "obj": { "name": "123.123.1.1"}}}', 400)
+        results = SubfragiumClientLib.validateResponse(res, True)
+        self.assertEquals(results['success'], True)
+        self.assertEquals(results['obj'], {'name': '123.123.1.1'})
+
     ##
     ## Testing Target API
     ##
