@@ -31,15 +31,15 @@ def validateResponse(response, getResponse):
   
     rJson = json.loads(payload)
     if 'response' in rJson:
-        if 'success' in rJson['response'] and rJson['response' ]['success']:
+        if 'success' in rJson['response'] and rJson['response']['success']:
             if getResponse:
                 return {'success': True, 'obj': rJson['response']['obj']}
             else:
                 return {'success': True}
-        elif 'success' in rJson['response'] and 'err' in rJson['response']:
+        elif 'err' in rJson['response']:
             return {'success': False, 'err': rJson['response']['err']}
         else:
-          return {'success': False, 'err': 'Error: Missing success/err field - %s' % rJson}
+            return {'success': False, 'err': 'Error: Missing success/err field - %s' % rJson}
     else:
         return {'success': False, 'err': 'Error: Unknown response - %s' % response.text}
 

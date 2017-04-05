@@ -13,14 +13,11 @@ Longer Term
 - Add additional testing for searching by fields in list oids
 - Should we use HTTP error codes in SubfragiumClientLib to check status of API response
 - Add audit log for changes through API
-- Add output validation of API responses
 - Add checking of configuration file for cli (possibly the poller too)
 - Add internal statistics reporting (cycle time, num processes, failures etc)
 - Add testing of SubfragiumPoller
-- Need to figure out how to require 'err' field if 'success' field is false in validation
 - Add version to API
     Make sure the getIndex function has a current and then previous versions
-- Add testing of add/delete api validation vs get api validation
 - Add config check period for poller
 - Change poller configuration (not oids) dynamically
     - Remember that new numProcesses needs to be checked against max/minProcesses
@@ -30,12 +27,11 @@ Longer Term
     - Warning: For things that went wrong but won't kill eveything
     - Error: For things that are likely to cause problems soon
     - Critical: Just before it dies...
+- Validation of configuration based parameters
+
 
 TODO
 ----
-
-- Fix SubfragiumPoller.py now we've added a configuration file (daemon fails to start)
-- Need to use a WSGI container for the controller process
 
 COMPLETE
 --------
@@ -85,3 +81,8 @@ COMPLETE
 - Specify where to find controller in poller and cli
 - Need to fix daemon currently it exits in the daemon library when it checks if pid > 0
 - Figure out where to configure working directory (config file?)
+- Fix SubfragiumPoller.py now we've added a configuration file (daemon fails to start)
+- Need to use a WSGI container for the controller process
+- Add output validation for error handlers (404, 503, Bad Method)
+- Need to figure out how to require 'err' field if 'success' field is false in validation
+- Add output validation of API responses

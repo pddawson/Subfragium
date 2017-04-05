@@ -16,6 +16,15 @@ app = SubfragiumControllerApp.create_app( )
 db.init_app(app)
 
 
+def validateOutput(objSchema, objOut):
+
+    valid = SubfragiumUtilsLib.validateJson(objSchema, objOut)
+    if valid['success']:
+        return jsonify(response=objOut)
+
+    return error503('Failed out put validation: %s' % valid['err'])
+
+
 @app.before_request
 def initDb():
     db.create_all()
@@ -23,36 +32,36 @@ def initDb():
 
 @app.errorhandler(werkzeug.exceptions.MethodNotAllowed)
 def badMethod(msg):
-    response = jsonify(response={'success': False, 'err': 'Unsupported Method: %s' % msg})
+    response = jsonify(response={'err': 'Unsupported Method: %s' % msg})
     response.status_code = 405
     return response
 
 
 @app.errorhandler(404)
 def error404(msg):
-    response = jsonify(response={'success': False, 'err': str(msg)})
+    response = jsonify(response={'err': str(msg)})
     response.status_code = 404
     return response
 
 
 @app.errorhandler(503)
 def error503(msg):
-    resp = jsonify(response={'success': False, 'err': str(msg)})
+    resp = jsonify(response={'err': str(msg)})
     resp.status_code = 503
     return resp
 
 
 def getTarget(name):
 
-    app.logger.info( 'getTarget() %s request from %s' % (name, request.remote_addr) )
+    app.logger.info('getTarget() %s request from %s' % (name, request.remote_addr))
 
     tgt = SubfragiumDBLib.getTargetByName({'name': name})
     if not tgt['success']:
-        app.logger.error( 'getTarget() - Failed: %s' % tgt[ 'err' ] )
+        app.logger.error('getTarget() - Failed: %s' % tgt['err'])
         return {'success': False, 'code': 503, 'err': 'getTarget() - Failed: %s' % tgt['err']}
 
     if not tgt['obj']:
-        app.logger.info( 'getTarget() - No target %s found in DB' % name )
+        app.logger.info('getTarget() - No target %s found in DB' % name)
         return {'success': False, 'code': 404, 'err': 'No target %s found in DB' % name}
 
     return {'success': True, 'code': 200, 'obj': tgt['obj'][0]}
@@ -63,10 +72,10 @@ def putTarget(name, data):
     app.logger.info( 'putTarget() %s request from %s' % (name, request.remote_addr) )
 
     if data is None:
-        app.logger.info( 'putTarget() - No JSON provided' )
+        app.logger.info('putTarget() - No JSON provided')
         return {'success': False, 'code': 404, 'err': 'putTarget() - No JSON provided'}
 
-    results = SubfragiumUtilsLib.validateJson(SubfragiumControllerSchema.Target, data)
+    results = SubfragiumUtilsLib.validateJson(SubfragiumControllerSchema.PutTargetInput, data)
     if not results['success']:
         app.logger.error( 'putTarget() - Failed : %s' % results[ 'err' ] )
         return {'success': False, 'code': 404, 'err': results['err']}
@@ -137,7 +146,8 @@ def target(name):
     if request.method == 'GET':
         result = getTarget(name)
         if result['success']:
-            return jsonify(response={'success': True, 'obj': result['obj']})
+            objOut = {'success': True, 'obj': result['obj']}
+            return validateOutput(SubfragiumControllerSchema.GetTargetOutput, objOut)
         else:
             if result['code'] == 404:
                 return error404(result['err'])
@@ -147,7 +157,7 @@ def target(name):
     elif request.method == 'PUT':
         result = putTarget(name, request.json)
         if result['success']:
-            return jsonify(response={'success': True})
+            return validateOutput(SubfragiumControllerSchema.PutDeleteOutput, {'success': True})
         else:
             if result['code'] == 404:
                 return error404(result['err'])
@@ -157,7 +167,7 @@ def target(name):
     elif request.method == 'DELETE':
         result = deleteTarget(name)
         if result['success']:
-            return jsonify(response={'success': True})
+          return validateOutput(SubfragiumControllerSchema.PutDeleteOutput, {'success': True})
         else:
             if result['code'] == 404:
                 return error404(result['err'])
@@ -174,19 +184,21 @@ def targets():
     app.logger.info( 'getAllTargets() request from %s' % request.remote_addr )
 
     targetList = SubfragiumDBLib.getTargetsAll()
+
     if not targetList['success']:
         error = 'getTargetsAll() - Failed: %s' % targetList['err']
-        app.logger.error( 'getTargetsAll() - Failed %s' % targetList[ 'err' ] )
+        app.logger.error('getTargetsAll() - Failed %s' % targetList['err'])
         return error503(error)
 
-    return jsonify(response={'success': True, 'obj': targetList['obj']})
+    objOut = {'success': True, 'obj': targetList['obj']}
+    return validateOutput(SubfragiumControllerSchema.GetTargetsOutput, objOut)
 
 
 def putPoller(name, data):
 
     app.logger.info( 'putPoller() %s request from %s' % (name, request.remote_addr) )
 
-    results = SubfragiumUtilsLib.validateJson(SubfragiumControllerSchema.Poller, data)
+    results = SubfragiumUtilsLib.validateJson(SubfragiumControllerSchema.PutPollerInput, data)
     if not results['success']:
         app.logger.info( 'putPoller() - Failure: %s' % results[ 'err' ] )
         return {'success': False, 'code': 404, 'err': 'putPoller() - Failure: %s' % results['err']}
@@ -279,7 +291,8 @@ def poller(name):
     if request.method == 'GET':
         result = getPoller(name)
         if result['success']:
-            return jsonify(response={'success': True, 'obj': result['obj']})
+            objOut = {'success': True, 'obj': result['obj']}
+            return validateOutput(SubfragiumControllerSchema.GetPollerOutput, objOut)
         else:
             if result['code'] == 404:
                 return error404(result['err'])
@@ -290,7 +303,7 @@ def poller(name):
 
         result = putPoller(name, request.json)
         if result['success']:
-            return jsonify(response={'success': True})
+            return validateOutput(SubfragiumControllerSchema.PutDeleteOutput, {'success': True})
         else:
             if result['code'] == 404:
                 return error404(result['err'])
@@ -300,7 +313,7 @@ def poller(name):
     elif request.method == 'DELETE':
         result = deletePoller(name)
         if result['success']:
-            return jsonify(response={'success': True})
+            return validateOutput(SubfragiumControllerSchema.PutDeleteOutput, {'success': True})
         else:
             if result['code'] == 404:
                 return error404(result['err'])
@@ -323,14 +336,15 @@ def pollers():
         error = 'getPollersAll() Failed: %s' % pollerList['err']
         return error503(error)
 
-    return jsonify(response={'success': True, 'obj': pollerList['obj']})
+    objOut = {'success': True, 'obj': pollerList['obj']}
+    return validateOutput(SubfragiumControllerSchema.GetPollersOutput, objOut)
 
 
 def putOid(tgt, oidInfo, data):
 
     app.logger.info( 'putOid() %s:%s request from %s' % (tgt, oidInfo, request.remote_addr) )
 
-    results = SubfragiumUtilsLib.validateJson(SubfragiumControllerSchema.Oid, data)
+    results = SubfragiumUtilsLib.validateJson(SubfragiumControllerSchema.PutOidInput, data)
     if not results['success']:
         app.logger.error( 'putOid() Failed: %s' % results[ 'err' ] )
         return {'success': False, 'code': 404, 'err': results['err']}
@@ -427,7 +441,8 @@ def oid(tgt, oidInfo):
     if request.method == 'GET':
         result = getOid(tgt, oidInfo)
         if result['success']:
-            return jsonify(response={'success': True, 'obj': result['obj']})
+            objOut = {'success': True, 'obj': result['obj']}
+            return validateOutput(SubfragiumControllerSchema.GetOidOutput, objOut)
         else:
             if result['code'] == 404:
                 return error404(result['err'])
@@ -437,7 +452,7 @@ def oid(tgt, oidInfo):
     elif request.method == 'PUT':
         result = putOid(tgt, oidInfo, request.json)
         if result['success']:
-            return jsonify(response={'success': True})
+            return validateOutput(SubfragiumControllerSchema.PutDeleteOutput, {'success': True})
         else:
             if result['code'] == 404:
                 return error404(result['err'])
@@ -447,7 +462,7 @@ def oid(tgt, oidInfo):
     elif request.method == 'DELETE':
         result = deleteOid(tgt, oidInfo)
         if result['success']:
-            return jsonify(response={'success': True})
+            return validateOutput(SubfragiumControllerSchema.PutDeleteOutput, {'success': True})
         else:
             if result['code'] == 404:
                 return error404(result['err'])
@@ -504,7 +519,10 @@ def oids():
         app.logger.error( error )
         return error503(error)
 
-    return jsonify(response={'success': True, 'obj': oidList['obj']})
+    #return jsonify(response={'success': True, 'obj': oidList['obj']})
+
+    objOut = {'success': True, 'obj': oidList['obj']}
+    return validateOutput(SubfragiumControllerSchema.GetOidsOutput, objOut)
 
 
 @app.route('/', methods=['GET'])

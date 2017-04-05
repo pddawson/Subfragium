@@ -158,7 +158,7 @@ class TestControllerApi(unittest.TestCase):
         results = SubfragiumClientLib.addTypeTarget(inputString, getApiEndPointUrls)
         reqPayload = mockRequestResponse.call_args[1]['data']
 
-        validJson = validateJson(SubfragiumControllerSchema.Target, json.loads(reqPayload))
+        validJson = validateJson(SubfragiumControllerSchema.PutTargetInput, json.loads(reqPayload))
 
         # First check that API requirements were satisfied
         self.assertEquals(validJson['success'], True)
@@ -291,7 +291,7 @@ class TestControllerApi(unittest.TestCase):
         results = SubfragiumClientLib.modifyTypeTarget(inputString, getApiEndPointUrls )
         reqPayload = mochRequestPutResponse.call_args[1]['data']
 
-        validJson = validateJson(SubfragiumControllerSchema.Target, json.loads(reqPayload))
+        validJson = validateJson(SubfragiumControllerSchema.PutTargetInput, json.loads(reqPayload))
 
         # First check that API requirements were satisfied
         self.assertEquals(validJson['success'], True)
@@ -314,7 +314,7 @@ class TestControllerApi(unittest.TestCase):
         results = SubfragiumClientLib.modifyTypeTarget(inputString, getApiEndPointUrls)
         reqPayload = mochRequestPutResponse.call_args[1]['data']
 
-        validJson = validateJson(SubfragiumControllerSchema.Target, json.loads(reqPayload))
+        validJson = validateJson(SubfragiumControllerSchema.PutTargetInput, json.loads(reqPayload))
 
         # First check that API requirements were satisfied
         self.assertEquals(validJson['success'], True)
@@ -506,7 +506,7 @@ class TestControllerApi(unittest.TestCase):
         results = SubfragiumClientLib.addTypePoller(inputString, getApiEndPointUrls)
         reqPayload = mockRequestResponse.call_args[1]['data']
 
-        validJson = validateJson(SubfragiumControllerSchema.Poller, json.loads(reqPayload))
+        validJson = validateJson(SubfragiumControllerSchema.PutPollerInput, json.loads(reqPayload))
 
         # First check that API requirements were satisfied
         self.assertEquals(validJson['success'], True)
@@ -644,7 +644,7 @@ class TestControllerApi(unittest.TestCase):
         results = SubfragiumClientLib.modifyTypePoller(inputString, getApiEndPointUrls)
         reqPayload = mochRequestPutResponse.call_args[1]['data']
 
-        validJson = validateJson(SubfragiumControllerSchema.Poller, json.loads(reqPayload))
+        validJson = validateJson(SubfragiumControllerSchema.PutPollerInput, json.loads(reqPayload))
 
         # First check that API requirements were satisfied
         self.assertEquals(validJson['success'], True)
@@ -667,7 +667,7 @@ class TestControllerApi(unittest.TestCase):
         results = SubfragiumClientLib.modifyTypePoller(inputString, getApiEndPointUrls)
         reqPayload = mochRequestPutResponse.call_args[1]['data']
 
-        validJson = validateJson(SubfragiumControllerSchema.Poller, json.loads(reqPayload))
+        validJson = validateJson(SubfragiumControllerSchema.PutPollerInput, json.loads(reqPayload))
 
         # First check that API requirements were satisfied
         self.assertEquals(validJson['success'], True)
@@ -690,7 +690,7 @@ class TestControllerApi(unittest.TestCase):
         results = SubfragiumClientLib.modifyTypePoller(inputString, getApiEndPointUrls)
         reqPayload = mochRequestPutResponse.call_args[1]['data']
 
-        validJson = validateJson(SubfragiumControllerSchema.Poller, json.loads(reqPayload))
+        validJson = validateJson(SubfragiumControllerSchema.PutPollerInput, json.loads(reqPayload))
 
         # First check that API requirements were satisfied
         self.assertEquals(validJson['success'], True)
@@ -713,7 +713,7 @@ class TestControllerApi(unittest.TestCase):
         results = SubfragiumClientLib.modifyTypePoller(inputString, getApiEndPointUrls)
         reqPayload = mochRequestPutResponse.call_args[1]['data']
 
-        validJson = validateJson(SubfragiumControllerSchema.Poller, json.loads(reqPayload))
+        validJson = validateJson(SubfragiumControllerSchema.PutPollerInput, json.loads(reqPayload))
 
         # First check that API requirements were satisfied
         self.assertEquals(validJson['success'], True)
@@ -736,7 +736,7 @@ class TestControllerApi(unittest.TestCase):
         results = SubfragiumClientLib.modifyTypePoller(inputString, getApiEndPointUrls)
         reqPayload = mochRequestPutResponse.call_args[1]['data']
 
-        validJson = validateJson(SubfragiumControllerSchema.Poller, json.loads(reqPayload))
+        validJson = validateJson(SubfragiumControllerSchema.PutPollerInput, json.loads(reqPayload))
 
         # First check that API requirements were satisfied
         self.assertEquals(validJson['success'], True)
@@ -759,7 +759,7 @@ class TestControllerApi(unittest.TestCase):
         results = SubfragiumClientLib.modifyTypePoller(inputString, getApiEndPointUrls)
         reqPayload = mochRequestPutResponse.call_args[1]['data']
 
-        validJson = validateJson(SubfragiumControllerSchema.Poller, json.loads(reqPayload))
+        validJson = validateJson(SubfragiumControllerSchema.PutPollerInput, json.loads(reqPayload))
 
         # First check that API requirements were satisfied
         self.assertEquals(validJson['success'], True)
@@ -782,7 +782,7 @@ class TestControllerApi(unittest.TestCase):
         results = SubfragiumClientLib.modifyTypePoller(inputString, getApiEndPointUrls)
         reqPayload = mochRequestPutResponse.call_args[1]['data']
 
-        validJson = validateJson(SubfragiumControllerSchema.Poller, json.loads(reqPayload))
+        validJson = validateJson(SubfragiumControllerSchema.PutPollerInput, json.loads(reqPayload))
 
         # First check that API requirements were satisfied
         self.assertEquals(validJson['success'], True)
@@ -805,7 +805,7 @@ class TestControllerApi(unittest.TestCase):
         results = SubfragiumClientLib.modifyTypePoller(inputString, getApiEndPointUrls)
         reqPayload = mochRequestPutResponse.call_args[1]['data']
 
-        validJson = validateJson(SubfragiumControllerSchema.Poller, json.loads(reqPayload))
+        validJson = validateJson(SubfragiumControllerSchema.PutPollerInput, json.loads(reqPayload))
 
         # First check that API requirements were satisfied
         self.assertEquals(validJson['success'], True)
@@ -828,7 +828,7 @@ class TestControllerApi(unittest.TestCase):
         results = SubfragiumClientLib.modifyTypePoller(inputString, getApiEndPointUrls)
         reqPayload = mochRequestPutResponse.call_args[1]['data']
 
-        validJson = validateJson(SubfragiumControllerSchema.Poller, json.loads(reqPayload))
+        validJson = validateJson(SubfragiumControllerSchema.PutPollerInput, json.loads(reqPayload))
 
         # First check that API requirements were satisfied
         self.assertEquals(validJson['success'], True)
@@ -851,7 +851,7 @@ class TestControllerApi(unittest.TestCase):
         results = SubfragiumClientLib.modifyTypePoller(inputString, getApiEndPointUrls)
         reqPayload = mochRequestPutResponse.call_args[1]['data']
 
-        validJson = validateJson(SubfragiumControllerSchema.Poller, json.loads(reqPayload))
+        validJson = validateJson(SubfragiumControllerSchema.PutPollerInput, json.loads(reqPayload))
 
         # First check that API requirements were satisfied
         self.assertEquals(validJson['success'], True)
@@ -905,7 +905,7 @@ class TestControllerApi(unittest.TestCase):
         results = SubfragiumClientLib.addTypeOid(inputString, getApiEndPointUrls)
         reqPayload = mockRequestResponse.call_args[1]['data']
 
-        validJson = validateJson(SubfragiumControllerSchema.Oid, json.loads(reqPayload))
+        validJson = validateJson(SubfragiumControllerSchema.PutOidInput, json.loads(reqPayload))
 
         # First check that API requirements were satisfied
         self.assertEquals(validJson['success'], True)
@@ -1041,7 +1041,7 @@ class TestControllerApi(unittest.TestCase):
         results = SubfragiumClientLib.modifyTypeOid(inputString, getApiEndPointUrls)
         reqPayload = mochRequestPutResponse.call_args[1]['data']
 
-        validJson = validateJson(SubfragiumControllerSchema.Oid, json.loads(reqPayload))
+        validJson = validateJson(SubfragiumControllerSchema.PutOidInput, json.loads(reqPayload))
 
         # First check that API requirements were satisfied
         self.assertEquals(validJson['success'], True)
@@ -1064,7 +1064,7 @@ class TestControllerApi(unittest.TestCase):
         results = SubfragiumClientLib.modifyTypeOid(inputString, getApiEndPointUrls)
         reqPayload = mochRequestPutResponse.call_args[1]['data']
 
-        validJson = validateJson(SubfragiumControllerSchema.Oid, json.loads(reqPayload))
+        validJson = validateJson(SubfragiumControllerSchema.PutOidInput, json.loads(reqPayload))
 
         # First check that API requirements were satisfied
         self.assertEquals(validJson['success'], True)
@@ -1087,7 +1087,7 @@ class TestControllerApi(unittest.TestCase):
         results = SubfragiumClientLib.modifyTypeOid('target=123.123.1.10,oid=1.3.6.1.2,enabled=False', getApiEndPointUrls)
         reqPayload = mochRequestPutResponse.call_args[1]['data']
 
-        validJson = validateJson(SubfragiumControllerSchema.Oid, json.loads(reqPayload))
+        validJson = validateJson(SubfragiumControllerSchema.PutOidInput, json.loads(reqPayload))
 
         # First check that API requirements were satisfied
         self.assertEquals(validJson['success'], True)

@@ -115,7 +115,11 @@ class TestControllerApi(unittest.TestCase):
 
         self.assertEquals(res.status_code, 405)
 
-        resRequired = {'response': {'success': False, 'err': 'Unsupported Method: 405: Method Not Allowed'}}
+        resRequired = {
+          'response': {
+            'err': 'Unsupported Method: 405: Method Not Allowed'
+          }
+        }
         self.assertEqual(resJson, resRequired)
 
     def testTargetMissingName(self):
@@ -126,7 +130,6 @@ class TestControllerApi(unittest.TestCase):
 
         resRequired = {
             'response': {
-                'success': False,
                 'err': '404: Not Found'
             }
         }
@@ -140,7 +143,6 @@ class TestControllerApi(unittest.TestCase):
 
         resRequired = {
             'response': {
-                'success': False,
                 'err': 'Invalid hostname or IP address'
             }
         }
@@ -154,7 +156,6 @@ class TestControllerApi(unittest.TestCase):
 
         resRequired = {
             'response': {
-                'success': False,
                 'err': 'No target ' + target + ' found in DB'
             }
         }
@@ -175,7 +176,6 @@ class TestControllerApi(unittest.TestCase):
 
         resRequired = {
             'response': {
-                'success': False,
                 'err': 'getTarget() - Failed: DBAPI getTargetByName() Failed: Generic Error'
             }
         }
@@ -187,10 +187,8 @@ class TestControllerApi(unittest.TestCase):
                            data=json.dumps(targetData),
                            content_type='application/json')
         self.assertEquals(res.status_code, 200)
-
         res = self.app.get('/target/1.1.1.1')
         resJson = json.loads(res.data)
-
         self.assertEquals(res.status_code, 200)
 
         resRequired = {
@@ -214,7 +212,6 @@ class TestControllerApi(unittest.TestCase):
 
         resRequired = {
             'response': {
-                'success': False,
                 'err': 'putTarget() - No JSON provided'
             }
         }
@@ -233,7 +230,7 @@ class TestControllerApi(unittest.TestCase):
         resJson = json.loads(res.data)
 
         self.assertEquals(res.status_code, 404)
-        self.assertEquals(resJson['response']['success'], False)
+        self.assertIn('err', resJson['response'])
 
     @mock.patch('SubfragiumDBLib.getTargetByName')
     def testPutTargetDbFailureInGetTarget(self, mockDB):
@@ -248,7 +245,8 @@ class TestControllerApi(unittest.TestCase):
         resJson = json.loads(res.data)
 
         self.assertEquals(res.status_code, 503)
-        self.assertEquals(resJson['response']['success'], False)
+        self.assertIn('err', resJson['response'])
+        #self.assertEquals(resJson['response']['success'], False)
 
     @mock.patch('SubfragiumDBLib.updateTargetByName')
     def testPutTargetDbFailureInUpdateTarget(self, mockUpdate):
@@ -403,7 +401,6 @@ class TestControllerApi(unittest.TestCase):
 
         resRequired = {
             'response': {
-                'success': False,
                 'err': 'deleteTarget() Failed: DBAPI getTargetByName() Failed: Generic Error'
             }
         }
@@ -424,7 +421,6 @@ class TestControllerApi(unittest.TestCase):
 
         resRequired = {
             'response': {
-                'success': False,
                 'err': 'Target ' + target + ' not found'
             }
         }
@@ -451,7 +447,6 @@ class TestControllerApi(unittest.TestCase):
 
         resRequired = {
             'response': {
-                'success': False,
                 'err': 'deleteTarget() Failed: DBAPI getOidsByTarget() Failed: Generic Error'
             }
         }
@@ -481,7 +476,6 @@ class TestControllerApi(unittest.TestCase):
 
         resRequired = {
             'response': {
-                'success': False,
                 'err': 'deleteTarget() Failed: Target %s in use for oids' % target
             }
         }
@@ -505,7 +499,6 @@ class TestControllerApi(unittest.TestCase):
 
         resRequired = {
             'response': {
-                'success': False,
                 'err': 'deleteTarget() Failed: DBAPI deleteTargetByName() Failed: Generic Error'
             }
         }
@@ -537,7 +530,6 @@ class TestControllerApi(unittest.TestCase):
 
         resRequired = {
             'response': {
-                'success': False,
                 'err': 'Unsupported Method: 405: Method Not Allowed'
             }
         }
@@ -558,7 +550,6 @@ class TestControllerApi(unittest.TestCase):
 
         resRequired = {
             'response': {
-                'success': False,
                 'err': 'getTargetsAll() - Failed: DBAPI getTargetsAll() Failed: Generic Error'
             }
         }
@@ -590,6 +581,7 @@ class TestControllerApi(unittest.TestCase):
         self.assertEquals(res.status_code, 200)
 
         resJson = json.loads(res.data)
+        print res.data
 
         resRequired = {
             'response': {
@@ -616,7 +608,6 @@ class TestControllerApi(unittest.TestCase):
 
         resRequired = {
             'response': {
-                'success': False,
                 'err': 'Unsupported Method: 405: Method Not Allowed'
             }
         }
@@ -631,7 +622,6 @@ class TestControllerApi(unittest.TestCase):
 
         resRequired = {
             'response': {
-                'success': False,
                 'err': '404: Not Found'
             }
         }
@@ -663,7 +653,6 @@ class TestControllerApi(unittest.TestCase):
 
         reqRequired = {
             'response': {
-                'success': False,
                 'err': 'putPoller() - Failure: DBAPI putPollerByName() DB put operation failed: Generic Error'
             }
         }
@@ -691,7 +680,6 @@ class TestControllerApi(unittest.TestCase):
 
         resRequired = {
             'response': {
-                'success': False,
                 'err': 'putPoller() - Failed: DBAPI modifyPollerByName() DB put operation failed: Generic Error'
             }
         }
@@ -713,7 +701,6 @@ class TestControllerApi(unittest.TestCase):
 
         resRequired = {
             'response': {
-                'success': False,
                 'err': 'putPoller() Failed: DBAPI deletePollerByName() Failed: Generic Error'
             }
         }
@@ -732,7 +719,6 @@ class TestControllerApi(unittest.TestCase):
         resJson = json.loads(res.data)
         reqRequired = {
             'response': {
-                'success': False,
                 'err': 'putPoller() - minProcesses must be less than maxProcesses'
             }
         }
@@ -753,7 +739,6 @@ class TestControllerApi(unittest.TestCase):
         resJson = json.loads(res.data)
         reqRequired = {
             'response': {
-                'success': False,
                 'err': 'putPoller() - numProcesses must be greater than minProcesses'
             }
         }
@@ -773,7 +758,6 @@ class TestControllerApi(unittest.TestCase):
         resJson = json.loads(res.data)
         reqRequired = {
             'response': {
-                'success': False,
                 'err': 'putPoller() - numProcesses must be less than maxProcesses'
             }
         }
@@ -839,7 +823,6 @@ class TestControllerApi(unittest.TestCase):
 
         resRequired = {
             'response': {
-                'success': False,
                 'err': 'getPoller() - Failed: DBAPI getPollerByName() Failed: Generic Failure'
             }
         }
@@ -853,7 +836,6 @@ class TestControllerApi(unittest.TestCase):
 
         resRequired = {
             'response': {
-                'success': False,
                 'err': 'No poller poller1 found in DB'
             }
         }
@@ -866,6 +848,7 @@ class TestControllerApi(unittest.TestCase):
         self.assertEquals(res.status_code, 200)
 
         res = self.app.get('/poller/' + poller)
+        print res.data
         self.assertEquals(res.status_code, 200)
 
         resJson = json.loads(res.data)
@@ -904,7 +887,6 @@ class TestControllerApi(unittest.TestCase):
 
         resRequired = {
             'response': {
-                'success': False,
                 'err': 'deletePoller() Failed: DBAPI deletePollerByName() Failed: Generic Error'
             }
         }
@@ -918,7 +900,6 @@ class TestControllerApi(unittest.TestCase):
 
         resRequired = {
             'response': {
-                'success': False,
                 'err': 'Poller poller1 not found'
             }
         }
@@ -948,7 +929,6 @@ class TestControllerApi(unittest.TestCase):
 
         resRequired = {
             'response': {
-                'success': False,
                 'err': 'Poller poller1 in use for oids'
             }
         }
@@ -973,7 +953,6 @@ class TestControllerApi(unittest.TestCase):
 
         resRequired = {
             'response': {
-                'success': False,
                 'err': 'deletePoller() Failed: DBAPI getOidsByPoller() Failed: Generic Failure'
             }
         }
@@ -999,7 +978,6 @@ class TestControllerApi(unittest.TestCase):
 
         resRequired = {
             'response': {
-                'success': False,
                 'err': 'deletePoller() Failed: DBAPI deletePollerByName() Failed: Generic Error'
             }
         }
@@ -1032,7 +1010,6 @@ class TestControllerApi(unittest.TestCase):
 
         resRequired = {
             'response': {
-                'success': False,
                 'err': 'Unsupported Method: 405: Method Not Allowed'
             }
         }
@@ -1053,7 +1030,6 @@ class TestControllerApi(unittest.TestCase):
 
         resRequired = {
             'response': {
-                'success': False,
                 'err': 'getPollersAll() Failed: DBAPI getTargetsAll() Failed: Generic Error'
             }
         }
@@ -1117,7 +1093,6 @@ class TestControllerApi(unittest.TestCase):
 
         resRequired = {
             'response': {
-                'success': False,
                 'err': 'Unsupported Method: 405: Method Not Allowed'
             }
         }
@@ -1131,7 +1106,6 @@ class TestControllerApi(unittest.TestCase):
 
         resRequired = {
             'response': {
-                'success': False,
                 'err': '404: Not Found'
             }
         }
@@ -1146,7 +1120,6 @@ class TestControllerApi(unittest.TestCase):
 
         resRequired = {
             'response': {
-                'success': False,
                 'err': '404: Not Found'
             }
         }
@@ -1183,7 +1156,6 @@ class TestControllerApi(unittest.TestCase):
 
         resRequired = {
             'response': {
-                'success': False,
                 'err': 'putOid() Failure: DBAPI getPollerByName() Failed: Generic Error'
             }
         }
@@ -1200,7 +1172,6 @@ class TestControllerApi(unittest.TestCase):
 
         resRequired = {
             'response': {
-                'success': False,
                 'err': 'Poller poller1 does not exist'
             }
         }
@@ -1228,7 +1199,6 @@ class TestControllerApi(unittest.TestCase):
 
         resRequired = {
             'response': {
-                'success': False,
                 'err': 'putOid() Failure: DBAPI getTargetByName() Failed: Generic Error'
             }
         }
@@ -1250,7 +1220,6 @@ class TestControllerApi(unittest.TestCase):
 
         resRequired = {
             'response': {
-                'success': False,
                 'err': 'Target 1.1.1.1 does not exist'
             }
         }
@@ -1282,7 +1251,6 @@ class TestControllerApi(unittest.TestCase):
 
         resRequired = {
             'response': {
-                'success': False,
                 'err': 'putOid() Failure: DBAPI getOidByOid() Failed: Generic Error'
             }
         }
@@ -1314,7 +1282,6 @@ class TestControllerApi(unittest.TestCase):
 
         resRequired = {
             'response': {
-                'success': False,
                 'err': 'putPoller() Failed: DBAPI putOidByOid() DB put operation failed: Generic Error'
             }
         }
@@ -1354,7 +1321,6 @@ class TestControllerApi(unittest.TestCase):
 
         resRequired = {
             'response': {
-                'success': False,
                 'err': 'putOid() - Failed: DBAPI modifyOidByName() DB put operation failed: Generic Error'
             }
         }
@@ -1434,7 +1400,6 @@ class TestControllerApi(unittest.TestCase):
 
         resRequired = {
             'response': {
-                'success': False,
                 'err': 'getOid() Failure: DBAPI getOidsByTarget() Failed: Generic Error'
             }
         }
@@ -1448,7 +1413,6 @@ class TestControllerApi(unittest.TestCase):
 
         resRequired = {
             'response': {
-                'success': False,
                 'err': 'getOid() - No such OID ' + target + ':' + oid
             }
         }
@@ -1523,7 +1487,6 @@ class TestControllerApi(unittest.TestCase):
 
         resRequired = {
             'response': {
-                'success': False,
                 'err': 'deleteOid() Failure: DBAPI getOidByOid() Failed: Generic Error'
             }
         }
@@ -1555,7 +1518,6 @@ class TestControllerApi(unittest.TestCase):
 
         resRequired = {
             'response': {
-                'success': False,
                 'err': 'deleteOid() - No such OID ' + target + ':' + '1.2.3.6.1.1.1.1'
             }
         }
@@ -1590,7 +1552,6 @@ class TestControllerApi(unittest.TestCase):
 
         resRequired = {
             'response': {
-                'success': False,
                 'err': 'deleteOid() Failed: DBAPI deleteOidByOid() Failed: Generic Error'
             }
         }
@@ -1653,7 +1614,6 @@ class TestControllerApi(unittest.TestCase):
 
         resRequired = {
             'response': {
-                'success': False,
                 'err': 'getOids..() Failed: DBAPI getOidsQuery() Failed: Generic Error'
             }
         }
@@ -1735,7 +1695,6 @@ class TestControllerApi(unittest.TestCase):
 
         resRequired = {
             'response': {
-                'success': False,
                 'err': 'Unsupported Method: 405: Method Not Allowed'
             }
         }
