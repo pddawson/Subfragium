@@ -28,10 +28,15 @@ Longer Term
     - Error: For things that are likely to cause problems soon
     - Critical: Just before it dies...
 - Validation of configuration based parameters
+- Write start/stop script for Controller
+- Write start/stop script for Poller
+- Write Database backup script for controller
 
 
 TODO
 ----
+- Documentation
+- Didn't get any errors in debug mode for bad oid
 
 COMPLETE
 --------

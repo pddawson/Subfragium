@@ -62,6 +62,7 @@ def poller(q, sQ):
         for target in targets:
             disabledTarget = SubfragiumPollerLib.checkTarget(target['target'], target['oid'], failures)
             if not disabledTarget:
+                logger.debug('Polling Target %s' % target['target'])
                 d = SubfragiumPollerLib.snmpQuery(target['target'], target['snmpString'], target['oid'],
                                                   target['name'], target['timeout'])
                 if d['success']:
@@ -119,6 +120,7 @@ def sendToGraphite(dataPoints):
     try:
 
         for data in dataPoints:
+            logger.debug('Sending %s value %s to storage' %(data[0][0],data[0][1][1]))
             payload = pickle.dumps(data, protocol=2)
             header = struct.pack('!L', len(payload))
             message = header + payload
@@ -468,13 +470,6 @@ if __name__ == '__main__':
             'signal.SIGINT': shutdownSignal
         }
 
-        print
-        print configuration['workingDir']
-        print configuration['pidFile']
-        print configuration['logLevel']
-        print configuration['logFile']
-        print configuration['pollerName']
-        print configuration['controller']
         print 'Entering Daemon Mode'
 
         context = daemon.DaemonContext(

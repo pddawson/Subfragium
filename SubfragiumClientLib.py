@@ -489,6 +489,7 @@ def modifyTypeOid(data, apiEndPoint):
     del (modifiedOid['snmpString'])
     del (modifiedOid['target'])
     del (modifiedOid['oid'])
+    del (modifiedOid['timeout'])
     modifiedOid[field] = value
 
     jsonStr = json.dumps(modifiedOid)
@@ -505,7 +506,7 @@ def listTypeOids(data, apiEndPoint):
 
     if data == 'help':
         helpMsg = 'Parameter format must be:\n'
-        helpMsg += '\tpython SubfragiumCli.py list oids target={name|ip}|oid=<oid>,|oller={poller}|name={name}|enabled={True|False}\n'
+        helpMsg += '\tpython SubfragiumCli.py list oids target={name|ip}|oid=<oid>,|poller={poller}|name={name}|enabled={True|False}\n'
         helpMsg += '\n'
         helpMsg += '\te.g.\n'
         helpMsg += '\tpython SubfragiumCli.py list oids target=host.test.com,oid=1.3.6.1.2.1,poller=poller1,name=network.interface.ifInHcOctets.router1.FastEthernet0/0,enabled=True\n'

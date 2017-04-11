@@ -112,7 +112,6 @@ def actionList(type, data, apiEndPoint):
             print results['helpMsg']
             exit(0)
         if results['success']:
-            print results
             printPollers(results['obj'])
             exit(0)
         else:
@@ -191,12 +190,13 @@ if __name__ == '__main__':
 
     if args.action[0] == 'add':
         results = actionAdd(args.type[0], args.parameters, apiEndpoint)
-        if args.parameters == 'help':
-            print results['helpMsg']
-            exit(0)
         if results['success']:
-            print 'OK'
-            exit(0)
+            if args.parameters == 'help':
+                print results[ 'helpMsg' ]
+                exit(0)
+            else:
+                print 'OK'
+                exit(0)
         else:
             print 'ERROR'
             print  results['err']
@@ -204,14 +204,17 @@ if __name__ == '__main__':
 
     elif args.action[0] == 'list':
         results = actionList(args.type[0], args.parameters, apiEndpoint)
+        # Variable types of data so handled in specific functions above
 
     elif args.action[0] == 'delete':
         results = actionDelete(args.type[0], args.parameters, apiEndpoint)
-        if args.parameters == 'help':
-            print results['helpMsg']
         if results['success']:
-            print 'OK'
-            exit(0)
+            if args.parameters == 'help':
+                print results[ 'helpMsg' ]
+                exit(0)
+            else:
+                print 'OK'
+                exit(0)
         else:
             print 'ERROR'
             print results['err']
@@ -219,11 +222,13 @@ if __name__ == '__main__':
 
     elif args.action[0] == 'modify':
         results = actionModify(args.type[0], args.parameters, apiEndpoint)
-        if args.parameters == 'help':
-            print results['helpMsg']
         if results['success']:
-            print 'OK'
-            exit(0)
+            if args.parameters == 'help':
+                print results[ 'helpMsg' ]
+                exit(0)
+            else:
+                print 'OK'
+                exit(0)
         else:
             print 'ERROR'
             print results['err']

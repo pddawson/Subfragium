@@ -586,15 +586,12 @@ if __name__ == '__main__':
         exit(1)
 
     configs = results['cfg']
-    print configs
     SubfragiumControllerApp.configureApp(app, results['cfg'])
 
     if args.foreground:
         app.run(host='0.0.0.0', port=int(configs['general']['port']), debug=True)
 
-    stdOut = open('Debug.stdout', mode='w')
-    stdErr = open( 'Debug.stderr', mode='w' )
-    context = daemon.DaemonContext(stdout=stdOut, stderr=stdErr)
+    context = daemon.DaemonContext()
 
     with context:
         http_server = WSGIServer(('', configs['general']['port']), app)

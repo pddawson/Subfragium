@@ -113,6 +113,7 @@ def snmpQuery(target, snmpString, oid, name, timeout):
             logger.error('SNMP %s:%s %s Query returned more than one row'
                          % (target, oid, name))
 
+        print vBs
         return {'success': True, 'data':  {'name': name, 'value': '%d' % vBs[0][1]}}
 
 
