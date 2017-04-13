@@ -3,6 +3,7 @@ import json
 import re
 import logging
 import pysnmp.hlapi
+import pysnmp.proto
 import time
 import datetime
 import Queue
@@ -113,8 +114,26 @@ def snmpQuery(target, snmpString, oid, name, timeout):
             logger.error('SNMP %s:%s %s Query returned more than one row'
                          % (target, oid, name))
 
-        print vBs
-        return {'success': True, 'data':  {'name': name, 'value': '%d' % vBs[0][1]}}
+        if isinstance(vBs[0][1], pysnmp.proto.rfc1902.Counter32):
+            return {'success': True, 'data': {'name': name, 'value': '%d' % vBs[0][1]}}
+
+        elif isinstance(vBs[0][1], pysnmp.proto.rfc1902.Counter64):
+            return {'success': True, 'data': {'name': name, 'value': '%d' % vBs[0][1]}}
+
+        elif isinstance(vBs[0][1], pysnmp.proto.rfc1902.Gauge32):
+            return {'success': True, 'data': {'name': name, 'value': '%d' % vBs[0][1]}}
+
+        elif isinstance(vBs[0][1], pysnmp.proto.rfc1905.NoSuchInstance):
+            logger.warn('SNMP Error for %s:%s (%s): No Such Instance' % (target, oid, name))
+            return {'success': False, 'err': 'SNMP Error for %s:%s (%s): No Such Instance' % (target, oid, name)}
+
+        elif isinstance(vBs[0][1], pysnmp.proto.rfc1905.NoSuchObject):
+            logger.warn('SNMP Error for %s:%s (%s): No Such Object' % (target, oid, name))
+            return {'success': False, 'err': 'SNMP Error for %s:%s (%s): No Such Instance' % (target, oid, name)}
+
+        else:
+            logger.warn( 'SNMP Error for %s:%s (%s): Unknown type' % (target, oid, name))
+            return {'success': False, 'err': 'SNMP Error for %s:%s (%s): Unknown type %s' % (target, oid, name, vBs[0][1])}
 
 
 def disableTarget(target, oid, failures, failureThreshold, disableTime):
