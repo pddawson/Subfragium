@@ -37,6 +37,7 @@ TODO
 ----
 - Documentation
 - Didn't get any errors in debug mode for bad oid
+- Use holdDown timer - currently statically set to 20 seconds
 
 COMPLETE
 --------

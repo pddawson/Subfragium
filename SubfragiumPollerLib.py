@@ -111,7 +111,7 @@ def snmpQuery(target, snmpString, oid, name, timeout):
         return {'success': False, 'err': 'SNMP Error: %s at %s' % (eS, eI)}
     else:
         if len(vBs) != 1:
-            logger.error('SNMP %s:%s %s Query returned more than one row'
+            logger.warn('SNMP %s:%s %s Query returned more than one row'
                          % (target, oid, name))
 
         if isinstance(vBs[0][1], pysnmp.proto.rfc1902.Counter32):

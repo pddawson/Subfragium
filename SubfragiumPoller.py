@@ -29,13 +29,13 @@ def shutdownSignal(sigNum, frame):
 
     logger = logging.getLogger('SubfragiumPoller')
 
-    logger.warn('Shutting down pollers after signal SIGINT')
+    logger.info('Shutting down pollers after signal SIGINT')
 
     for process in processes:
-        logger.warn('Shutting down process %s (pid: %s)' % (process['processName'], process['pid']))
+        logger.info('Shutting down process %s (pid: %s)' % (process['processName'], process['pid']))
         SubfragiumPollerLib.deleteProcess(process)
 
-    logger.warn('Shutdown complete')
+    logger.info('Shutdown complete')
     exit(1)
 
 
@@ -72,7 +72,7 @@ def poller(q, sQ):
                     dataItem = [(escapedName, (int(intTime.group(1)), int(d['data']['value'])))]
                     data.append(dataItem)
                 else:
-                    logger.info('SNMP Failure for %s' % target['target'])
+                    logger.debug('SNMP Failure for %s' % target['target'])
                     failures = SubfragiumPollerLib.disableTarget(target['target'], target['oid'], failures,
                                                                  configuration['errorThreshold'],
                                                                  configuration['errorThreshold'])
@@ -333,7 +333,7 @@ def mainLoop(pollerName, isDaemon, controller):
 
             else:
                 # Log the error when the system tried to get the target list from the server
-                logger.error('Could not get target list due to: %s', result['err'])
+                logger.warn('Could not get target list due to: %s', result['err'])
 
             # Check if we've got any messages back from the poller processes
             for process in processes:
@@ -369,7 +369,7 @@ def mainLoop(pollerName, isDaemon, controller):
 
                     # We're still in the hold down period so log and ignore the message
                     else:
-                        logger.info('Still in hold time for %s - ignoring message: %s, %s', inHoldDown,
+                        logger.debug('Still in hold time for %s - ignoring message: %s, %s', inHoldDown,
                                     message['message'],
                                     message['details'])
 
@@ -389,11 +389,11 @@ def mainLoop(pollerName, isDaemon, controller):
                     logger.info('Added new process - previous number: %s, new number: %s',
                                 configuration['numProcesses'] - 1,
                                 configuration['numProcesses'])
-                    logger.info('Entering number of processes hold for 20 seconds')
+                    logger.debug('Entering number of processes hold for 20 seconds')
                 else:
                     # Reached our maximum so log error
-                    logger.error('Reached max number of processes: %s', configuration['numProcesses'])
-                    logger.info('Entering number of processes hold for 20 seconds')
+                    logger.warn('Reached max number of processes: %s', configuration['numProcesses'])
+                    logger.debug('Entering number of processes hold for 20 seconds')
 
             # If looppCounter indicates pollers are underloaded
             elif loopCounter < -5:
@@ -410,11 +410,11 @@ def mainLoop(pollerName, isDaemon, controller):
                     configuration['numProcesses'] -= 1
                     logger.info('Removed process - previous number: %s, new number: %s',
                                 configuration['numProcesses'] + 1, configuration['numProcesses'])
-                    logger.info('Entering number of process hold for 20 seconds')
+                    logger.debug('Entering number of process hold for 20 seconds')
                 else:
                     # Reached out minimum so log a message
                     logger.info('Reached miniumum number of processes: %s', configuration['numProcesses'])
-                    logger.info('Entering number of processes hold for 20 seconds')
+                    logger.debug('Entering number of processes hold for 20 seconds')
 
             # loopCounter indicates no capacity issues
             else:
