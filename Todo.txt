@@ -21,12 +21,6 @@ Longer Term
 - Add config check period for poller
 - Change poller configuration (not oids) dynamically
     - Remember that new numProcesses needs to be checked against max/minProcesses
-- Revalidate all logging statements
-    - Debug: For most
-    - Info: For things like changing processes, initial start up
-    - Warning: For things that went wrong but won't kill eveything
-    - Error: For things that are likely to cause problems soon
-    - Critical: Just before it dies...
 - Validation of configuration based parameters
 - Write start/stop script for Controller
 - Write start/stop script for Poller
@@ -36,10 +30,23 @@ Longer Term
 TODO
 ----
 - Documentation
-- Didn't get any errors in debug mode for bad oid
 - Use holdDown timer - currently statically set to 20 seconds
 - Use output controller output schema to validate testSubfragiumController responses
 - Use output controller output schema to validate testSubfragiumClientLib input data
+- Revalidate all logging statements
+    - Debug: For most
+    - Info: For things like changing processes, initial start up
+    - Warning: For things that went wrong but won't kill eveything
+    - Error: For things that are likely to cause problems soon
+    - Critical: Just before it dies...
+    SubfragiumPoller.py         DONE
+    SubfragiumPollerLib.py      DONE
+    SubfragiumController.py     DONE
+    SubfragiumDBLib.py
+
+- Add log statements to URL terminating functions in SubfragiumController
+- Add log statements to validation of min/maxProcess/numProcesses in putPoller
+- Add log statements to DBLib functions
 
 COMPLETE
 --------
@@ -94,3 +101,4 @@ COMPLETE
 - Add output validation for error handlers (404, 503, Bad Method)
 - Need to figure out how to require 'err' field if 'success' field is false in validation
 - Add output validation of API responses
+- Didn't get any errors in debug mode for bad oid
