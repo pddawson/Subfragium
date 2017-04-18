@@ -38,6 +38,8 @@ TODO
 - Documentation
 - Didn't get any errors in debug mode for bad oid
 - Use holdDown timer - currently statically set to 20 seconds
+- Use output controller output schema to validate testSubfragiumController responses
+- Use output controller output schema to validate testSubfragiumClientLib input data
 
 COMPLETE
 --------

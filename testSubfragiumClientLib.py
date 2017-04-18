@@ -1031,7 +1031,7 @@ class TestControllerApi(unittest.TestCase):
     @mock.patch('SubfragiumClientLib.requests.get')
     def testModifyOidModifyPollerSuccessfully(self, mockRequestGetResponse, mochRequestPutResponse):
 
-        getRequestObj = requestResponse('{"response": {"success": "True", "obj": { "enabled": true, "id": "123.123.1.10:1.3.6.1.2.1.2.2.1.10.2", "name": "network.interface.IfInOctets.router1.FastEthernet0/0", "oid": "1.3.6.1.2.1.2.2.1.10.2", "poller": "poller1", "snmpString": "eur", "target": "123.123.1.10" } } }', 200)
+        getRequestObj = requestResponse('{"response": {"success": "True", "obj": { "enabled": true, "id": "123.123.1.10:1.3.6.1.2.1.2.2.1.10.2", "name": "network.interface.IfInOctets.router1.FastEthernet0/0", "oid": "1.3.6.1.2.1.2.2.1.10.2", "poller": "poller1", "snmpString": "eur", "target": "123.123.1.10", "timeout": 2000 } } }', 200)
         mockRequestGetResponse.return_value = getRequestObj
 
         putRequestObj = requestResponse('{"response": {"success": true} }', 200)
@@ -1054,7 +1054,7 @@ class TestControllerApi(unittest.TestCase):
     @mock.patch('SubfragiumClientLib.requests.get')
     def testModifyOidModifyNameSuccessfully(self, mockRequestGetResponse, mochRequestPutResponse):
 
-        getRequestObj = requestResponse('{"response": {"success": "True", "obj": { "enabled": true, "id": "123.123.1.10:1.3.6.1.2.1.2.2.1.10.2", "name": "network.interface.IfInOctets.router1.FastEthernet0/0", "oid": "1.3.6.1.2.1.2.2.1.10.2", "poller": "poller1", "snmpString": "eur", "target": "123.123.1.10" } } }', 200)
+        getRequestObj = requestResponse('{"response": {"success": "True", "obj": { "enabled": true, "id": "123.123.1.10:1.3.6.1.2.1.2.2.1.10.2", "name": "network.interface.IfInOctets.router1.FastEthernet0/0", "oid": "1.3.6.1.2.1.2.2.1.10.2", "poller": "poller1", "snmpString": "eur", "target": "123.123.1.10", "timeout": 200 } } }', 200)
         mockRequestGetResponse.return_value = getRequestObj
 
         putRequestObj = requestResponse('{"response": {"success": true} }', 200)
@@ -1077,7 +1077,7 @@ class TestControllerApi(unittest.TestCase):
     @mock.patch('SubfragiumClientLib.requests.get')
     def testModifyOidModifyEnabledSuccessfully(self, mockRequestGetResponse, mochRequestPutResponse):
 
-        getRequestObj = requestResponse('{"response": {"success": "True", "obj": { "enabled": true, "id": "123.123.1.10:1.3.6.1.2.1.2.2.1.10.2", "name": "network.interface.IfInOctets.router1.FastEthernet0/0", "oid": "1.3.6.1.2.1.2.2.1.10.2", "poller": "poller1", "snmpString": "eur", "target": "123.123.1.10" } } }', 200)
+        getRequestObj = requestResponse('{"response": {"success": "True", "obj": { "enabled": true, "id": "123.123.1.10:1.3.6.1.2.1.2.2.1.10.2", "name": "network.interface.IfInOctets.router1.FastEthernet0/0", "oid": "1.3.6.1.2.1.2.2.1.10.2", "poller": "poller1", "snmpString": "eur", "target": "123.123.1.10", "timeout": 200 } } }', 200)
         mockRequestGetResponse.return_value = getRequestObj
 
         putRequestObj = requestResponse('{"response": {"success": true} }', 200)
