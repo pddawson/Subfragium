@@ -571,8 +571,6 @@ def parseConfigFile(cfgFile):
 
 if __name__ == '__main__':
 
-    app.logger.info('Subfragium Controller Starting')
-
     parser = argparse.ArgumentParser()
 
     parser.add_argument('cfgFile', action='store', nargs=1, help='Define configuration file')
@@ -586,13 +584,30 @@ if __name__ == '__main__':
         exit(1)
 
     configs = results['cfg']
-    SubfragiumControllerApp.configureApp(app, results['cfg'])
 
     if args.foreground:
+
+        SubfragiumControllerApp.configureApp( app, results[ 'cfg' ] )
+
+        app.logger.info('Subfragium Controller Starting')
+        app.logger.info('Configuration - DB Path: %s' % configs['general']['dbPath'])
+        app.logger.info('Configuration - Server Port: %s' % configs['general']['port'])
+        app.logger.info('Configuration - Log Level: %s' % configs['general']['logLevel'])
+        app.logger.info('Configuration - Log File: %s' % configs['general']['logFile'])
+
         app.run(host='0.0.0.0', port=int(configs['general']['port']), debug=True)
 
     context = daemon.DaemonContext()
 
     with context:
+
+        SubfragiumControllerApp.configureApp(app, results['cfg'])
+
+        app.logger.info('Subfragium Controller Starting' )
+        app.logger.info('Configuration - DB Path: %s' % configs['general']['dbPath'])
+        app.logger.info('Configuration - Server Port: %s' % configs['general']['port'])
+        app.logger.info('Configuration - Log Level: %s' % configs['general']['logLevel'])
+        app.logger.info('Configuration - Log File: %s' % configs['general']['logFile'])
+
         http_server = WSGIServer(('', configs['general']['port']), app)
         http_server.serve_forever()

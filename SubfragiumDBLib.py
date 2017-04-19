@@ -3,6 +3,7 @@ from SubfragiumControllerApp import db
 import SubfragiumUtilsLib
 import SubfragiumDBLibSchema
 
+import logging
 
 # Targets
 def putTargetByName(data):
@@ -53,6 +54,10 @@ def deleteTargetByName(data):
 
 
 def getTargetByName(data):
+
+    print 'Here'
+    logger = logging.getLogger('SubfragiumDBLib')
+    logger.error('Test')
 
     result = SubfragiumUtilsLib.validateObj(SubfragiumDBLibSchema.getTargetByName, data)
     if not result['success']:

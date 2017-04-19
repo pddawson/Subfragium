@@ -21,10 +21,14 @@ def create_app():
 
 def configureApp(app, cfg):
 
-    app.config.update( dict( SQLALCHEMY_DATABASE_URI=cfg['general']['dbPath']))
+    app.config.update(dict(SQLALCHEMY_DATABASE_URI=cfg['general']['dbPath']))
 
     errHandler = logging.FileHandler(cfg['general']['logFile'])
-    errHandler.setFormatter(logging.Formatter('%(asctime)s,%(levelname)s,%(message)s'))
+    errHandler.setFormatter(logging.Formatter('%(asctime)s,%(name)s,%(levelname)s,%(message)s'))
     errHandler.setLevel(cfg['general']['logLevel'].upper())
     app.logger.addHandler(errHandler)
     app.logger.setLevel(cfg['general']['logLevel'].upper())
+
+    lg = logging.getLogger('SubfragiumDBLib')
+    lg.setLevel(cfg['general']['logLevel'].upper())
+    lg.addHandler(errHandler)
