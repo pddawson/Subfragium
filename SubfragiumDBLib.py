@@ -5,8 +5,13 @@ import SubfragiumDBLibSchema
 
 import logging
 
+
 # Targets
 def putTargetByName(data):
+
+    logger = logging.getLogger('SubfragiumDBLib')
+
+    logger.info('putTargetByName')
 
     result = SubfragiumUtilsLib.validateObj(SubfragiumDBLibSchema.putTargetByName, data)
     if not result['success']:
@@ -19,10 +24,13 @@ def putTargetByName(data):
         db.session.commit()
         return {'success': True}
     except Exception, e:
-        return {'success': False, 'err': 'DBAPI putTarget() DB put operation failed %s' % e}
+        logger.error('ABC DBAPI putTarget() DB put operation failed %s' % e)
+        return {'success': False, 'err': 'DBAPI putTarget() DB put operation failed: %s' % e}
 
 
 def updateTargetByName(data):
+
+    logger = logging.getLogger('SubfragiumDBLib')
 
     result = SubfragiumUtilsLib.validateObj(SubfragiumDBLibSchema.putTargetByName, data)
     if not result['success']:
@@ -35,10 +43,13 @@ def updateTargetByName(data):
         db.session.commit()
         return {'success': True}
     except Exception, e:
+        logger.error('DBAPI updateTargetByName() DB put operation failed: %s' % e)
         return {'success': False, 'err': 'DBAPI updateTargetByName() DB put operation failed: %s' % e}
 
 
 def deleteTargetByName(data):
+
+    logger = logging.getLogger('SubfragiumDBLib')
 
     result = SubfragiumUtilsLib.validateObj(SubfragiumDBLibSchema.deleteTargetByName, data)
     if not result['success']:
@@ -50,14 +61,13 @@ def deleteTargetByName(data):
         db.session.commit()
         return {'success': True}
     except Exception, e:
+        logger.error('DBAPI deleteTargetByName() Failed: %s' % e)
         return {'success': False, 'err': 'DBAPI deleteTargetByName() Failed: %s' % e}
 
 
 def getTargetByName(data):
 
-    print 'Here'
     logger = logging.getLogger('SubfragiumDBLib')
-    logger.error('Test')
 
     result = SubfragiumUtilsLib.validateObj(SubfragiumDBLibSchema.getTargetByName, data)
     if not result['success']:
@@ -76,10 +86,13 @@ def getTargetByName(data):
                         ]
                     }
     except Exception, e:
+        logger.error('DBAPI getTargetByName() Failed: %s' % e)
         return {'success': False, 'err': 'DBAPI getTargetByName() Failed: %s' % e}
 
 
 def getTargetsAll():
+
+    logger = logging.getLogger('SubfragiumDBLib')
 
     try:
         targets = models.Target.query.filter().all()
@@ -89,11 +102,14 @@ def getTargetsAll():
             targetList.append(item)
         return {'success': True, 'obj': targetList}
     except Exception, e:
+        logger.error('DBAPI getTargetsAll() Failed: %s' % e)
         return {'success': False, 'err': 'DBAPI getTargetsAll() Failed: %s' % e}
 
 
 # Pollers
 def putPollerByName(data):
+
+    logger = logging.getLogger('SubfragiumDBLib')
 
     result = SubfragiumUtilsLib.validateObj(SubfragiumDBLibSchema.putPollerByName, data)
     if not result['success']:
@@ -105,10 +121,13 @@ def putPollerByName(data):
         db.session.commit()
         return {'success': True}
     except Exception, e:
+        logger.error('DBAPI putPollerByName() DB put operation failed %s' % e)
         return {'success': False, 'err': 'DBAPI putPollerByName() DB put operation failed %s' % e}
 
 
 def deletePollerByName(data):
+
+    logger = logging.getLogger('SubfragiumDBLib')
 
     result = SubfragiumUtilsLib.validateObj(SubfragiumDBLibSchema.deletePollerByName, data)
     if not result['success']:
@@ -120,10 +139,13 @@ def deletePollerByName(data):
         db.session.commit()
         return {'success': True}
     except Exception, e:
+        logger.error('DBAPI deletePollerByName() Failed: %s' % e)
         return {'success': False, 'err': 'DBAPI deletePollerByName() Failed: %s' % e}
 
 
 def getPollerByName(data):
+
+    logger = logging.getLogger('SubfragiumDBLib')
 
     result = SubfragiumUtilsLib.validateObj(SubfragiumDBLibSchema.getPollerByName, data)
     if not result['success']:
@@ -147,10 +169,13 @@ def getPollerByName(data):
                 'errorThreshold': poller.errorThreshold,
                 'errorHoldTime': poller.errorHoldTime}]}
     except Exception, e:
+        logger.error('DBAPI getPollerByName() Failed: %s' % e)
         return {'success': False, 'err': 'DBAPI getPollerByName() Failed: %s' % e}
 
 
 def modifyPollerByName(data):
+
+    logger = logging.getLogger('SubfragiumDBLib')
 
     result = SubfragiumUtilsLib.validateObj(SubfragiumDBLibSchema.modifyPollerByName, data)
     if not result['success']:
@@ -171,10 +196,13 @@ def modifyPollerByName(data):
         db.session.commit()
         return {'success': True}
     except Exception, e:
+        logger.error('DBAPI modifyPollerByName() DB put operation failed: %s' % e)
         return {'success': False, 'err': 'DBAPI modifyPollerByName() DB put operation failed: %s' % e}
 
 
 def getPollersAll():
+
+    logger = logging.getLogger('SubfragiumDBLib')
 
     try:
         pollers = models.Poller.query.filter().all()
@@ -194,11 +222,14 @@ def getPollersAll():
             pollerList.append(item)
         return {'success': True, 'obj': pollerList}
     except Exception, e:
+        logger.error('DBAPI getTargetsAll() Failed: %s' % e)
         return {'success': False, 'err': 'DBAPI getTargetsAll() Failed: %s' % e}
 
 
 # Oids
 def putOidByOid(data):
+
+    logger = logging.getLogger('SubfragiumDBLib')
 
     result = SubfragiumUtilsLib.validateObj(SubfragiumDBLibSchema.putOidByOid, data)
     if not result['success']:
@@ -214,10 +245,13 @@ def putOidByOid(data):
         db.session.commit()
         return {'success': True}
     except Exception, e:
+        logger.error('DBAPI putOidByOid() DB put operation failed: %s' % e)
         return {'success': False, 'err': 'DBAPI putOidByOid() DB put operation failed: %s' % e}
 
 
 def deleteOidByOid(data):
+
+    logger = logging.getLogger('SubfragiumDBLib')
 
     result = SubfragiumUtilsLib.validateObj(SubfragiumDBLibSchema.deleteOidByOid, data)
     if not result['success']:
@@ -231,10 +265,13 @@ def deleteOidByOid(data):
         db.session.commit()
         return {'success': True}
     except Exception, e:
+        logger.error('DBAPI deleteOidByOid() Failed: %s' % e)
         return {'success': False, 'err': 'DBAPI deleteOidByOid() Failed: %s' % e}
 
 
 def getOidsByTarget(data):
+
+    logger = logging.getLogger('SubfragiumDBLib')
 
     result = SubfragiumUtilsLib.validateObj(SubfragiumDBLibSchema.getOidsByTarget, data)
     if not result['success']:
@@ -260,10 +297,13 @@ def getOidsByTarget(data):
         return {'success': True, 'obj': oidList}
 
     except Exception, e:
+        logger.error('DBAPI getOidsByTarget() Failed: %s' % e)
         return {'success': False, 'err': 'DBAPI getOidsByTarget() Failed: %s' % e}
 
 
 def getOidsByPoller(data):
+
+    logger = logging.getLogger('SubfragiumDBLib')
 
     result = SubfragiumUtilsLib.validateObj(SubfragiumDBLibSchema.getOidsByPoller, data)
     if not result['success']:
@@ -289,10 +329,13 @@ def getOidsByPoller(data):
         return {'success': True, 'obj': oidList}
 
     except Exception, e:
+        logger.error('DBAPI getOidsByPoller() Failed: %s' % e)
         return {'success': False, 'err': 'DBAPI getOidsByPoller() Failed: %s' % e}
 
 
 def getOidByOid(data):
+
+    logger = logging.getLogger('SubfragiumDBLib')
 
     result = SubfragiumUtilsLib.validateObj(SubfragiumDBLibSchema.getOidByOid, data)
     if not result['success']:
@@ -314,10 +357,13 @@ def getOidByOid(data):
                 'snmpString': existingOid.targetInfo.snmpString,
                 'timeout': existingOid.targetInfo.timeout}]}
     except Exception, e:
+        logger.error('DBAPI getOidByOid() Failed: %s' % e)
         return {'success': False, 'err': 'DBAPI getOidByOid() Failed: %s' % e}
 
 
 def getOidsQuery(queryParameters):
+
+    logger = logging.getLogger('SubfragiumDBLib')
 
     result = SubfragiumUtilsLib.validateObj(SubfragiumDBLibSchema.getOidsQuery, queryParameters)
     if not result['success']:
@@ -377,10 +423,13 @@ def getOidsQuery(queryParameters):
         return {'success': True, 'obj': oidList}
 
     except Exception, e:
+        logger.error('DBAPI getOidsQuery() Failed: %s' % e)
         return {'success': False, 'err': 'DBAPI getOidsQuery() Failed: %s' % e}
 
 
 def modifyOidByOid(data):
+
+    logger = logging.getLogger('SubfragiumDBLib')
 
     result = SubfragiumUtilsLib.validateObj(SubfragiumDBLibSchema.modifyOidByOid, data)
     if not result['success']:
@@ -398,10 +447,13 @@ def modifyOidByOid(data):
         db.session.commit()
         return {'success': True}
     except Exception, e:
+        logger.error('DBAPI modifyOidByName() DB put operation failed: %s' % e)
         return {'success': False, 'err': 'DBAPI modifyOidByName() DB put operation failed: %s' % e}
 
 
 def getOidsAll():
+
+    logger = logging.getLogger( 'SubfragiumDBLib' )
 
     try:
         oids = models.Oid.query.filter().all()
@@ -419,4 +471,5 @@ def getOidsAll():
             oidList.append(item)
         return {'success': True, 'obj': oidList}
     except Exception, e:
+        logger.error('DBAPI getOidsAll() Failed: %s' % e)
         return {'success': False, 'err': 'DBAPI getOidsAll() Failed: %s' % e}
