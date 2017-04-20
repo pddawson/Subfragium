@@ -233,6 +233,9 @@ def mainLoop(pollerName, isDaemon, controller):
     # Configure the location of the controller
     configuration['controller'] = controller
 
+    # Configure the holdDown timer for process changes
+    configuration['holdDown'] = pollerInfo['obj']['holdDown']
+
     # Current number of poller processes
     configuration['numProcesses'] = pollerInfo['obj']['numProcesses']
 
@@ -276,6 +279,7 @@ def mainLoop(pollerName, isDaemon, controller):
 
     logger.info('Configuration - controller: %s' % configuration['controller'])
     logger.info('Configuration - pollerName: %s' % pollerName)
+    logger.info('Configuration - holdDown: %s' % configuration['holdDown'])
     logger.info('Configuration - minProcesses: %s' % configuration['minProcesses'])
     logger.info('Configuration - maxProcesses: %s' % configuration['maxProcesses'])
     logger.info('Configuration - numProcesses: %s' % configuration['numProcesses'])
@@ -378,7 +382,7 @@ def mainLoop(pollerName, isDaemon, controller):
                 # Reset the loopCounter
                 loopCounter = 0
                 # Set the hold timer to 20 seconds so we ignore messages while the load settles down
-                holdDown = time.time() + 20
+                holdDown = time.time() + configuration['holdDown']
 
                 # Check if we've reached the max number of processes
                 if configuration['numProcesses'] < configuration['maxProcesses']:
@@ -389,11 +393,11 @@ def mainLoop(pollerName, isDaemon, controller):
                     logger.info('Added new process - previous number: %s, new number: %s',
                                 configuration['numProcesses'] - 1,
                                 configuration['numProcesses'])
-                    logger.debug('Entering number of processes hold for 20 seconds')
+                    logger.debug('Entering number of processes hold for %d seconds' % configuration['holdDown'])
                 else:
                     # Reached our maximum so log error
                     logger.warn('Reached max number of processes: %s', configuration['numProcesses'])
-                    logger.debug('Entering number of processes hold for 20 seconds')
+                    logger.debug('Entering number of processes hold for %d seconds' % configuration['holdDown'])
 
             # If looppCounter indicates pollers are underloaded
             elif loopCounter < -5:
