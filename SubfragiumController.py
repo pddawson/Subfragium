@@ -213,19 +213,25 @@ def putPoller(name, data):
 
     results = SubfragiumUtilsLib.validateJson(SubfragiumControllerSchema.PutPollerInput, data)
     if not results['success']:
-        app.logger.debug('putPoller() - Failure: %s' % results[ 'err'])
+        app.logger.debug('putPoller() - Failure: %s' % results['err'])
         return {'success': False, 'code': 404, 'err': 'putPoller() - Failure: %s' % results['err']}
 
     # Check that the maxProcesses is greater than the minProcesses
     if data['maxProcesses'] < data['minProcesses']:
+        app.logger.debug('putPoller() - %s minProcesses (%s) must be less than maxProcesses (%s)' %
+                        (name, data['minProcesses'], data['maxProcesses']))
         return {'success': False, 'code': 404, 'err': 'putPoller() - minProcesses must be less than maxProcesses'}
 
     # Check that the numProcesses is not less than the minProcesses
     if data['numProcesses'] < data['minProcesses']:
+        app.logger.debug('putPoller() - %s numProcesses (%s) must be greater than minProcesses (%s)' %
+                        (name, data['minProcesses'], data['maxProcesses']))
         return {'success': False, 'code': 404, 'err': 'putPoller() - numProcesses must be greater than minProcesses'}
 
     # Check that the numProcesses is not greater than the maxProcesses
     if data['numProcesses'] > data['maxProcesses']:
+        app.logger.debug('putPoller() - %s numProcesses (%s) must be less than maxProcesses (%s)' %
+                        (name, data['minProcesses'], data['maxProcesses']))
         return {'success': False, 'code': 404, 'err': 'putPoller() - numProcesses must be less than maxProcesses'}
 
     existingPoller = SubfragiumDBLib.getPollerByName({'name': name})
