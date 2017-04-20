@@ -32,6 +32,7 @@ def initDb():
 
 @app.errorhandler(werkzeug.exceptions.MethodNotAllowed)
 def badMethod(msg):
+    app.logger.debug('Unsupported HTTP Method %s' % msg)
     response = jsonify(response={'err': 'Unsupported Method: %s' % msg})
     response.status_code = 405
     return response
@@ -39,6 +40,7 @@ def badMethod(msg):
 
 @app.errorhandler(404)
 def error404(msg):
+    app.logger.debug('Handling Client Error 404: %s' % str(msg))
     response = jsonify(response={'err': str(msg)})
     response.status_code = 404
     return response
@@ -46,6 +48,7 @@ def error404(msg):
 
 @app.errorhandler(503)
 def error503(msg):
+    app.logger.error( 'Handling Server Error 503: %s' % str(msg))
     resp = jsonify(response={'err': str(msg)})
     resp.status_code = 503
     return resp
@@ -140,8 +143,11 @@ def deleteTarget(name):
 @app.route('/target/<string:name>', methods=['GET', 'PUT', 'DELETE'])
 def target(name):
 
+    app.logger.debug('%s request for /target/%s from %s' % (request.method, name, request.remote_addr))
+
     result = SubfragiumUtilsLib.validateTargetName(name)
     if not result['success']:
+        app.logger.debug('Bad target name for request /target/%s' % name)
         return error404(result['err'])
 
     if request.method == 'GET':
@@ -151,8 +157,10 @@ def target(name):
             return validateOutput(SubfragiumControllerSchema.GetTargetOutput, objOut)
         else:
             if result['code'] == 404:
+                app.logger.debug('No target found for GET /target/%s' % name)
                 return error404(result['err'])
             else:
+                app.logger.error('DB Failure for GET /target/%s' % name)
                 return error503(result['err'])
 
     elif request.method == 'PUT':
@@ -161,21 +169,25 @@ def target(name):
             return validateOutput(SubfragiumControllerSchema.PutDeleteOutput, {'success': True})
         else:
             if result['code'] == 404:
+                app.logger.debug('Bad JSON payload for PUT /target/%s' % name)
                 return error404(result['err'])
             else:
+                app.logger.error('DB Failure for PUT /target/%s' % name)
                 return error503(result['err'])
 
     elif request.method == 'DELETE':
         result = deleteTarget(name)
         if result['success']:
-          return validateOutput(SubfragiumControllerSchema.PutDeleteOutput, {'success': True})
+            return validateOutput(SubfragiumControllerSchema.PutDeleteOutput, {'success': True})
         else:
             if result['code'] == 404:
+                app.logger.debug('No target found for DELETE /target/%s' % name)
                 return error404(result['err'])
             else:
+                app.logger.error('DB Failure for DELETE /target/%s' % name)
                 return error503(result['err'])
     else:
-        app.logger.info( 'Unsupported HTTP method in request' )
+        app.logger.debug('Unsupported HTTP method %s for /target/%s' % (request.method, name))
         return error404('Unsupported HTTP method')
 
 
@@ -288,6 +300,8 @@ def deletePoller(name):
 @app.route('/poller/<string:name>', methods=['GET', 'PUT', 'DELETE'])
 def poller(name):
 
+    app.logger.debug('%s request for /target/%s from %s' % (request.method, name, request.remote_addr))
+
     if request.method == 'GET':
         result = getPoller(name)
         if result['success']:
@@ -295,8 +309,10 @@ def poller(name):
             return validateOutput(SubfragiumControllerSchema.GetPollerOutput, objOut)
         else:
             if result['code'] == 404:
+                app.logger.debug('No poller found for GET /poller/%s' % name)
                 return error404(result['err'])
             else:
+                app.logger.error('DB Failure for GET /poller/%s' % name)
                 return error503(result['err'])
 
     elif request.method == 'PUT':
@@ -306,8 +322,10 @@ def poller(name):
             return validateOutput(SubfragiumControllerSchema.PutDeleteOutput, {'success': True})
         else:
             if result['code'] == 404:
+                app.logger.debug('Bad JSON Payload for PUT /poller/%s' % name)
                 return error404(result['err'])
             else:
+                app.logger.error('DB Failure for PUT /poller/%s' % name)
                 return error503(result['err'])
 
     elif request.method == 'DELETE':
@@ -316,12 +334,14 @@ def poller(name):
             return validateOutput(SubfragiumControllerSchema.PutDeleteOutput, {'success': True})
         else:
             if result['code'] == 404:
+                app.logger.debug('No poller found for DELETE /poller/%s' % name)
                 return error404(result['err'])
             else:
+                app.logger.error('DB Failure for DELETE /poller/%s' % name)
                 return error503(result['err'])
 
     else:
-        app.logger.info( 'Unsupported HTTP method in request' )
+        app.logger.debug('Unsupported HTTP method %s for /poller/%s' % (request.method, name))
         return error404('Unsupported HTTP method')
 
 
@@ -445,8 +465,10 @@ def oid(tgt, oidInfo):
             return validateOutput(SubfragiumControllerSchema.GetOidOutput, objOut)
         else:
             if result['code'] == 404:
+                app.logger.debug('No OID found for GET /oid/%s/%s' % (tgt, oidInfo))
                 return error404(result['err'])
             else:
+                app.logger.error('DB Failure for GET /oid/%s/%s' % (tgt, oidInfo))
                 return error503(result['err'])
 
     elif request.method == 'PUT':
@@ -455,8 +477,10 @@ def oid(tgt, oidInfo):
             return validateOutput(SubfragiumControllerSchema.PutDeleteOutput, {'success': True})
         else:
             if result['code'] == 404:
+                app.logger.debug('Bad JSON Payload for PUT /oid/%s/%s' % (tgt, oidInfo))
                 return error404(result['err'])
             else:
+                app.logger.error('DB Failure for PUT /oid/%s/%s' % (tgt, oidInfo))
                 return error503(result['err'])
 
     elif request.method == 'DELETE':
@@ -465,12 +489,14 @@ def oid(tgt, oidInfo):
             return validateOutput(SubfragiumControllerSchema.PutDeleteOutput, {'success': True})
         else:
             if result['code'] == 404:
+                app.logger.debug('No OID found for DELETE /oid/%s/%s' % (tgt, oidInfo))
                 return error404(result['err'])
             else:
+                app.logger.error('DB Failure for DELETE /oid/%s/%s' % (tgt, oidInfo))
                 return error503(result['err'])
 
     else:
-        app.logger.info( 'Unsupported HTTP method in request' )
+        app.logger.debug('Unsupported HTTP method %s for /oid/%s/%s' % (request.method, tgt, oidInfo))
         return error404('Unsupported HTTP method')
 
 
