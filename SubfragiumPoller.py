@@ -377,6 +377,8 @@ def mainLoop(pollerName, isDaemon, controller):
                                     message['message'],
                                     message['details'])
 
+            logger.debug('Loop Counter: %d', loopCounter)
+
             # If loopCounter indicates pollers are overloaded
             if loopCounter > 5:
                 # Reset the loopCounter
@@ -414,11 +416,11 @@ def mainLoop(pollerName, isDaemon, controller):
                     configuration['numProcesses'] -= 1
                     logger.info('Removed process - previous number: %s, new number: %s',
                                 configuration['numProcesses'] + 1, configuration['numProcesses'])
-                    logger.debug('Entering number of process hold for 20 seconds')
+                    logger.debug('Entering number of process hold for %d seconds' % configuration['holdDown'])
                 else:
                     # Reached out minimum so log a message
                     logger.info('Reached miniumum number of processes: %s', configuration['numProcesses'])
-                    logger.debug('Entering number of processes hold for 20 seconds')
+                    logger.debug('Entering number of processes hold for %d seconds' % configuration['holdDown'])
 
             # loopCounter indicates no capacity issues
             else:
