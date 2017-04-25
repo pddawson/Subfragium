@@ -537,7 +537,11 @@ class TestControllerApi(unittest.TestCase):
     @mock.patch('SubfragiumClientLib.requests.put')
     def testAddPollerSuccess(self, mockRequestResponse):
 
-        requestObj = requestResponse('{"response": {"success": "True" } }', 200)
+        requestText = '{"success": true }'
+        validOutputJson = validateJson(SubfragiumControllerSchema.PutDeleteOutput, json.loads(requestText))
+        self.assertEquals(validOutputJson['success'], True)
+
+        requestObj = requestResponse('{"response": ' + requestText + ' }', 200)
         mockRequestResponse.return_value = requestObj
 
         inputString = 'name=' + poller1 + \
@@ -572,9 +576,13 @@ class TestControllerApi(unittest.TestCase):
         self.assertIn('helpMsg', results)
 
     @mock.patch('SubfragiumClientLib.requests.get')
-    def testListPollerSuccess(self, mockRequestResponse):
+    def testListPollersSuccess(self, mockRequestResponse):
 
-        requestObj = requestResponse('{"response": {"success": "True", "obj": [ { "cycleTime": 3, "disable": False, "errorHoldTime": 60, "errorThreshold": 10, "holdDown": 20, "maxProcesses": 10, "minProcesses": 1, "name": "poller1", "numProcesses": 1, "storageLocation": "pickle://graphite:5000", "storageType": "graphite"} ] } }', 200)
+        requestText = '{"success": true, "obj": [ { "cycleTime": 3, "disable": false, "errorHoldTime": 60, "errorThreshold": 10, "holdDown": 20, "maxProcesses": 10, "minProcesses": 1, "name": "poller1", "numProcesses": 1, "storageLocation": "pickle://graphite:5000", "storageType": "graphite"} ] }'
+        validOutputJson = validateJson(SubfragiumControllerSchema.GetPollersOutput, json.loads(requestText))
+        self.assertEquals(validOutputJson['success'], True)
+
+        requestObj = requestResponse('{"response": ' + requestText + ' }', 200)
         mockRequestResponse.return_value = requestObj
 
         results = SubfragiumClientLib.listTypePollers('all', getApiEndPointUrls)
@@ -606,7 +614,11 @@ class TestControllerApi(unittest.TestCase):
     @mock.patch('SubfragiumClientLib.requests.get')
     def testListPollerSuccess(self, mockRequestResponse):
 
-        requestObj = requestResponse('{"response": {"success": "True", "obj": [ { "cycleTime": 3, "disable": false, "errorHoldTime": 60, "errorThreshold": 10, "holdDown": 20, "maxProcesses": 10, "minProcesses": 1, "name": "poller1", "numProcesses": 1, "storageLocation": "pickle://graphite:5000", "storageType": "graphite"} ] } }', 200)
+        requestText = '{"success": true, "obj": { "cycleTime": 3, "disabled": false, "errorHoldTime": 60, "errorThreshold": 10, "holdDown": 20, "maxProcesses": 10, "minProcesses": 1, "name": "poller1", "numProcesses": 1, "storageLocation": "pickle://graphite:5000", "storageType": "graphite"} }'
+        validOutputJson = validateJson(SubfragiumControllerSchema.GetPollerOutput, json.loads(requestText))
+        self.assertEquals(validOutputJson['success'], True)
+
+        requestObj = requestResponse('{"response": ' + requestText + '}', 200)
         mockRequestResponse.return_value = requestObj
 
         inputString = 'name=' + poller1
@@ -639,7 +651,11 @@ class TestControllerApi(unittest.TestCase):
     @mock.patch('SubfragiumClientLib.requests.delete')
     def testDeletePollerSuccess(self, mockRequestResponse):
 
-        requestObj = requestResponse('{"response": {"success": "True" } }', 200)
+        requestText = '{"success": true }'
+        validOutputJson = validateJson(SubfragiumControllerSchema.PutDeleteOutput, json.loads(requestText))
+        self.assertEquals(validOutputJson['success'], True)
+
+        requestObj = requestResponse('{"response": ' + requestText + '}', 200)
         mockRequestResponse.return_value = requestObj
 
         inputString = 'name=' + poller1
@@ -683,10 +699,18 @@ class TestControllerApi(unittest.TestCase):
     @mock.patch('SubfragiumClientLib.requests.get')
     def testModifyPollerModifyMinProcessSuccess(self, mockRequestGetResponse, mochRequestPutResponse):
 
-        getRequestObj = requestResponse('{"response": {"success": "True", "obj": { "name": "poller1", "minProcesses": 1, "maxProcesses": 10, "numProcesses": 1, "cycleTime": 60, "holdDown": 20, "storageType": "graphite", "storageLocation": "pickle://graphite:5000", "disabled": false, "errorThreshold": 5, "errorHoldTime": 1800 } } }', 200)
+        getRequestText = '{"success": true, "obj": { "name": "poller1", "minProcesses": 1, "maxProcesses": 10, "numProcesses": 1, "cycleTime": 60, "holdDown": 20, "storageType": "graphite", "storageLocation": "pickle://graphite:5000", "disabled": false, "errorThreshold": 5, "errorHoldTime": 1800 } }'
+        validOutputJson = validateJson(SubfragiumControllerSchema.GetPollerOutput, json.loads(getRequestText))
+        self.assertEquals(validOutputJson['success'], True)
+
+        getRequestObj = requestResponse('{"response": ' + getRequestText + ' }', 200)
         mockRequestGetResponse.return_value = getRequestObj
 
-        putRequestObj = requestResponse('{"response": {"success": true} }', 200)
+        putRequestText = '{"success": true}'
+        validOutputJson = validateJson(SubfragiumControllerSchema.PutDeleteOutput, json.loads(putRequestText))
+        self.assertEquals(validOutputJson['success'], True)
+
+        putRequestObj = requestResponse('{"response": ' + putRequestText + ' }', 200)
         mochRequestPutResponse.return_value = putRequestObj
 
         inputString = 'name=' + poller1 + ',minProcesses=' + str(poller1Data['minProcesses'])
@@ -706,10 +730,18 @@ class TestControllerApi(unittest.TestCase):
     @mock.patch('SubfragiumClientLib.requests.get')
     def testModifyPollerModifyMaxProcessesSuccess(self, mockRequestGetResponse, mochRequestPutResponse):
 
-        getRequestObj = requestResponse('{"response": {"success": "True", "obj": { "name": "poller1", "minProcesses": 1, "maxProcesses": 10, "numProcesses": 1, "cycleTime": 60, "holdDown": 20, "storageType": "graphite", "storageLocation": "pickle://graphite:5000", "disabled": false, "errorThreshold": 5, "errorHoldTime": 1800 } } }', 200)
+        getRequestText = '{"success": true, "obj": { "name": "poller1", "minProcesses": 1, "maxProcesses": 10, "numProcesses": 1, "cycleTime": 60, "holdDown": 20, "storageType": "graphite", "storageLocation": "pickle://graphite:5000", "disabled": false, "errorThreshold": 5, "errorHoldTime": 1800 } }'
+        validOutputJson = validateJson(SubfragiumControllerSchema.GetPollerOutput, json.loads(getRequestText))
+        self.assertEquals(validOutputJson['success'], True)
+
+        getRequestObj = requestResponse('{"response": ' + getRequestText + ' }', 200)
         mockRequestGetResponse.return_value = getRequestObj
 
-        putRequestObj = requestResponse('{"response": {"success": true} }', 200)
+        putRequestText = '{"success": true}'
+        validOutputJson = validateJson(SubfragiumControllerSchema.PutDeleteOutput, json.loads(putRequestText))
+        self.assertEquals(validOutputJson['success'], True)
+
+        putRequestObj = requestResponse('{"response": ' + putRequestText + ' }', 200)
         mochRequestPutResponse.return_value = putRequestObj
 
         inputString = 'name=' + poller1 + ',maxProcesses=' + str(poller1Data['maxProcesses'])
@@ -729,10 +761,18 @@ class TestControllerApi(unittest.TestCase):
     @mock.patch('SubfragiumClientLib.requests.get')
     def testModifyPollerModifyNumProcessesSuccess(self, mockRequestGetResponse, mochRequestPutResponse):
 
-        getRequestObj = requestResponse('{"response": {"success": "True", "obj": { "name": "poller1", "minProcesses": 1, "maxProcesses": 10, "numProcesses": 1, "cycleTime": 60, "holdDown": 20, "storageType": "graphite", "storageLocation": "pickle://graphite:5000", "disabled": false, "errorThreshold": 5, "errorHoldTime": 1800 } } }', 200)
+        getRequestText = '{"success": true, "obj": { "name": "poller1", "minProcesses": 1, "maxProcesses": 10, "numProcesses": 1, "cycleTime": 60, "holdDown": 20, "storageType": "graphite", "storageLocation": "pickle://graphite:5000", "disabled": false, "errorThreshold": 5, "errorHoldTime": 1800 } }'
+        validOutputJson = validateJson(SubfragiumControllerSchema.GetPollerOutput, json.loads(getRequestText))
+        self.assertEquals(validOutputJson['success'], True)
+
+        getRequestObj = requestResponse('{"response": ' + getRequestText + ' }', 200)
         mockRequestGetResponse.return_value = getRequestObj
 
-        putRequestObj = requestResponse('{"response": {"success": true} }', 200)
+        putRequestText = '{"success": true}'
+        validOutputJson = validateJson(SubfragiumControllerSchema.PutDeleteOutput, json.loads(putRequestText))
+        self.assertEquals(validOutputJson['success'], True)
+
+        putRequestObj = requestResponse('{"response": ' + putRequestText + ' }', 200)
         mochRequestPutResponse.return_value = putRequestObj
 
         inputString = 'name=' + poller1 + ',numProcesses=' + str(poller1Data['numProcesses'])
@@ -752,10 +792,18 @@ class TestControllerApi(unittest.TestCase):
     @mock.patch('SubfragiumClientLib.requests.get')
     def testModifyPollerModifyHoldDownSuccess(self, mockRequestGetResponse, mochRequestPutResponse):
 
-        getRequestObj = requestResponse('{"response": {"success": "True", "obj": { "name": "poller1", "minProcesses": 1, "maxProcesses": 10, "numProcesses": 1, "cycleTime": 60, "holdDown": 20, "storageType": "graphite", "storageLocation": "pickle://graphite:5000", "disabled": false, "errorThreshold": 5, "errorHoldTime": 1800 } } }', 200)
+        getRequestText = '{"success": true, "obj": { "name": "poller1", "minProcesses": 1, "maxProcesses": 10, "numProcesses": 1, "cycleTime": 60, "holdDown": 20, "storageType": "graphite", "storageLocation": "pickle://graphite:5000", "disabled": false, "errorThreshold": 5, "errorHoldTime": 1800 } }'
+        validOutputJson = validateJson(SubfragiumControllerSchema.GetPollerOutput, json.loads(getRequestText))
+        self.assertEquals(validOutputJson['success'], True)
+
+        getRequestObj = requestResponse('{"response": ' + getRequestText + ' }', 200)
         mockRequestGetResponse.return_value = getRequestObj
 
-        putRequestObj = requestResponse('{"response": {"success": true} }', 200)
+        putRequestText = '{"success": true}'
+        validOutputJson = validateJson(SubfragiumControllerSchema.PutDeleteOutput, json.loads(putRequestText))
+        self.assertEquals(validOutputJson['success'], True)
+
+        putRequestObj = requestResponse('{"response": ' + putRequestText + ' }', 200)
         mochRequestPutResponse.return_value = putRequestObj
 
         inputString = 'name=' + poller1 + ',holdDown=' + str(poller1Data['holdDown'])
@@ -775,10 +823,18 @@ class TestControllerApi(unittest.TestCase):
     @mock.patch('SubfragiumClientLib.requests.get')
     def testModifyPollerModifyCycleTimeSuccess(self, mockRequestGetResponse, mochRequestPutResponse):
 
-        getRequestObj = requestResponse('{"response": {"success": "True", "obj": { "name": "poller1", "minProcesses": 1, "maxProcesses": 10, "numProcesses": 1, "cycleTime": 60, "holdDown": 20, "storageType": "graphite", "storageLocation": "pickle://graphite:5000", "disabled": false, "errorThreshold": 5, "errorHoldTime": 1800 } } }', 200)
+        getRequestText = '{"success": true, "obj": { "name": "poller1", "minProcesses": 1, "maxProcesses": 10, "numProcesses": 1, "cycleTime": 60, "holdDown": 20, "storageType": "graphite", "storageLocation": "pickle://graphite:5000", "disabled": false, "errorThreshold": 5, "errorHoldTime": 1800 } }'
+        validOutputJson = validateJson(SubfragiumControllerSchema.GetPollerOutput, json.loads(getRequestText))
+        self.assertEquals(validOutputJson['success'], True)
+
+        getRequestObj = requestResponse('{"response": ' + getRequestText + ' }', 200)
         mockRequestGetResponse.return_value = getRequestObj
 
-        putRequestObj = requestResponse('{"response": {"success": true} }', 200)
+        putRequestText = '{"success": true}'
+        validOutputJson = validateJson(SubfragiumControllerSchema.PutDeleteOutput, json.loads(putRequestText))
+        self.assertEquals(validOutputJson['success'], True)
+
+        putRequestObj = requestResponse('{"response": ' + putRequestText + ' }', 200)
         mochRequestPutResponse.return_value = putRequestObj
 
         inputString = 'name=' + poller1 + ',cycleTime=' + str(poller1Data['cycleTime'])
@@ -798,10 +854,18 @@ class TestControllerApi(unittest.TestCase):
     @mock.patch('SubfragiumClientLib.requests.get')
     def testModifyPollerModifyStorageTypeSuccess(self, mockRequestGetResponse, mochRequestPutResponse):
 
-        getRequestObj = requestResponse('{"response": {"success": "True", "obj": { "name": "poller1", "minProcesses": 1, "maxProcesses": 10, "numProcesses": 1, "cycleTime": 60, "holdDown": 20, "storageType": "graphite", "storageLocation": "pickle://graphite:5000", "disabled": false, "errorThreshold": 5, "errorHoldTime": 1800 } } }', 200)
+        getRequestText = '{"success": true, "obj": { "name": "poller1", "minProcesses": 1, "maxProcesses": 10, "numProcesses": 1, "cycleTime": 60, "holdDown": 20, "storageType": "graphite", "storageLocation": "pickle://graphite:5000", "disabled": false, "errorThreshold": 5, "errorHoldTime": 1800 } }'
+        validOutputJson = validateJson(SubfragiumControllerSchema.GetPollerOutput, json.loads(getRequestText))
+        self.assertEquals(validOutputJson['success'], True)
+
+        getRequestObj = requestResponse('{"response": ' + getRequestText + ' }', 200)
         mockRequestGetResponse.return_value = getRequestObj
 
-        putRequestObj = requestResponse('{"response": {"success": true} }', 200)
+        putRequestText = '{"success": true}'
+        validOutputJson = validateJson(SubfragiumControllerSchema.PutDeleteOutput, json.loads(putRequestText))
+        self.assertEquals(validOutputJson['success'], True)
+
+        putRequestObj = requestResponse('{"response": ' + putRequestText + ' }', 200)
         mochRequestPutResponse.return_value = putRequestObj
 
         inputString = 'name=' + poller1 + ',storageType=' + str(poller1Data['storageType'])
@@ -821,10 +885,18 @@ class TestControllerApi(unittest.TestCase):
     @mock.patch('SubfragiumClientLib.requests.get')
     def testModifyPollerModifyStorageLocationSuccess(self, mockRequestGetResponse, mochRequestPutResponse):
 
-        getRequestObj = requestResponse('{"response": {"success": "True", "obj": { "name": "poller1", "minProcesses": 1, "maxProcesses": 10, "numProcesses": 1, "cycleTime": 60, "holdDown": 20, "storageType": "graphite", "storageLocation": "pickle://graphite:5000", "disabled": false, "errorThreshold": 5, "errorHoldTime": 1800 } } }', 200)
+        getRequestText = '{"success": true, "obj": { "name": "poller1", "minProcesses": 1, "maxProcesses": 10, "numProcesses": 1, "cycleTime": 60, "holdDown": 20, "storageType": "graphite", "storageLocation": "pickle://graphite:5000", "disabled": false, "errorThreshold": 5, "errorHoldTime": 1800 } }'
+        validOutputJson = validateJson(SubfragiumControllerSchema.GetPollerOutput, json.loads(getRequestText))
+        self.assertEquals(validOutputJson['success'], True)
+
+        getRequestObj = requestResponse('{"response": ' + getRequestText + ' }', 200)
         mockRequestGetResponse.return_value = getRequestObj
 
-        putRequestObj = requestResponse('{"response": {"success": true} }', 200)
+        putRequestText = '{"success": true}'
+        validOutputJson = validateJson(SubfragiumControllerSchema.PutDeleteOutput, json.loads(putRequestText))
+        self.assertEquals(validOutputJson['success'], True)
+
+        putRequestObj = requestResponse('{"response": ' + putRequestText + ' }', 200)
         mochRequestPutResponse.return_value = putRequestObj
 
         inputString = 'name=' + poller1 + ',storageLocation=' + str( poller1Data['storageLocation'])
@@ -844,10 +916,18 @@ class TestControllerApi(unittest.TestCase):
     @mock.patch('SubfragiumClientLib.requests.get')
     def testModifyPollerModifyDisabledSuccess(self, mockRequestGetResponse, mochRequestPutResponse):
 
-        getRequestObj = requestResponse('{"response": {"success": "True", "obj": { "name": "poller1", "minProcesses": 1, "maxProcesses": 10, "numProcesses": 1, "cycleTime": 60, "holdDown": 20, "storageType": "graphite", "storageLocation": "pickle://graphite:5000", "disabled": false, "errorThreshold": 5, "errorHoldTime": 1800 } } }', 200)
+        getRequestText = '{"success": true, "obj": { "name": "poller1", "minProcesses": 1, "maxProcesses": 10, "numProcesses": 1, "cycleTime": 60, "holdDown": 20, "storageType": "graphite", "storageLocation": "pickle://graphite:5000", "disabled": false, "errorThreshold": 5, "errorHoldTime": 1800 } }'
+        validOutputJson = validateJson(SubfragiumControllerSchema.GetPollerOutput, json.loads(getRequestText))
+        self.assertEquals(validOutputJson['success'], True)
+
+        getRequestObj = requestResponse('{"response": ' + getRequestText + ' }', 200)
         mockRequestGetResponse.return_value = getRequestObj
 
-        putRequestObj = requestResponse('{"response": {"success": true} }', 200)
+        putRequestText = '{"success": true}'
+        validOutputJson = validateJson(SubfragiumControllerSchema.PutDeleteOutput, json.loads(putRequestText))
+        self.assertEquals(validOutputJson['success'], True)
+
+        putRequestObj = requestResponse('{"response": ' + putRequestText + ' }', 200)
         mochRequestPutResponse.return_value = putRequestObj
 
         inputString = 'name=' + poller1 + ',disabled=' + str(poller1Data['disabled'])
@@ -867,10 +947,18 @@ class TestControllerApi(unittest.TestCase):
     @mock.patch('SubfragiumClientLib.requests.get')
     def testModifyPollerModifyErrorThresholdSuccess(self, mockRequestGetResponse, mochRequestPutResponse):
 
-        getRequestObj = requestResponse('{"response": {"success": "True", "obj": { "name": "poller1", "minProcesses": 1, "maxProcesses": 10, "numProcesses": 1, "cycleTime": 60, "holdDown": 20, "storageType": "graphite", "storageLocation": "pickle://graphite:5000", "disabled": false, "errorThreshold": 5, "errorHoldTime": 1800 } } }', 200)
+        getRequestText = '{"success": true, "obj": { "name": "poller1", "minProcesses": 1, "maxProcesses": 10, "numProcesses": 1, "cycleTime": 60, "holdDown": 20, "storageType": "graphite", "storageLocation": "pickle://graphite:5000", "disabled": false, "errorThreshold": 5, "errorHoldTime": 1800 } }'
+        validOutputJson = validateJson(SubfragiumControllerSchema.GetPollerOutput, json.loads(getRequestText))
+        self.assertEquals(validOutputJson['success'], True)
+
+        getRequestObj = requestResponse('{"response": ' + getRequestText + ' }', 200)
         mockRequestGetResponse.return_value = getRequestObj
 
-        putRequestObj = requestResponse('{"response": {"success": true} }', 200)
+        putRequestText = '{"success": true}'
+        validOutputJson = validateJson(SubfragiumControllerSchema.PutDeleteOutput, json.loads(putRequestText))
+        self.assertEquals(validOutputJson['success'], True)
+
+        putRequestObj = requestResponse('{"response": ' + putRequestText + ' }', 200)
         mochRequestPutResponse.return_value = putRequestObj
 
         inputString = 'name=' + poller1 + ',errorThreshold=' + str(poller1Data['errorThreshold'])
@@ -890,10 +978,18 @@ class TestControllerApi(unittest.TestCase):
     @mock.patch('SubfragiumClientLib.requests.get')
     def testModifyPollerModifyErrorHoldTimeSuccess(self, mockRequestGetResponse, mochRequestPutResponse):
 
-        getRequestObj = requestResponse('{"response": {"success": "True", "obj": { "name": "poller1", "minProcesses": 1, "maxProcesses": 10, "numProcesses": 1, "cycleTime": 60, "holdDown": 20, "storageType": "graphite", "storageLocation": "pickle://graphite:5000", "disabled": false, "errorThreshold": 5, "errorHoldTime": 1800 } } }', 200)
+        getRequestText = '{"success": true, "obj": { "name": "poller1", "minProcesses": 1, "maxProcesses": 10, "numProcesses": 1, "cycleTime": 60, "holdDown": 20, "storageType": "graphite", "storageLocation": "pickle://graphite:5000", "disabled": false, "errorThreshold": 5, "errorHoldTime": 1800 } }'
+        validOutputJson = validateJson(SubfragiumControllerSchema.GetPollerOutput, json.loads(getRequestText))
+        self.assertEquals(validOutputJson['success'], True)
+
+        getRequestObj = requestResponse('{"response": ' + getRequestText + ' }', 200)
         mockRequestGetResponse.return_value = getRequestObj
 
-        putRequestObj = requestResponse('{"response": {"success": true} }', 200)
+        putRequestText = '{"success": true}'
+        validOutputJson = validateJson(SubfragiumControllerSchema.PutDeleteOutput, json.loads(putRequestText))
+        self.assertEquals(validOutputJson['success'], True)
+
+        putRequestObj = requestResponse('{"response": ' + putRequestText + ' }', 200)
         mochRequestPutResponse.return_value = putRequestObj
 
         inputString = 'name=' + poller1 + ',errorHoldTime=' + str(poller1Data['errorHoldTime'])
