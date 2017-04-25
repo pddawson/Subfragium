@@ -234,7 +234,11 @@ class TestControllerApi(unittest.TestCase):
     @mock.patch('SubfragiumClientLib.requests.get')
     def testListTargetSuccess(self, mockRequestResponse):
 
-        requestObj = requestResponse('{"response": {"success": "True", "obj": [ { "name": "123.123.1.10", "snmpString": "eur", "timeout": 20 } ] } }', 200)
+        responseText = '{"success": true, "obj": { "name": "123.123.1.10", "snmpString": "eur", "timeout": 20 } }'
+        validOutputJson = validateJson(SubfragiumControllerSchema.GetTargetOutput, json.loads(responseText))
+        self.assertEquals(validOutputJson['success'], True)
+
+        requestObj = requestResponse('{"response": ' + responseText + '}', 200)
         mockRequestResponse.return_value = requestObj
 
         inputString = 'name=' + target1
@@ -268,7 +272,11 @@ class TestControllerApi(unittest.TestCase):
     @mock.patch('SubfragiumClientLib.requests.delete')
     def testDeleteTargetSuccess(self, mockRequestResponse):
 
-        requestObj = requestResponse('{"response": {"success": true} }', 200)
+        responseText = '{"success": true}'
+        validOutputJson = validateJson(SubfragiumControllerSchema.PutDeleteOutput, json.loads(responseText))
+        self.assertEquals(validOutputJson['success'], True)
+
+        requestObj = requestResponse('{"response": ' + responseText + ' }', 200)
         mockRequestResponse.return_value = requestObj
 
         inputString = 'name=' + target1
@@ -306,10 +314,18 @@ class TestControllerApi(unittest.TestCase):
     @mock.patch('SubfragiumClientLib.requests.get')
     def testModifyTargetSnmpStringSuccess(self, mockRequestGetResponse, mochRequestPutResponse):
 
-        getRequestObj = requestResponse('{"response": {"success": "True", "obj": { "name": "123.123.1.10", "snmpString": "eur", "timeout": 20 } } }', 200)
+        getResponseText = '{"success": true, "obj": { "name": "123.123.1.10", "snmpString": "eur", "timeout": 20 } }'
+        validOutputJson = validateJson(SubfragiumControllerSchema.GetTargetOutput, json.loads(getResponseText))
+        self.assertEquals(validOutputJson['success'], True)
+
+        getRequestObj = requestResponse('{"response": ' + getResponseText + ' }', 200)
         mockRequestGetResponse.return_value = getRequestObj
 
-        putRequestObj = requestResponse('{"response": {"success": true} }', 200)
+        putResponseText = '{"success": true}'
+        validOutputJson = validateJson(SubfragiumControllerSchema.PutDeleteOutput, json.loads(putResponseText))
+        self.assertEquals(validOutputJson['success'], True)
+
+        putRequestObj = requestResponse('{"response": ' + putResponseText + ' }', 200)
         mochRequestPutResponse.return_value = putRequestObj
 
         inputString = 'name=' + target1 + ',snmpString=' + target1Data['snmpString']
@@ -329,10 +345,18 @@ class TestControllerApi(unittest.TestCase):
     @mock.patch('SubfragiumClientLib.requests.get')
     def testModifyTargetTimeoutSuccess(self, mockRequestGetResponse, mochRequestPutResponse):
 
-        getRequestObj = requestResponse('{"response": {"success": "True", "obj": { "name": "123.123.1.10", "snmpString": "eur", "timeout": 20 } } }', 200)
+        getResponseText = '{"success": true, "obj": { "name": "123.123.1.10", "snmpString": "eur", "timeout": 20 } }'
+        validOutputJson = validateJson(SubfragiumControllerSchema.GetTargetOutput, json.loads(getResponseText))
+        self.assertEquals(validOutputJson['success'], True)
+
+        getRequestObj = requestResponse('{"response": ' + getResponseText + '}', 200)
         mockRequestGetResponse.return_value = getRequestObj
 
-        putRequestObj = requestResponse('{"response": {"success": true} }', 200)
+        putResponseText = '{"success": true}'
+        validOutputJson = validateJson(SubfragiumControllerSchema.PutDeleteOutput, json.loads(putResponseText))
+        self.assertEquals(validOutputJson['success'], True)
+
+        putRequestObj = requestResponse('{"response": ' + putResponseText + '}', 200)
         mochRequestPutResponse.return_value = putRequestObj
 
         inputString = 'name=' + target1 + ',timeout=' + target1Data['timeout']
