@@ -95,30 +95,42 @@ class TestControllerApi(unittest.TestCase):
 
     def testValidateResponseSuccessResponse(self):
 
-        res = requestResponse('{"response":{"success": true}}', 400)
+        responseText = '{"success": true}'
+        validOutputJson = validateJson(SubfragiumControllerSchema.PutDeleteOutput, json.loads(responseText))
+        self.assertEquals(validOutputJson['success'], True)
+
+        res = requestResponse('{"response":' + responseText + '}', 400)
         results = SubfragiumClientLib.validateResponse(res, False)
         self.assertEquals(results['success'], True)
 
     def testValidateResponseBadErrorResponse(self):
 
-        res = requestResponse('{"response":{"success": false}}', 404)
+        res = requestResponse('{"response":{"abc": "abc"}}', 404)
         results = SubfragiumClientLib.validateResponse(res, False)
         self.assertEquals(results['success'], False)
-        self.assertEquals(results['err'], 'Error: Missing success/err field - {u\'response\': {u\'success\': False}}')
+        self.assertEquals(results['err'], 'Error: Missing success/err field - {u\'response\': {u\'abc\': u\'abc\'}}')
 
     def testValidateResponseGoodErrorResponse(self):
 
-        res = requestResponse('{"response":{"success": false, "err": "abc"}}', 404)
+        requestText = '{"err": "abc"}'
+        validOutputJson = validateJson(SubfragiumControllerSchema.PutDeleteOutput, json.loads(requestText))
+        self.assertEquals(validOutputJson['success'], True)
+
+        res = requestResponse('{"response":' + requestText + '}', 404)
         results = SubfragiumClientLib.validateResponse(res, False)
         self.assertEquals(results['success'], False)
         self.assertEquals(results['err'], 'abc')
 
     def testValidateResponseGoodGetResponse(self):
 
-        res = requestResponse('{"response":{"success": true, "obj": { "name": "123.123.1.1"}}}', 400)
+        requestText = '{"success": true, "obj": { "name": "123.123.1.1", "snmpString": "eur", "timeout": 200}}'
+        validOutputJson = validateJson( SubfragiumControllerSchema.GetTargetOutput, json.loads(requestText))
+        self.assertEquals(validOutputJson['success'], True)
+
+        res = requestResponse('{"response":' + requestText + '}', 200)
         results = SubfragiumClientLib.validateResponse(res, True)
         self.assertEquals(results['success'], True)
-        self.assertEquals(results['obj'], {'name': '123.123.1.1'})
+        self.assertIn('obj', results)
 
     ##
     ## Testing Target API
@@ -143,7 +155,7 @@ class TestControllerApi(unittest.TestCase):
         ]
 
         for inputString in inputStrings:
-            results = SubfragiumClientLib.addTypeTarget(inputString, getApiEndPointUrls )
+            results = SubfragiumClientLib.addTypeTarget(inputString, getApiEndPointUrls)
             self.assertIn('success', results)
             self.assertEquals(results['success'], False)
             self.assertIn('err', results)
@@ -151,17 +163,26 @@ class TestControllerApi(unittest.TestCase):
     @mock.patch('SubfragiumClientLib.requests.put')
     def testAddTargetSuccess(self, mockRequestResponse):
 
-        requestObj = requestResponse('{"response": {"success": "True" } }', 200)
+        # Create response text
+        responseText = '{"success": true }'
+        # Validate response text fits schema
+        validOutputJson = validateJson(SubfragiumControllerSchema.PutDeleteOutput, json.loads(responseText))
+        self.assertEquals(validOutputJson['success'], True)
+
+        # Build response object
+        requestObj = requestResponse('{"response":' + responseText + '}', 200)
         mockRequestResponse.return_value = requestObj
 
+        # Build input string and test
         inputString = 'name=' + target1 + ',snmpString=' + target1Data['snmpString'] + ',timeout=' + target1Data['timeout']
         results = SubfragiumClientLib.addTypeTarget(inputString, getApiEndPointUrls)
         reqPayload = mockRequestResponse.call_args[1]['data']
 
-        validJson = validateJson(SubfragiumControllerSchema.PutTargetInput, json.loads(reqPayload))
+        # Check the response fits the output
+        validInputJson = validateJson(SubfragiumControllerSchema.PutTargetInput, json.loads(reqPayload))
 
         # First check that API requirements were satisfied
-        self.assertEquals(validJson['success'], True)
+        self.assertEquals(validInputJson['success'], True)
 
         # Now check the function returned the correct results
         self.assertIn('success', results)
@@ -175,9 +196,13 @@ class TestControllerApi(unittest.TestCase):
         self.assertIn('helpMsg', results)
 
     @mock.patch('SubfragiumClientLib.requests.get')
-    def testListTargetsSucess(self, mockRequestResponse):
+    def testListTargetsSuccess(self, mockRequestResponse):
 
-        requestObj = requestResponse('{"response": {"success": "True", "obj": [ { "name": "123.123.1.10", "snmpString": "eur", "timeout": 20 } ] } }', 200)
+        responseText = '{"success": true, "obj": [ { "name": "123.123.1.10", "snmpString": "eur", "timeout": 20 } ] }'
+        validOutputJson = validateJson(SubfragiumControllerSchema.GetTargetsOutput, json.loads(responseText))
+        self.assertEquals(validOutputJson['success'], True)
+
+        requestObj = requestResponse('{"response": ' + responseText + '}', 200)
         mockRequestResponse.return_value = requestObj
 
         results = SubfragiumClientLib.listTypeTargets('all', getApiEndPointUrls)

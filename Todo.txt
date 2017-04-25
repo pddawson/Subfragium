@@ -30,9 +30,9 @@ Longer Term
 TODO
 ----
 - Documentation
-- Use holdDown timer - currently statically set to 20 seconds
 - Use output controller output schema to validate testSubfragiumController responses
 - Use output controller output schema to validate testSubfragiumClientLib input data
+
 
 COMPLETE
 --------
@@ -101,3 +101,4 @@ COMPLETE
 - Add log statements to DBLib functions
 - Add log statements to URL terminating functions in SubfragiumController
 - Add log statements to validation of min/maxProcess/numProcesses in putPoller
+- Use holdDown timer - currently statically set to 20 seconds
