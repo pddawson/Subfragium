@@ -26,11 +26,14 @@ Longer Term
 - Write start/stop script for Poller
 - Write Database backup script for controller
 - Remote log server for log messages?
+- Use output controller output schema to validate testSubfragiumController responses
+    - Maybe of questionable value since need to check specific values returned
+      not just that the response matches a particular schema
+- Man pages for the Controller/Poller and Cli
 
 TODO
 ----
 - Documentation
-- Use output controller output schema to validate testSubfragiumController responses
 
 
 COMPLETE
