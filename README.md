@@ -21,7 +21,22 @@ The poller is synchronous in operation which limits it scalability but makes it 
 As outlined above scalability wasn't one of the primary goals. If polling many thousands / 
 millions of OIDs is the aim one of the other platforms above is a better choice.
 
-## VirtualEnvironment
+## Storage
+
+Currently only graphite is supported for back end storage of metrics. 
+
+### Graphite
+
+Installing graphite and setting it up is beyond the scope of this documentation. Better guides exist such as 
+**GRAPHITE REF**
+
+* When using graphite with whisper storage (the default) the filesystem is used to organise and store data. 
+Subfragium will convert any '/' which are filesystem delimiters on *nix platforms to '-' to avoid confusion. 
+Cisco platforms which general name interfaces with the form that looks like form <interface><slot>/<port> or 
+some similar variation is a good example e.g. GigabitEthernet0/1 will become GigabitEthernet0-1.
+Other platforms such as Juniper have similar behaviour.
+
+## Python Virtual Environment
 
 Subfragium has been developed using the Python Virtual Environment (virtualEnv) (**REF**) to avoid 
 installing modules into a python installation (possibly system wide). It runs without virtualenv but 
@@ -395,18 +410,6 @@ python SubfragiumCli.py list poller poller=poller1
 python SubfragiumCli.py list pollers all
 </code>
 </pre>
-
-
-## Graphite Integration
-
-Installing graphite and setting it up is beyond the scope of this documentation. Better guides exist such as 
-**GRAPHITE REF**
-
-* When using graphite with whisper storage (the default) the filesystem is used to organise and store data. 
-Subfragium will convert any '/' which are filesystem delimiters on *nix platforms to '-' to avoid confusion. 
-Cisco platforms which general name interfaces with the form that looks like form <interface><slot>/<port> or 
-some similar variation is a good example e.g. GigabitEthernet0/1 will become GigabitEthernet0-1.
-Other platforms such as Juniper have similar behaviour.
 
 ## API
 
@@ -856,7 +859,14 @@ Other platforms such as Juniper have similar behaviour.
 ### Setup using virtualenv and graphite
 
 1. Setup graphite
+
+Setting up graphite is beyond the scope of this document but documentation may be found here:
+**REF**
+
 2. Setup virtualenv
+
+
+
 3. Configure and Start SubfragiumController
 4. Add poller to SubfragiumController(s)
 5. Configure and Start SubfragiumPoller(s)
