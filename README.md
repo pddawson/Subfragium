@@ -5,7 +5,10 @@ poller for network engineers. It fits in the gap between full feature SNMP polle
 such as Cacti, OpenNMS etc and a simple scripts collecting a few SNMP Object Identifiers
 (OID).
 
-**REF** to SNMP resources
+SNMP Resources:
+* Net-SNMP: http://www.net-snmp.org/
+* Cacti: http://www.cacti.net/
+* OpenNMS: https://www.opennms.org/en
 
 The system is intended to provide a simple interface that a network 
 engineer can easily understand to poll SNMP OIDs of interest. It also frees the 
@@ -15,7 +18,7 @@ problems.
 
 It does not handle the storage of gathered data. There are many time series 
 storage system that can handle this task. Currently its integrated with
-graphite (**REF**).
+graphite https://graphiteapp.org/.
 
 The poller is synchronous in operation which limits it scalability but makes it simplier.
 As outlined above scalability wasn't one of the primary goals. If polling many thousands / 
@@ -28,7 +31,8 @@ Currently only graphite is supported for back end storage of metrics.
 ### Graphite
 
 Installing graphite and setting it up is beyond the scope of this documentation. Better guides exist such as 
-**GRAPHITE REF**
+
+http://graphite.readthedocs.io/en/latest/
 
 * When using graphite with whisper storage (the default) the filesystem is used to organise and store data. 
 Subfragium will convert any '/' which are filesystem delimiters on *nix platforms to '-' to avoid confusion. 
@@ -38,7 +42,8 @@ Other platforms such as Juniper have similar behaviour.
 
 ## Python Virtual Environment
 
-Subfragium has been developed using the Python Virtual Environment (virtualEnv) (**REF**) to avoid 
+Subfragium has been developed using the Python Virtual Environment (virtualEnv) 
+http://python-guide-pt-br.readthedocs.io/en/latest/dev/virtualenvs/ to avoid 
 installing modules into a python installation (possibly system wide). It runs without virtualenv but 
 the dependencies outlined  below will be easier to install within a virtual env
 the system wide Python modules.
@@ -96,6 +101,8 @@ Pollers are specific instances of the polling script that poll SNMP OIDs on part
 devices. These are defined using:
 
 * Name: Essentially just a unique string
+
+The poller and the controller can be run on different hosts if required.
 
 ## Components
 
@@ -861,15 +868,151 @@ python SubfragiumCli.py list pollers all
 1. Setup graphite
 
 Setting up graphite is beyond the scope of this document but documentation may be found here:
-**REF**
 
-2. Setup virtualenv
+http://graphite.readthedocs.io/en/latest/
+
+3. Decide where Subfragium runs from
+
+Three high level decisions need to be made
+
+* If virtual environments will be used where to install it
+* Where the SubfragiumController will run from
+* Where the SubfragiumPoller will run from
+
+From here on the instructions following assumptions will be made
+ 
+* Virtual environmetns will be used and installed in /opt/Subfragium
+* SubfragiumController will run from /home/Subfragium-Dev
+* SubfragiumPoller will run from /opt/Subfragium
+
+The controller and poller do not have to run on the same hosts if required/desired.
+
+Keeping configuration and software separate is a good idea as it allows Dev / QA and Production 
+versions. Subfragium will however run perfectly fine with the configuration files embedded in 
+the software directory.
+
+Choose the following:
+
+* Where Subfragium will be installed
+* Where SubfragiumController will be run from
+    * Path to the database
+    * (Optional) The port the controller will listen on
+    * Path to the logfile
+    * Loglevel
+* Where SubfragiumPoller will be run from
+    * Location of the controller (host and port combination)
+    * LogLevel
+    * Path to the logfile
+    * Name of the poller
+
+3. Setup virtualenv
+
+Decide where the virtual environment should be held. Then use the virtualenv command to create a 
+new virtualenv. Then install the required packages from the requirements.txt file in the software.
+
+<pre>
+<code>
+virtualenv /opt/Subfragium
+source /opt/Subfragium/bin/activate
+pip install -r /opt/Subfragium/requirements.txt
+</code>
+</pre>
+ 
+From here on the instructions assumes that the virtualenv has been sourced and the python interpreter 
+being used has all the modules installed. If not then various errors about modules not being found
+will prevent Subfragium being run.
+
+4. Configure and Start SubfragiumController
+
+Copy the SubfragiumController.cfg.example to where Subfragium should run from.
+
+Modify SubfragiumController.cfg appropriately:
+
+* Set the DB path for the API's data store (in URI syntax)
+* Set the port to listen for API requests on  
+* Set the log file location
+* Set the logLevel to one of (debug, info, warning, error, critcal)
+    Note: Setting to debug will generate a lot of output so use only for fixing configuration issues
+
+e.g. To run from /home/Subfragium-Dev
+<pre>
+<code>
+[general]
+dbPath = sqlite:////home/Subfragium-Dev/SubfragiumDB-Dev.sqlite
+port = 9999
+logFile = /home/Subfragium-Dev/SubfragiumController.log
+logLevel = info
+</pre>
+</code>
+
+Start the SubfragriumController
+<pre>
+<code>
+python /opt/Subfragium/SubfragiumController.py /home/Subfragrium-Dev/SubfragiumController.cfg
+</pre>
+</code>
 
 
+5. Add poller to SubfragiumController
 
-3. Configure and Start SubfragiumController
-4. Add poller to SubfragiumController(s)
-5. Configure and Start SubfragiumPoller(s)
-6. Add target(s) to SubfragriumController
-7. Add oid(s) to SubfragiumController
-8. Check graphite
+Use the CLI to modify the SubfragriumController so that it has at least one poller.
+
+<pre>
+<code>
+python /opt/Subfragrium/SubfragiumCli.py add poller poller=poller1,minProcesses=1,maxProcesses=10,numProcesses=5,holdDown=20,cycleTime=60,storageType=graphite,storageLocation=pickle://graphite:5000,disabled=True,errorThreshold=3,errorHoldTime=1800
+</code>
+</pre>
+
+6. Configure and Start SubfragiumPoller(s)
+
+Copy the SubfragiumPoller.cfg.example to where Subfragium should run from.
+
+Modify SubfragiumPoller.cfg appropriately:
+* Set the host/port comination of the SubfragriumController
+* Set the logLevel
+* Set the poller name
+* Set the path to the logfile
+
+e.g. To run from /home/Subfragium-Dev
+
+<pre>
+<code>
+[general]
+controller = localhost:9999
+logLevel = info
+pollerName = poller1
+logFile = /home/Subfragrium-Dev/SubfragiumPoller.log
+</code>
+</pre>
+
+7. Add target(s) to SubfragiumController
+
+Add the target devices to be poller into the SubfragiumController.
+
+e.g. To add two targets (123.123.1.1 and abc.host.net)
+<pre>
+<code>
+python /opt/Subfragium/SubfragiumCli.py add target name=123.123.1.1,snmpString=123,timeout=200
+python /opt/Subfragium/SubfragiumCli.py add target name=abc.host.net,snmpString=abc,timeout=200
+</code>
+</pre>
+
+8. Add oid(s) to SubfragiumController
+
+Add the OIDs that should be poller to the SubfragriumController:
+
+e.g. To poller ifHcInOctets and ifHcOutOctets on target 123.123.1.1 interface FastEthernet0/0
+<pre>
+<code>
+**TODO - Need OIDs for ifHcInOctets / ifHcOutOctets
+</code>
+</pre>
+
+9. Check graphite
+
+Using a web browser go to graphite and check to see data is being stored for the OIDs that have been
+defined. This will take a couple of polling cycles before its available so be patient.
+
+## Troubleshooting
+
+### To Be Completed
